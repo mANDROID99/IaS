@@ -1,0 +1,13 @@
+<level>
+  <groups>
+    <group p="0,0,0">
+      <mesh>
+        <sub m="block" p="0,0,0" s="1,1,1"/>
+        <sub m="edge" p="-1,0,0" s="1,1,1">
+          <rot dir="l" r="-90"/>
+        </sub>
+      </mesh>
+    </group>
+  </groups>
+</level>
+

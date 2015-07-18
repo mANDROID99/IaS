@@ -1,0 +1,37 @@
+<level>
+  <groups>
+    <group p="0,0,0">
+      <mesh>
+        <sub m="edge" p="0,0,0" s="1,4,1">
+          <rot dir="l" r="0"/>
+        </sub>
+        
+        <sub m="slope" p="4,5,4" s="1,1,1">
+          <rot dir="r" r="90"/>
+        </sub>
+        <sub m="block" p="1,0,0" s="5,5,5"/>
+        <sub m="block" p="3,5,4" s="1,1,1"/>
+        <sub m="edge" p="1,4,0" s="5,1,1"/>
+        <sub m="edge" p="0,4,1" s="1,1,4">
+          <rot dir="l" r="-90"/>
+        </sub>
+        <sub m="corner" p="0,4,0" s="1,1,1"/>
+        <sub m="edge" p="0,0,0" s="1,4,1">
+          <rot dir="l" r="0"/>
+        </sub>
+      </mesh>
+      
+      <split axis="x" val="2" pivot="2.5, 2.5, 2.5" id="split_x"/>
+      <split axis="y" val="2" pivot="2.5, 2.5, 2.5" id="split_y"/>
+
+      <track startdir="forward" id="track_1">
+        <node p="1,0,-1"/>
+        <node p="1,3,-1"/>
+        <node p="3,3,-1"/>
+        <node p="3,6,-1"/>
+        <node p="3,6,2"/>
+      </track>
+      
+    </group>
+  </groups>
+</level>

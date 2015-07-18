@@ -1,0 +1,57 @@
+<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'>
+	<xsd:element name="level">
+		<xsd:complexType>
+			<xsd:choice>
+				<xsd:element name="groups">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element ref="group"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:choice>
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="group">
+		<xsd:complexType>
+			<xsd:attribute name="id" type="xs:string"/>
+			<xsd:attribute name="p" type="xs:string"/>
+			<xsd:sequence>
+				<xsd:choice>
+					<xsd:element ref="mesh"/>
+					<xsd:element ref="split"/>
+				</xsd:choice>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="mesh">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="sub">
+					<xsd:complexType>
+						<xsd:attribute name="m" type="xs:string"/>
+						<xsd:sequence>
+							<xsd:element name="rot">
+								<xsd:complexType>
+									<xsd:attribute name="dir" type="xs:string"/>
+									<xsd:attribute name="r" type="xs:string"/>
+								</xsd:complexType>
+							</xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	
+	<xsd:element name="split">
+		<xsd:complexType>
+			<xsd:attribute name="axis" type="xs:string"/>
+			<xsd:attribute name="val" type="xs:integer"/>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
+
+
