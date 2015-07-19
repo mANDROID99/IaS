@@ -57,7 +57,7 @@ namespace IaS.WorldBuilder
             return this;
         }
 
-        public BlockBounds SetToRotationFrom(Quaternion rotation, Vector3 pivot, BlockBounds originalBounds=null)
+        public BlockBounds SetToRotationFrom(Quaternion rotation, Vector3 pivot, BlockBounds originalBounds = null)
         {
 			if (originalBounds == null) {
 				originalBounds = this;

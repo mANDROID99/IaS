@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace IaS.WorldBuilder
 {
-    class AdjacencyCalculator
+    public class AdjacencyCalculator
     {
         private AdjacencyCalculator intersectorAdjacencyCalculator;
         private AdjacencyMatrix adjacencyMatrix;

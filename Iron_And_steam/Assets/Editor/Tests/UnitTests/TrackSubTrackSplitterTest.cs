@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using UnityEngine;
-using IaS.WorldBuilder.Meshes.Tracks;
+using IaS.WorldBuilder.Tracks;
 using IaS.WorldBuilder.Splines;
 using IaS.WorldBuilder.Xml;
 using IaS.WorldBuilder;
@@ -134,8 +134,8 @@ namespace IASTest
                 new Split("", Vector3.up, new Vector3(), 2, new SubSplit[0])
             }).subTracks;
 
-            Assert.That(SecondPart(subTracks).Count, Is.EqualTo(1));
-            Assert.That(FirstPart(subTracks).Count, Is.EqualTo(2));
+            Assert.That(SecondPart(subTracks).NumTrackNodes, Is.EqualTo(1));
+            Assert.That(FirstPart(subTracks).NumTrackNodes, Is.EqualTo(2));
             Assert.That(SecondPart(subTracks)[0].next, Is.EqualTo(FirstPart(subTracks)[1]));
             Assert.That(FirstPart(subTracks)[1].previous, Is.EqualTo(SecondPart(subTracks)[0]));
             Assert.That(FirstPart(subTracks)[0], Is.EqualTo(SecondPart(subTracks)[0]));
@@ -153,8 +153,8 @@ namespace IASTest
                 new Split("", Vector3.up, new Vector3(), 2, new SubSplit[0])
             }).subTracks;
 
-            Assert.That(FirstPart(subTracks).Count, Is.EqualTo(2));
-            Assert.That(SecondPart(subTracks).Count, Is.EqualTo(1));
+            Assert.That(FirstPart(subTracks).NumTrackNodes, Is.EqualTo(2));
+            Assert.That(SecondPart(subTracks).NumTrackNodes, Is.EqualTo(1));
             Assert.That(FirstPart(subTracks)[0].next, Is.EqualTo(SecondPart(subTracks)[0]));
             Assert.That(FirstPart(subTracks)[1], Is.EqualTo(SecondPart(subTracks)[0]));
             Assert.That(SecondPart(subTracks)[0].previous, Is.EqualTo(FirstPart(subTracks)[0]));
@@ -172,8 +172,8 @@ namespace IASTest
                 new Split("", Vector3.up, new Vector3(), 2, new SubSplit[0])
             }).subTracks;
 
-            Assert.That(FirstPart(subTracks).Count, Is.EqualTo(2));
-            Assert.That(SecondPart(subTracks).Count, Is.EqualTo(2));
+            Assert.That(FirstPart(subTracks).NumTrackNodes, Is.EqualTo(2));
+            Assert.That(SecondPart(subTracks).NumTrackNodes, Is.EqualTo(2));
 
             Assert.That(FirstPart(subTracks)[1], Is.EqualTo(SecondPart(subTracks)[0])); // assert that both intersecting nodes are the same
             Assert.That(FirstPart(subTracks)[0].next, Is.EqualTo(FirstPart(subTracks)[1])); // assert that first node leads to intersecting node
@@ -225,9 +225,9 @@ namespace IASTest
 
         private void AssertSubtrackContainsNodes(SubTrack subtrack, int groupIdx, Vector3[] nodePositions, bool allowSubset = false){
             if(!allowSubset){
-                Assert.That(subtrack.trackNodes[groupIdx].Length, Is.EqualTo(nodePositions.Length));
+                Assert.That(subtrack.trackGroups[groupIdx].NumTrackNodes, Is.EqualTo(nodePositions.Length));
             }
-            Assert.That(nodePositions, Is.SubsetOf(subtrack.trackNodes[groupIdx].Select(t => t.position)));
+            Assert.That(nodePositions, Is.SubsetOf(subtrack.trackGroups[groupIdx].nodes.Select(t => t.position)));
         }
 
         private void AssertSubTrackNode(int group, int i, SubTrackNode node, Vector3 position, Vector3 forward, Vector3 down)
@@ -237,14 +237,14 @@ namespace IASTest
             Assert.That(Vector3.Angle(node.down, down), Is.LessThan(0.1f), String.Format("node at group {0} index {1}, expected down: {2}, got: {3}", group, i, down, node.down));
         }
 
-        private IList<SubTrackNode> FirstPart(IList<SubTrack> subTrack, int group=0)
+        private SubTrackGroup FirstPart(IList<SubTrack> subTrack, int group=0)
         {
-            return subTrack[0].trackNodes[group];
+            return subTrack[0].trackGroups[group];
         }
 
-        private IList<SubTrackNode> SecondPart(IList<SubTrack> subTrack, int group=0)
+        private SubTrackGroup SecondPart(IList<SubTrack> subTrack, int group = 0)
         {
-            return subTrack[1].trackNodes[group];
+            return subTrack[1].trackGroups[group];
         }
 
     }

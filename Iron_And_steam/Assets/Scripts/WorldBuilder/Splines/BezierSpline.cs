@@ -8,7 +8,114 @@ namespace IaS.WorldBuilder.Splines
 {
 	public class BezierSpline {
 
-        private const int LUT_INTERVALS = 1000;
+        public class LinearInterpolator
+        {
+            private const int LUT_INTERVALS = 1000;
+            private float[] lut = new float[LUT_INTERVALS];
+            private BezierSpline spline;
+
+            private int curveIdx;
+            private float totalDistance, dist;
+            private BezierPoint bezierPt;
+
+            public LinearInterpolator(BezierSpline spline)
+            {
+                this.spline = spline;
+                this.UpdateSpline(spline);
+            }
+
+            public void UpdateSpline(BezierSpline spline)
+            {
+                this.spline = spline;
+                this.curveIdx = -1;
+                this.totalDistance = 0;
+                this.dist = 0;
+            }
+
+            public BezierPtInfo? Step(float step)
+            {
+                if ((curveIdx == -1) || (dist >= totalDistance))
+                {
+                    curveIdx += 1;
+
+                    if (curveIdx >= spline.pts.Length)
+                    {
+                        return null;
+                    }
+
+                    bezierPt = spline.pts[curveIdx];
+                    totalDistance = UpdateLUT(totalDistance, bezierPt);
+                }
+
+                BezierPtInfo linearEntry = GetPointAtLinear(dist, lut, bezierPt);
+                dist += step;
+                return linearEntry;
+            }
+
+            private BezierPtInfo GetPointAtLinear(float distance, float[] lut, BezierPoint bezierPt)
+            {
+                int idx = Array.BinarySearch(lut, distance);
+                if (idx < 0)
+                {
+                    idx = ~idx;
+                }
+
+                if (idx == 0)
+                {
+                    return CreateBezierPtInfo(distance, 0, bezierPt);
+                }
+                else if (idx == lut.Length)
+                {
+                    return CreateBezierPtInfo(distance, 1, bezierPt);
+                }
+
+                float minDistance = lut[idx - 1];
+                float maxDistance = lut[idx];
+                float t2 = (distance - minDistance) / (maxDistance - minDistance);
+
+                float oneOverLUTSize = 1 / (float)lut.Length;
+                float t = LinearInterpolate((idx - 1) * oneOverLUTSize, (idx) * oneOverLUTSize, t2);
+                return CreateBezierPtInfo(distance, t, bezierPt);
+            }
+
+            private BezierPtInfo CreateBezierPtInfo(float distance, float t, BezierPoint bezierPt)
+            {
+                return new BezierPtInfo
+                {
+                    firstDerivative = spline.GetFirstDerivative(t, bezierPt),
+                    cumulativeDist = distance,
+                    pt = spline.GetPoint(t, bezierPt),
+                    t = t
+                };
+            }
+
+            private float LinearInterpolate(float a, float b, float i)
+            {
+                return a + (b - a) * i;
+            }
+
+            private Vector3 LinearInterpolate(Vector3 a, Vector3 b, float i)
+            {
+                return a + (b - a) * i;
+            }
+
+            private float UpdateLUT(float distance, BezierPoint pt)
+            {
+                Vector3 pt1 = pt.startPos;
+                lut[0] = distance;
+
+                int lutIntervals = lut.Length;
+                for (int i = 1; i < lutIntervals; i++)
+                {
+                    float t = i / (float)lutIntervals;
+                    Vector3 pt2 = spline.GetPoint(t, pt);
+                    distance += Vector3.Distance(pt2, pt1);
+                    lut[i] = distance;
+                    pt1 = pt2;
+                }
+                return distance;
+            }
+        }
 
         public BezierPoint[] pts { get; private set; }
 
@@ -17,96 +124,9 @@ namespace IaS.WorldBuilder.Splines
             this.pts = pts;
         }
 
-
-        private float UpdateLUT(float[] lut, float cumulativeDist, BezierPoint bezierPt)
+        public LinearInterpolator linearInterpolator()
         {
-            Vector3 pt1 = bezierPt.startPos;
-            lut[0] = cumulativeDist;
-
-            int lutIntervals = lut.Length;
-            for (int i = 1; i < lutIntervals; i++)
-            {
-                float t = i / (float)lutIntervals;
-                Vector3 pt2 = GetPoint(t, bezierPt);
-                cumulativeDist += Vector3.Distance(pt2, pt1);
-                lut[i] = cumulativeDist;
-                pt1 = pt2;
-            }
-            return cumulativeDist;
-        }
-
-        public IEnumerable<BezierPtInfo> GetPointsLinear(float[] lut, float step)
-        {
-            if (pts.Length < 2)
-            {
-                yield break;
-            }
-
-            int curveIdx = 0;
-            float cumulativeDist = 0;
-            float dist = 0;
-
-            while (curveIdx < pts.Length)
-            {
-                BezierPoint bezierPt = pts[curveIdx];
-                cumulativeDist = UpdateLUT(lut, cumulativeDist, bezierPt);
-
-                while (dist < cumulativeDist)
-                {
-                    BezierPtInfo linearEntry = GetPointAtLinear(dist, lut, bezierPt);
-                    yield return linearEntry;
-                    dist += step;
-                }
-
-                curveIdx++;
-            }
-        }
-
-        private BezierPtInfo GetPointAtLinear(float distance, float[] lut, BezierPoint bezierPt)
-        {
-            int idx = Array.BinarySearch(lut, distance);
-            if (idx < 0)
-            {
-                idx = ~idx;
-            }
-
-            if (idx == 0)
-            {
-                return CreateBezierPtInfo(distance, 0, bezierPt);
-            }
-            else if (idx == lut.Length)
-            {
-                return CreateBezierPtInfo(distance, 1, bezierPt);
-            }
-
-            float minDistance = lut[idx - 1];
-            float maxDistance = lut[idx];
-            float t2 = (distance - minDistance) / (maxDistance - minDistance);
-
-            float oneOverLUTSize = 1 / (float)lut.Length;
-            float t = LinearInterpolate((idx - 1) * oneOverLUTSize, (idx) * oneOverLUTSize, t2);
-            return CreateBezierPtInfo(distance, t, bezierPt);
-        }
-
-        private BezierPtInfo CreateBezierPtInfo(float distance, float t, BezierPoint bezierPt)
-        {
-            return new BezierPtInfo
-            {
-                firstDerivative = GetFirstDerivative(t, bezierPt),
-                cumulativeDist = distance,
-                pt = GetPoint(t, bezierPt),
-                t = t
-            };
-        }
-
-        private float LinearInterpolate(float a, float b, float i)
-        {
-            return a + (b - a) * i;
-        }
-
-        private Vector3 LinearInterpolate(Vector3 a, Vector3 b, float i)
-        {
-            return a + (b - a) * i;
+            return new LinearInterpolator(this);
         }
 
         public Vector3 GetPoint(float t, BezierPoint pt)
@@ -128,11 +148,6 @@ namespace IaS.WorldBuilder.Splines
 					6f * oneMinusT * t * (pt1.anchor2 - pt1.anchor1) +
 					3f * t * t * (pt1.endPos - pt1.anchor2);
 		}
-
-        public Vector3 GetUpDirection(BezierPtInfo pt)
-        {
-            return Quaternion.LookRotation(pt.firstDerivative.normalized) * Vector3.up;
-        }
 
         public override string ToString() {
             return String.Join("\n", pts.Select(pt => pt.ToString()).ToArray());
