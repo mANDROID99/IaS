@@ -30,7 +30,7 @@ namespace IaS.GameObjects
                 return this;
             }
 
-            public InstanceWrapper[] Build(GameContext gameContext)
+            public InstanceWrapper[] Build(WorldContext gameContext)
             {
                 TrackBuilderConfiguration config = TrackBuilderConfiguration.DefaultConfig();
                 TrackSubTrackSplitter splitter = new TrackSubTrackSplitter(config);
@@ -41,7 +41,9 @@ namespace IaS.GameObjects
                 InstanceWrapper[] instances = splitTrack.subTracks.Select(subTrack =>
                 {
                     GameObject subTrackGameObj = new SubTrackBuilder().With(splitTrack, subTrack, parent, prefab).Build(gameContext);
-                    return connections.RegisterSubTrack(subTrackGameObj, subTrack);
+                    subTrack.instanceWrapper = new InstanceWrapper(subTrackGameObj, subTrack.subBounds);
+                    connections.RegisterSubTrack(subTrack.instanceWrapper, subTrack);
+                    return subTrack.instanceWrapper;
                 }).ToArray();
                 return instances;
             }
@@ -64,7 +66,7 @@ namespace IaS.GameObjects
                 return this;
             }
 
-            public GameObject Build(GameContext gameContext)
+            public GameObject Build(WorldContext gameContext)
             {
                 GameObject subTrackGameObj = GameObjectUtils.AsChildOf(parent, subTrack.subBounds.Position, new GameObject(GetName(), typeof(TrackController)));
 

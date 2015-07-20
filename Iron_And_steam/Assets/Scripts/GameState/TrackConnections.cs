@@ -5,23 +5,29 @@ using System.Text;
 using UnityEngine;
 using IaS.Helpers;
 using IaS.WorldBuilder;
+using IaS.GameObjects;
 using IaS.WorldBuilder.Tracks;
 
 namespace IaS.GameState
 {
-    public class TrackConnections
+    public class TrackConnections : EventConsumer<BlockRotationEvent>
     {
         private SplitTrack track;
         private List<Connection> connections = new List<Connection>();
         private Dictionary<SubTrackGroup, Connection> connectionsMap = new Dictionary<SubTrackGroup, Connection>();
+        private Dictionary<InstanceWrapper, SubTrack> instancesMap = new Dictionary<InstanceWrapper, SubTrack>();
+        private WorldContext world;
 
-        public TrackConnections(SplitTrack track)
+        public TrackConnections(WorldContext world, SplitTrack track)
         {
+            this.world = world;
             this.track = track;
+            world.eventRegistry.RegisterConsumer(this);
         }
 
-        public InstanceWrapper RegisterSubTrack(GameObject trackGameObj, SubTrack subTrack)
+        public void RegisterSubTrack(InstanceWrapper instance, SubTrack subTrack)
         {
+            instancesMap.Add(instance, subTrack);
             foreach (SubTrackGroup group in subTrack.trackGroups)
             {
                 Connection conn = new Connection(group);
@@ -29,22 +35,23 @@ namespace IaS.GameState
                 connectionsMap.Add(group, conn);
                 RefreshConnections(conn);
             }
-
- 	        InstanceWrapper wrapper = new InstanceWrapper(trackGameObj, subTrack.subBounds);
-            subTrack.instanceWrapper = wrapper;
-            wrapper.eventHandlers.Add(new SubTrackEventHandler(this, subTrack));
-            return wrapper;
         }
 
-        private void OnSubTrackRotated(SubTrack subTrack, Transformation transform)
+        public void OnEvent(BlockRotationEvent evt)
         {
-            foreach(SubTrackGroup group in subTrack.trackGroups)
+            if (evt.type == BlockRotationEvent.EventType.BeforeRotation)
             {
-                Connection from = connectionsMap[group];
-                from.RotateStartAndEndPoints(transform);
-                RefreshConnections(from);
+                SubTrack subTrack;
+                if(instancesMap.TryGetValue(evt.rotatedInstance, out subTrack))
+                {
+                    foreach (SubTrackGroup group in subTrack.trackGroups)
+                    {
+                        Connection from = connectionsMap[group];
+                        from.RotateStartAndEndPoints(evt.transformation);
+                        RefreshConnections(from);
+                    }
+                }
             }
-            
         }
 
         private void RefreshConnections(Connection from)
@@ -118,25 +125,6 @@ namespace IaS.GameState
                 this.endForward = transform.TransformVector(trackGroup.Last().forward);
                 this.transform = transform;
             }
-        }
-
-        public class SubTrackEventHandler : InstanceEventHandler
-        {
-            private TrackConnections trackConnections;
-            private SubTrack subTrack;
-
-            internal SubTrackEventHandler(TrackConnections trackConnections, SubTrack subTrack)
-            {
-                this.trackConnections = trackConnections;
-                this.subTrack = subTrack;
-            }
-
-            public void OnEndTransform(InstanceWrapper instance, Transformation transform)
-            {
-                trackConnections.OnSubTrackRotated(subTrack, transform);
-            }
-
-            public void OnUpdateTransform(InstanceWrapper instance, Transformation transform) { }
         }
     }
 }

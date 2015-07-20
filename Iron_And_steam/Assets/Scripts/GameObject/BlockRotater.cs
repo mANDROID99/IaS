@@ -11,12 +11,14 @@ namespace IaS.GameObjects{
 
     public class BlockRotater {
 
+        private WorldContext world;
         private HalfSplitRotation[] splitHalfRotations;
         private InstanceWrapper[] allInstances;
         private bool readyToRot = true;
 
-        public BlockRotater(Split[] splits, InstanceWrapper[] instances)
+        public BlockRotater(WorldContext world, Split[] splits, InstanceWrapper[] instances)
         {
+            this.world = world;
             this.allInstances = instances;
             splitHalfRotations = splits.SelectMany(split =>
             {
@@ -32,19 +34,25 @@ namespace IaS.GameObjects{
             float deltaTime;
             do
             {
-                deltaTime = Time.time - startTime;
+                deltaTime = Mathf.Clamp(Time.time - startTime, 0, 1);
                 foreach (InstanceWrapper rotated in splitRotation.instances)
                 {
                     Quaternion lerpRotation = Quaternion.Lerp(rotated.startRotation, rotated.endRotation, Mathf.SmoothStep(0, 1, deltaTime));
                     Transformation transformation = new RotateAroundPivotTransform(splitRotation.split.pivot, lerpRotation);
+
                     Vector3 position = transformation.Transform(rotated.bounds.Position);
                     rotated.gameObject.transform.localRotation = lerpRotation;
                     rotated.gameObject.transform.localPosition = position;
-                    rotated.OnUpdateTransform(transformation);
+                    world.eventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.Update));
+
+                    if(deltaTime == 1)
+                    {
+                        world.eventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.AfterRotation));
+                    }
                 }
 
                 yield return null;
-            } while (deltaTime <= 1);
+            } while (deltaTime < 1);
             readyToRot = true;
         }
 
@@ -75,7 +83,7 @@ namespace IaS.GameObjects{
                 rotated.rotatedBounds.SetToRotationFrom(rotated.endRotation, splitRotation.split.pivot, rotated.bounds);
 
                 Transformation transform = new RotateAroundPivotTransform(splitRotation.split.pivot, rotated.endRotation);
-                rotated.OnEndTransform(transform);
+                world.eventRegistry.Notify(new BlockRotationEvent(rotated, transform, BlockRotationEvent.EventType.BeforeRotation));
             }
         }
 
@@ -132,6 +140,25 @@ namespace IaS.GameObjects{
             {
                 instances = new List<InstanceWrapper>();
             }
+        }
+    }
+
+    public struct BlockRotationEvent : IEvent
+    {
+        public enum EventType
+        {
+            Update, BeforeRotation, AfterRotation
+        }
+
+        public InstanceWrapper rotatedInstance;
+        public Transformation transformation;
+        public EventType type;
+
+        public BlockRotationEvent(InstanceWrapper rotatedInstance, Transformation transformation, EventType type)
+        {
+            this.rotatedInstance = rotatedInstance;
+            this.transformation = transformation;
+            this.type = type;
         }
     }
 }

@@ -32,7 +32,12 @@ namespace IaS.WorldBuilder.Splines
                 this.dist = 0;
             }
 
-            public BezierPtInfo? Step(float step)
+            public void Step(float amt)
+            {
+                dist += amt;
+            }
+
+            public BezierPtInfo? Value()
             {
                 if ((curveIdx == -1) || (dist >= totalDistance))
                 {
@@ -48,7 +53,6 @@ namespace IaS.WorldBuilder.Splines
                 }
 
                 BezierPtInfo linearEntry = GetPointAtLinear(dist, lut, bezierPt);
-                dist += step;
                 return linearEntry;
             }
 

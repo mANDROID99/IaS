@@ -27,7 +27,7 @@ public class WorldController : MonoBehaviour {
 
     private const string BLOCK_NAME_TEMPLATE = "block_{0}";
     private BlockRotater blockRotater = null;
-    private GameContext gameContext = new GameContext();
+    private WorldContext world = new WorldContext();
 
     void Start()
     {
@@ -87,15 +87,15 @@ public class WorldController : MonoBehaviour {
         {
             return new TrackController.TrackGameObjectBuilder()
                 .With(track, group.splits, tracksContainer.transform, trackPrefab)
-                .Build(gameContext);
+                .Build(world);
         }));
 
-        this.blockRotater = new BlockRotater(group.splits, instances.ToArray());
+        this.blockRotater = new BlockRotater(world, group.splits, instances.ToArray());
     }
 
     private void BuildDynamicObjects()
     {
-        TrainController.AddToWorld(this.transform, trainPrefab, gameContext, 0);
+        TrainController.AddToWorld(this.transform, trainPrefab, world, 0);
     }
 
     private IList<MeshBlock> SplitMeshBlocks(IList<MeshBlock> meshBlocks, IList<Split> splits)

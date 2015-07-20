@@ -33,7 +33,7 @@ namespace IaS.Helpers
     public class RotateAroundPivotTransform : Transformation
     {
         private Vector3 pivot;
-        private Quaternion quat;
+        public Quaternion quat { get; private set; }
 
         public RotateAroundPivotTransform(Vector3 pivot, Quaternion quat)
         {
