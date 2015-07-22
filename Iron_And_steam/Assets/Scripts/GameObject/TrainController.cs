@@ -1,36 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using IaS.GameState;
 using IaS.Helpers;
-using IaS.WorldBuilder.Tracks;
 using IaS.WorldBuilder.Splines;
-using IaS.GameState;
+using IaS.WorldBuilder.Tracks;
+using UnityEngine;
 
 namespace IaS.GameObjects
 {
     public class TrainController : MonoBehaviour, EventConsumer<BlockRotationEvent>
     {
-        private WorldContext gameContext;
-        private int trackIndex;
-        private BezierSpline.LinearInterpolator splineInterpolator;
+        private WorldContext _gameContext;
+        private int _trackIndex;
+        private BezierSpline.LinearInterpolator _splineInterpolator;
 
-        private SubTrackGroup currentSTGroup = null;
-        private Transformation transformation = IdentityTransform.IDENTITY;
-        private bool started = false;
-        private bool paused = false;
+        private SubTrackGroup _currentStGroup = null;
+        private Transformation _transformation = IdentityTransform.IDENTITY;
+        private bool _started = false;
+        private bool _paused = false;
 
-        Vector3 forward = Vector3.forward;
-        Vector3 up = Vector3.up;
-        Vector3 lastSplineForward = Vector3.forward;
+        private Vector3 _forward = Vector3.forward;
+        private Vector3 _up = Vector3.up;
+        private Vector3 _lastSplineForward = Vector3.forward;
 
-        Quaternion bezierRotation = Quaternion.identity;
-        Quaternion worldRotation = Quaternion.identity;
+        private Quaternion _bezierRotation = Quaternion.identity;
+        private Quaternion _worldRotation = Quaternion.identity;
 
         public static void AddToWorld(Transform parent, GameObject trainPrefab, WorldContext context, int trackIndex)
         {
-            GameObject trainGo = GameObject.Instantiate(trainPrefab);
+            GameObject trainGo = Instantiate(trainPrefab);
             TrainController train = trainGo.GetComponent<TrainController>();
             train.Init(context, trackIndex);
             GameObjectUtils.AsChildOf(parent, new Vector3(), trainGo);
@@ -39,9 +35,9 @@ namespace IaS.GameObjects
         private void Init(WorldContext gameContext, int trackIndex)
         {
             Debug.Log(gameContext);
-            this.gameContext = gameContext;
-            this.trackIndex = trackIndex;
-            this.gameContext.eventRegistry.RegisterConsumer(this);
+            this._gameContext = gameContext;
+            this._trackIndex = trackIndex;
+            this._gameContext.eventRegistry.RegisterConsumer(this);
         }
 
         private void SetTrackPosition(Vector3 trackPosition, Vector3 forward)
@@ -51,103 +47,82 @@ namespace IaS.GameObjects
 
         public void Start()
         {
-            TrackContext trackContext = gameContext.tracks[trackIndex];
-            this.currentSTGroup = trackContext.splitTrack.firstTrackNode.group;
-            this.splineInterpolator = currentSTGroup.spline.linearInterpolator();
+            TrackContext trackContext = _gameContext.tracks[_trackIndex];
+            this._currentStGroup = trackContext.splitTrack.firstTrackNode.group;
+            this._splineInterpolator = _currentStGroup.spline.linearInterpolator();
 
-            Vector3 startPos = currentSTGroup.spline.pts[0].startPos;
-            SetTrackPosition(startPos, currentSTGroup[0].forward);
+            var startPos = _currentStGroup.spline.pts[0].startPos;
+            SetTrackPosition(startPos, _currentStGroup[0].forward);
         }
 
         private void NextSubTrack()
         {
-            if (currentSTGroup == null)
+            if (_currentStGroup == null)
                 return;
 
-            SubTrackGroup lastSTGroup = this.currentSTGroup;
-            TrackContext trackContext = gameContext.tracks[trackIndex];
-            this.currentSTGroup = trackContext.connections.GetNext(currentSTGroup, out this.transformation);
+            var trackContext = _gameContext.tracks[_trackIndex];
+            this._currentStGroup = trackContext.connections.GetNext(_currentStGroup, out this._transformation);
             
-            if (currentSTGroup == null)
+            if (_currentStGroup == null)
                 return;
-            splineInterpolator.UpdateSpline(this.currentSTGroup.spline);
+            _splineInterpolator.UpdateSpline(this._currentStGroup.spline);
         }
 
         public void Update()
         {
             if(Input.GetKeyUp(KeyCode.Space))
             {
-                started = true;
+                _started = true;
             }
 
-            if (started && !paused)
+            if (_started && !_paused)
             {
-                splineInterpolator.Step(1.5f * Time.deltaTime);
+                _splineInterpolator.Step(1.5f * Time.deltaTime);
             }
 
-            BezierSpline.BezierPtInfo? pt = splineInterpolator.Value();
+            var pt = _splineInterpolator.Value();
             if(pt.HasValue)
             {
-                this.transform.localPosition = transformation.Transform(pt.Value.pt);
-                Vector3 splineForward = pt.Value.firstDerivative.normalized;
-                this.bezierRotation = Quaternion.FromToRotation(lastSplineForward, splineForward) * this.bezierRotation;
-                this.transform.localRotation = worldRotation * bezierRotation;
-                lastSplineForward = splineForward;
+                this.transform.localPosition = _transformation.Transform(pt.Value.pt);
+                var splineForward = pt.Value.firstDerivative.normalized;
+                this._bezierRotation = Quaternion.FromToRotation(_lastSplineForward, splineForward) * this._bezierRotation;
+                this.transform.localRotation = _worldRotation * _bezierRotation;
+                _lastSplineForward = splineForward;
             }
             else
             {
                 NextSubTrack();
-                if (currentSTGroup != null)
+                if (_currentStGroup != null)
                 {
                     Update();
                 }
             }
-
-
-            /*BezierSpline.BezierPtInfo? pt = splineInterpolator.Value();
-            if (pt.HasValue)
-            {
-                this.transform.localPosition = transformation.Transform(pt.Value.pt);
-                Vector3 splineForward = transformation.TransformVector(pt.Value.firstDerivative.normalized);
-
-                this.transform.localRotation = Quaternion.FromToRotation(transform.forward, splineForward) * transform.localRotation;
-            }
-            else
-            {
-                NextSubTrack();
-                if (currentSTGroup != null)
-                {
-                    Update();
-                }
-            }*/
         }
 
         public void OnEvent(BlockRotationEvent evt)
         {
-            if (evt.rotatedInstance == this.currentSTGroup.subTrack.instanceWrapper)
+            if (evt.rotatedInstance != this._currentStGroup.subTrack.instanceWrapper) return;
+
+            switch (evt.type)
             {
-                switch (evt.type)
-                {
-                    case BlockRotationEvent.EventType.Update:
-                        this.transformation = evt.transformation;
+                case BlockRotationEvent.EventType.Update:
+                    this._transformation = evt.transformation;
 
-                        this.forward = evt.transformation.TransformVector(Vector3.forward);
-                        this.up = evt.transformation.TransformVector(Vector3.up);
+                    this._forward = evt.transformation.TransformVector(Vector3.forward);
+                    this._up = evt.transformation.TransformVector(Vector3.up);
 
-                        this.worldRotation = Quaternion.LookRotation(forward, up);
-                        this.transform.localRotation = worldRotation * bezierRotation;
+                    this._worldRotation = Quaternion.LookRotation(_forward, _up);
+                    this.transform.localRotation = _worldRotation * _bezierRotation;
 
-                        //Update();
-                        break;
-                    case BlockRotationEvent.EventType.BeforeRotation:
-                        this.paused = true;
-                        break;
-                    case BlockRotationEvent.EventType.AfterRotation:
-                        this.paused = false;
-                        break;
-                }
+                    //Update();
+                    break;
+                case BlockRotationEvent.EventType.BeforeRotation:
+                    this._paused = true;
+                    break;
+                case BlockRotationEvent.EventType.AfterRotation:
+                    this._paused = false;
+                    break;
             }
         }
-
     }
 }

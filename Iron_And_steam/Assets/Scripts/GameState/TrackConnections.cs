@@ -12,27 +12,25 @@ namespace IaS.GameState
 {
     public class TrackConnections : EventConsumer<BlockRotationEvent>
     {
-        private SplitTrack track;
-        private List<Connection> connections = new List<Connection>();
-        private Dictionary<SubTrackGroup, Connection> connectionsMap = new Dictionary<SubTrackGroup, Connection>();
-        private Dictionary<InstanceWrapper, SubTrack> instancesMap = new Dictionary<InstanceWrapper, SubTrack>();
-        private WorldContext world;
+        private readonly SplitTrack _track;
+        private readonly List<Connection> _connections = new List<Connection>();
+        private readonly Dictionary<SubTrackGroup, Connection> _connectionsMap = new Dictionary<SubTrackGroup, Connection>();
+        private readonly Dictionary<InstanceWrapper, SubTrack> _instancesMap = new Dictionary<InstanceWrapper, SubTrack>();
 
         public TrackConnections(WorldContext world, SplitTrack track)
         {
-            this.world = world;
-            this.track = track;
+            this._track = track;
             world.eventRegistry.RegisterConsumer(this);
         }
 
         public void RegisterSubTrack(InstanceWrapper instance, SubTrack subTrack)
         {
-            instancesMap.Add(instance, subTrack);
-            foreach (SubTrackGroup group in subTrack.trackGroups)
+            _instancesMap.Add(instance, subTrack);
+            foreach (var group in subTrack.trackGroups)
             {
-                Connection conn = new Connection(group);
-                connections.Add(conn);
-                connectionsMap.Add(group, conn);
+                var conn = new Connection(group);
+                _connections.Add(conn);
+                _connectionsMap.Add(group, conn);
                 RefreshConnections(conn);
             }
         }
@@ -42,88 +40,83 @@ namespace IaS.GameState
             if (evt.type == BlockRotationEvent.EventType.BeforeRotation)
             {
                 SubTrack subTrack;
-                if(instancesMap.TryGetValue(evt.rotatedInstance, out subTrack))
+                if(_instancesMap.TryGetValue(evt.rotatedInstance, out subTrack))
                 {
-                    foreach (SubTrackGroup group in subTrack.trackGroups)
+                    foreach (var connection in subTrack.trackGroups.Select(group => _connectionsMap[group]))
                     {
-                        Connection from = connectionsMap[group];
-                        from.RotateStartAndEndPoints(evt.transformation);
-                        RefreshConnections(from);
+                        connection.RotateStartAndEndPoints(evt.transformation);
+                        RefreshConnections(connection);
                     }
                 }
             }
         }
 
-        private void RefreshConnections(Connection from)
+        private void RefreshConnections(Connection current)
         {
-            if (from.nextConnection != null)
-                from.nextConnection.prevConnection = null;
+            if (current.NextConnection != null)
+                current.NextConnection.PrevConnection = null;
 
-            from.nextConnection = null;
+            current.NextConnection = null;
 
-            foreach(Connection to in connections)
+            foreach(var next in _connections)
             {
-                if(to.trackGroup.subTrack != from.trackGroup.subTrack)
+                if (next.trackGroup.subTrack == current.trackGroup.subTrack) continue;
+                if ((Vector3.Distance(next.StartPos, current.EndPos) < 0.1f) && (Vector3.Angle(next.StartForward, current.EndForward) < 0.1f))
                 {
-                    if((Vector3.Distance(to.startPos, from.endPos) < 0.1f) && (Vector3.Distance(to.startForward, from.endForward) < 0.1f))
-                    {
-                        from.nextConnection = to;
-                        to.prevConnection = from;
-                        break;
-                    }
+                    current.NextConnection = next;
+                    next.PrevConnection = current;
+                }
 
-                    if((Vector3.Distance(to.endPos, from.startPos) < 0.1f) && (Vector3.Distance(to.endForward, from.startForward) < 0.1f))
-                    {
-                        to.nextConnection = from;
-                        from.prevConnection = to;
-                        break;
-                    }
+                if((Vector3.Distance(next.EndPos, current.StartPos) < 0.1f) && (Vector3.Angle(next.EndForward, current.StartForward) < 0.1f))
+                {
+                    next.NextConnection = current;
+                    current.PrevConnection = next;
                 }
             }
         }
 
         public SubTrackGroup GetNext(SubTrackGroup last, out Transformation transform)
         {
-             Connection conn = connectionsMap[last];
-            if(conn.nextConnection == null)
+            var conn = _connectionsMap[last];
+            if(conn.NextConnection == null)
             {
                 transform = null;
                 return null;
             }
 
-            SubTrackGroup nextGroup = conn.nextConnection.trackGroup;
-            transform = conn.nextConnection.transform;
+            var nextGroup = conn.NextConnection.trackGroup;
+            transform = conn.NextConnection.Transform;
             return nextGroup;
         }
 
         private class Connection
         {
-            internal SubTrackGroup trackGroup;
-            internal Connection nextConnection = null;
-            internal Connection prevConnection = null;
-            internal Vector3 startPos;
-            internal Vector3 endPos;
-            internal Vector3 startForward;
-            internal Vector3 endForward;
-            internal Transformation transform;
+            internal readonly SubTrackGroup trackGroup;
+            internal Connection NextConnection = null;
+            internal Connection PrevConnection = null;
+            internal Vector3 StartPos;
+            internal Vector3 EndPos;
+            internal Vector3 StartForward;
+            internal Vector3 EndForward;
+            internal Transformation Transform;
 
             internal Connection( SubTrackGroup trackGroup)
             {
                 this.trackGroup = trackGroup;
-                this.startPos = trackGroup.spline.pts[0].startPos;
-                this.endPos = trackGroup.spline.pts.Last().endPos;
-                this.startForward = trackGroup[0].forward;
-                this.endForward = trackGroup.Last().forward;
-                this.transform = IdentityTransform.IDENTITY;
+                this.StartPos = trackGroup.spline.pts[0].startPos;
+                this.EndPos = trackGroup.spline.pts.Last().endPos;
+                this.StartForward = trackGroup[0].forward;
+                this.EndForward = trackGroup.Last().forward;
+                this.Transform = IdentityTransform.IDENTITY;
             }
 
             internal void RotateStartAndEndPoints(Transformation transform)
             {
-                this.startPos = transform.Transform(trackGroup.spline.pts[0].startPos);
-                this.endPos = transform.Transform(trackGroup.spline.pts.Last().endPos);
-                this.startForward = transform.TransformVector(trackGroup[0].forward);
-                this.endForward = transform.TransformVector(trackGroup.Last().forward);
-                this.transform = transform;
+                this.StartPos = transform.Transform(trackGroup.spline.pts[0].startPos);
+                this.EndPos = transform.Transform(trackGroup.spline.pts.Last().endPos);
+                this.StartForward = transform.TransformVector(trackGroup[0].forward);
+                this.EndForward = transform.TransformVector(trackGroup.Last().forward);
+                this.Transform = transform;
             }
         }
     }

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using UnityEngine;
-using IaS.WorldBuilder.Tracks;
-using IaS.WorldBuilder;
-using IaS.WorldBuilder.Xml;
 using IaS.GameState;
-using IaS.WorldBuilder.Splines;
+using IaS.WorldBuilder;
+using IaS.WorldBuilder.Tracks;
+using IaS.WorldBuilder.Xml;
+using UnityEngine;
 
 namespace IaS.GameObjects
 {
@@ -32,15 +29,15 @@ namespace IaS.GameObjects
 
             public InstanceWrapper[] Build(WorldContext gameContext)
             {
-                TrackBuilderConfiguration config = TrackBuilderConfiguration.DefaultConfig();
-                TrackSubTrackSplitter splitter = new TrackSubTrackSplitter(config);
-                SplitTrack splitTrack = splitter.SplitTrack(track, splits);
+                var config = TrackBuilderConfiguration.DefaultConfig();
+                var splitter = new TrackSubTrackSplitter(config);
+                var splitTrack = splitter.SplitTrack(track, splits);
 
-                TrackContext trackContext = gameContext.AddTrackContext(splitTrack);
-                TrackConnections connections = trackContext.connections;
-                InstanceWrapper[] instances = splitTrack.subTracks.Select(subTrack =>
+                var trackContext = gameContext.AddTrackContext(splitTrack);
+                var connections = trackContext.connections;
+                var instances = splitTrack.subTracks.Select(subTrack =>
                 {
-                    GameObject subTrackGameObj = new SubTrackBuilder().With(splitTrack, subTrack, parent, prefab).Build(gameContext);
+                    var subTrackGameObj = new SubTrackBuilder().With(splitTrack, subTrack, parent, prefab).Build(gameContext);
                     subTrack.instanceWrapper = new InstanceWrapper(subTrackGameObj, subTrack.subBounds);
                     connections.RegisterSubTrack(subTrack.instanceWrapper, subTrack);
                     return subTrack.instanceWrapper;
@@ -52,34 +49,34 @@ namespace IaS.GameObjects
         public class SubTrackBuilder
         {
 
-            private SplitTrack track;
-            private SubTrack subTrack;
-            private Transform parent;
-            private GameObject prefab;
+            private SplitTrack _track;
+            private SubTrack _subTrack;
+            private Transform _parent;
+            private GameObject _prefab;
 
             public SubTrackBuilder With(SplitTrack track, SubTrack subTrack, Transform parent, GameObject prefab)
             {
-                this.track = track;
-                this.subTrack = subTrack;
-                this.parent = parent;
-                this.prefab = prefab;
+                this._track = track;
+                this._subTrack = subTrack;
+                this._parent = parent;
+                this._prefab = prefab;
                 return this;
             }
 
             public GameObject Build(WorldContext gameContext)
             {
-                GameObject subTrackGameObj = GameObjectUtils.AsChildOf(parent, subTrack.subBounds.Position, new GameObject(GetName(), typeof(TrackController)));
+                var subTrackGameObj = GameObjectUtils.AsChildOf(_parent, _subTrack.subBounds.Position, new GameObject(GetName(), typeof(TrackController)));
 
-                TrackBuilderConfiguration config = TrackBuilderConfiguration.DefaultConfig();
-                TrackSplineGenerator generator = new TrackSplineGenerator(config);
-                TrackExtruder trackExtruder = new TrackExtruder(config);
+                var config = TrackBuilderConfiguration.DefaultConfig();
+                var generator = new TrackSplineGenerator(config);
+                var trackExtruder = new TrackExtruder(config);
 
-                BezierSpline[] splines = generator.GenerateSplines(track, subTrack);
-                int i = 0;
-                foreach (BezierSpline spline in splines)
+                var splines = generator.GenerateSplines(_track, _subTrack);
+                var i = 0;
+                foreach (var spline in splines)
                 {
-                    Mesh trackMesh = trackExtruder.ExtrudeAlong(spline, track.trackRef.down);
-                    GameObject childTrack = GameObjectUtils.AsChildOf(subTrackGameObj.transform, -subTrack.subBounds.Position, GameObject.Instantiate(prefab));
+                    var trackMesh = trackExtruder.ExtrudeAlong(spline, _track.trackRef.down);
+                    var childTrack = GameObjectUtils.AsChildOf(subTrackGameObj.transform, -_subTrack.subBounds.Position, Instantiate(_prefab));
                     childTrack.name = GetChildName(i++);
                     childTrack.GetComponent<MeshFilter>().mesh = trackMesh;
                 }
@@ -89,7 +86,7 @@ namespace IaS.GameObjects
 
             private String GetName()
             {
-                return "Track_" + track.trackRef.id;
+                return "Track_" + _track.trackRef.id;
             }
 
             private String GetChildName(int i)
