@@ -3,24 +3,25 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Controllers;
 using IaS.WorldBuilder;
 using IaS.GameState;
 using IaS.Helpers;
 
 namespace IaS.GameObjects{
 
-    public class BlockRotater {
+    public class BlockRotater : Controller {
 
-        private WorldContext world;
+        private GroupContext _group;
         private HalfSplitRotation[] splitHalfRotations;
         private InstanceWrapper[] allInstances;
         private bool readyToRot = true;
 
-        public BlockRotater(WorldContext world, Split[] splits, InstanceWrapper[] instances)
+        public BlockRotater(GroupContext _group, InstanceWrapper[] instances)
         {
-            this.world = world;
+            this._group = _group;
             this.allInstances = instances;
-            splitHalfRotations = splits.SelectMany(split =>
+            splitHalfRotations = _group.Splits.SelectMany(split =>
             {
                 return new HalfSplitRotation[]{
                     new HalfSplitRotation(split, true),
@@ -43,11 +44,11 @@ namespace IaS.GameObjects{
                     Vector3 position = transformation.Transform(rotated.bounds.Position);
                     rotated.gameObject.transform.localRotation = lerpRotation;
                     rotated.gameObject.transform.localPosition = position;
-                    world.eventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.Update));
+                    _group.EventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.Update));
 
                     if(deltaTime == 1)
                     {
-                        world.eventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.AfterRotation));
+                        _group.EventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.AfterRotation));
                     }
                 }
 
@@ -83,11 +84,11 @@ namespace IaS.GameObjects{
                 rotated.rotatedBounds.SetToRotationFrom(rotated.endRotation, splitRotation.split.pivot, rotated.bounds);
 
                 Transformation transform = new RotateAroundPivotTransform(splitRotation.split.pivot, rotated.endRotation);
-                world.eventRegistry.Notify(new BlockRotationEvent(rotated, transform, BlockRotationEvent.EventType.BeforeRotation));
+                _group.EventRegistry.Notify(new BlockRotationEvent(rotated, transform, BlockRotationEvent.EventType.BeforeRotation));
             }
         }
 
-        public void Update(MonoBehaviour goContext)
+        public void Update(MonoBehaviour mono)
         {
             int rotX = 0;
             int rotY = 0;
@@ -114,7 +115,7 @@ namespace IaS.GameObjects{
                         {
                             readyToRot = false;
                             UpdateInstanceRotation(w, splitRotation);
-                            goContext.StartCoroutine(Rotate90Degrees(w, splitRotation));
+                            mono.StartCoroutine(Rotate90Degrees(w, splitRotation));
 						    break;
                         }
                     }

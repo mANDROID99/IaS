@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using UnityEngine;
 using IaS.GameState;
-using IaS.WorldBuilder.Xml;
 using IaS.WorldBuilder.Splines;
+using UnityEngine;
 
 namespace IaS.WorldBuilder.Tracks
 {

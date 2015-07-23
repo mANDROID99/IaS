@@ -7,11 +7,11 @@ namespace IaS.WorldBuilder.Xml
 {
     public class Level
     {
-        public List<LevelGroup> groups { get; private set; }
+        public List<LevelGroup> Groups { get; private set; }
 
         public Level()
         {
-            this.groups = new List<LevelGroup>();
+            this.Groups = new List<LevelGroup>();
         }
     }
 }

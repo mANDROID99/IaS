@@ -105,17 +105,17 @@ namespace IaS.WorldBuilder.Tracks
         private List<SubTrackNode> CreateCornerDuplicatedTrackNodes(Track track)
         {
             SubTrackNode previousTrackNode = null;
-            Vector3 down = track.down;
+            Vector3 down = track.Down;
             Vector3? lastForward = null;
 
-            TrackNode[] nodes = track.nodes;
+            TrackNode[] nodes = track.Nodes;
             List<SubTrackNode> subTrackNodes = new List<SubTrackNode>();
 
             for (int i = 0; i < nodes.Length; i++)
             {
-                Vector3 position = nodes[i].position;
-                Vector3? previousPos = i > 0 ? nodes[i - 1].position : (Vector3?)null;
-                Vector3? nextPos = i < nodes.Length - 1 ? nodes[i + 1].position : (Vector3?)null;
+                Vector3 position = nodes[i].Position;
+                Vector3? previousPos = i > 0 ? nodes[i - 1].Position : (Vector3?)null;
+                Vector3? nextPos = i < nodes.Length - 1 ? nodes[i + 1].Position : (Vector3?)null;
 
                 Vector3 forward = GetForward(position, previousPos, nextPos);
                 down = GetNextDownDirection(forward, lastForward, down);

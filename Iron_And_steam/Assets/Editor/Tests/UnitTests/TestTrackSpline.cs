@@ -32,8 +32,8 @@ namespace IASTest
         public void twoYAlignedNodes_producesYLineBetween()
         {
             Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(new Vector3(0, 0, 0)),
-                new TrackNode(new Vector3(0, 3, 0))
+                new TrackNode(null, new Vector3(0, 0, 0)),
+                new TrackNode(null, new Vector3(0, 3, 0))
             });
             BezierSpline spline = GetSplineNoSplits(track, 0, 0);
 
@@ -45,8 +45,8 @@ namespace IASTest
         public void twoXAlignedNodes_producesXLineBetween()
         {
             Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(new Vector3(0, 0, 0)),
-                new TrackNode(new Vector3(3, 0, 0))
+                new TrackNode(null, new Vector3(0, 0, 0)),
+                new TrackNode(null, new Vector3(3, 0, 0))
             });
 
             BezierSpline spline = GetSplineNoSplits(track, 0, 0);
@@ -58,8 +58,8 @@ namespace IASTest
         public void twoZAlignedNodes_producesZLineBetween()
         {
             Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(new Vector3(0, 0, 0)),
-                new TrackNode(new Vector3(0, 0, 3))
+                new TrackNode(null, new Vector3(0, 0, 0)),
+                new TrackNode(null, new Vector3(0, 0, 3))
             });
 
             BezierSpline spline = GetSplineNoSplits(track, 0, 0);
@@ -71,9 +71,9 @@ namespace IASTest
         public void lineUpThenCurveRight_producesCorrectSpline()
         {
             Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(new Vector3(0, 0, 0)),
-                new TrackNode(new Vector3(0, 3, 0)),
-                new TrackNode(new Vector3(3, 3, 0))
+                new TrackNode(null, new Vector3(0, 0, 0)),
+                new TrackNode(null, new Vector3(0, 3, 0)),
+                new TrackNode(null, new Vector3(3, 3, 0))
             });
 
             BezierSpline spline = GetSplineNoSplits(track, 0, 0);
@@ -87,9 +87,9 @@ namespace IASTest
         public void lineRightThenCurveBack_producesCorrectSpline()
         {
             Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(new Vector3(0, 0, 0)),
-                new TrackNode(new Vector3(3, 0, 0)),
-                new TrackNode(new Vector3(3, 0, 3))
+                new TrackNode(null, new Vector3(0, 0, 0)),
+                new TrackNode(null, new Vector3(3, 0, 0)),
+                new TrackNode(null, new Vector3(3, 0, 3))
             });
 
             BezierSpline spline = GetSplineNoSplits(track, 0, 0);
@@ -103,10 +103,10 @@ namespace IASTest
         public void twoConsecutiveCurves_producesCorrectSpline()
         {
             Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(new Vector3(0, 0, 0)),
-                new TrackNode(new Vector3(0, 2, 0)),
-                new TrackNode(new Vector3(1, 2, 0)),
-                new TrackNode(new Vector3(1, 3, 0))
+                new TrackNode(null, new Vector3(0, 0, 0)),
+                new TrackNode(null, new Vector3(0, 2, 0)),
+                new TrackNode(null, new Vector3(1, 2, 0)),
+                new TrackNode(null, new Vector3(1, 3, 0))
             });
 
             BezierSpline spline = GetSplineNoSplits(track, 0, 0);
@@ -120,8 +120,8 @@ namespace IASTest
         public void withOffset_and_twoYAlignedNodesFacingForward_movesTrackForward()
         {
             Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(new Vector3(0, 0, 0)),
-                new TrackNode(new Vector3(0, 3, 0))
+                new TrackNode(null, new Vector3(0, 0, 0)),
+                new TrackNode(null, new Vector3(0, 3, 0))
             });
 
             config.curveOffset = 0.25f;
@@ -133,8 +133,8 @@ namespace IASTest
         public void withOffset_and_twoXAlignedNodesFacingUpward_movesTrackUpward()
         {
             Track track = new Track("id", Vector3.up, new TrackNode[]{
-                new TrackNode(new Vector3(0, 0, 0)),
-                new TrackNode(new Vector3(3, 0, 0))
+                new TrackNode(null, new Vector3(0, 0, 0)),
+                new TrackNode(null, new Vector3(3, 0, 0))
             });
 
             config.curveOffset = 0.25f;
@@ -147,9 +147,9 @@ namespace IASTest
         public void withOffset_and_singleCurveRightFacingLeft_movesTrackCorrectly()
         {
             Track track = new Track("id", Vector3.left, new TrackNode[]{
-                new TrackNode(new Vector3(0, 0, 0)),
-                new TrackNode(new Vector3(0, 2, 0)),
-                new TrackNode(new Vector3(2, 2, 0))
+                new TrackNode(null, new Vector3(0, 0, 0)),
+                new TrackNode(null, new Vector3(0, 2, 0)),
+                new TrackNode(null, new Vector3(2, 2, 0))
             });
 
             config.curveOffset = 0.25f;
@@ -164,13 +164,13 @@ namespace IASTest
         [Test]
         public void curveAdjacentToSplit_doesNotAddCurveEndPosTwice()
         {
-            Track track = new Track("id", Vector3.left, new TrackNode[]{
-                new TrackNode(new Vector3(0, 0, 0)),
-                new TrackNode(new Vector3(0, 1, 0)),
-                new TrackNode(new Vector3(3, 1, 0))
+            Track track = new Track("id", Vector3.left, new[]{
+                new TrackNode(null, new Vector3(0, 0, 0)),
+                new TrackNode(null, new Vector3(0, 1, 0)),
+                new TrackNode(null, new Vector3(3, 1, 0))
             });
 
-            BezierSpline[][] splines = GetSplinesWithSplits(track, new Split[]{
+            BezierSpline[][] splines = GetSplinesWithSplits(track, new[]{
                 new Split("split_id", Vector3.right, new Vector3(), 1, new SubSplit[0]),
             });
 
@@ -183,17 +183,34 @@ namespace IASTest
             AssertSplinePt(splines[1][0].pts[0], new Vector3(1, 1.5f, 0.5f), new Vector3(3, 1.5f, 0.5f));
         }
 
+        [Test]
+        public void crossroadsTrack_addsCrossroadsConnection()
+        {
+            Track track = new Track("track_1", Vector3.forward, new TrackNode[]
+            {
+                new TrackNode(null, new Vector3(0, 0, 0)),
+                new TrackNode("crossroads", new Vector3(0, 3, 0)),
+                new TrackNode(null, new Vector3(3, 3, 0))
+            });
+            Track track2 = new Track("track_2", Vector3.forward, new[]
+            {
+                new TrackNode(null, new Vector3(-3, 3, 0)),
+            }, "crossroads");
+
+            
+        }
+
         private BezierSpline[][] GetSplinesWithSplits(Track track, Split[] splits)
         {
             SplitTrack splitTrack = splitter.SplitTrack(track, splits);
-            return splitTrack.subTracks.Select(subTrack => splineGenerator.GenerateSplines(splitTrack, subTrack)).ToArray();
+            return splitTrack.SubTracks.Select(subTrack => splineGenerator.GenerateSplines(splitTrack, subTrack)).ToArray();
         }
 
 
         private BezierSpline GetSplineNoSplits(Track track, int subTrackIdx, int groupIdx)
         {
             SplitTrack splitTrack = splitter.SplitTrack(track, new Split[0]);
-            return splineGenerator.GenerateSplines(splitTrack, splitTrack.subTracks[subTrackIdx])[groupIdx];
+            return splineGenerator.GenerateSplines(splitTrack, splitTrack.SubTracks[subTrackIdx])[groupIdx];
         }
 
         private void AssertSplinePt(BezierSpline.BezierPoint pt, Vector3 expectedStartPos, Vector3 expectedEndPos, Vector3? expectedAnchor1 = null, Vector3? expectedAnchor2 = null)

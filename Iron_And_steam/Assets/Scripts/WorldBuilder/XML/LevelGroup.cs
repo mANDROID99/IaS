@@ -8,20 +8,20 @@ namespace IaS.WorldBuilder.Xml
 {
     public class LevelGroup
     {
-        public MeshBlock[] meshes { get; private set; }
-		public Split[] splits { get; private set; }
-        public Track[] tracks { get; private set; }
+        public MeshBlock[] Meshes { get; private set; }
+		public Split[] Splits { get; private set; }
+        public Track[] Tracks { get; private set; }
 
-        public String id { get; private set; }
-		public Vector3 position { get; private set; }
+        public String Id { get; private set; }
+		public Vector3 Position { get; private set; }
 
         public LevelGroup(String id, Vector3 position, MeshBlock[] meshes, Split[] splits, Track[] tracks)
         {
-            this.id = id;
-			this.position = position;
-            this.meshes = meshes;
-            this.splits = splits;
-            this.tracks = tracks;
+            this.Id = id;
+			this.Position = position;
+            this.Meshes = meshes;
+            this.Splits = splits;
+            this.Tracks = tracks;
         }
     }
 }

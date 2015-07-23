@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using UnityEngine;
-using IaS.Helpers;
-using IaS.WorldBuilder;
 using IaS.GameObjects;
+using IaS.Helpers;
 using IaS.WorldBuilder.Tracks;
+using UnityEngine;
 
 namespace IaS.GameState
 {
@@ -17,10 +14,10 @@ namespace IaS.GameState
         private readonly Dictionary<SubTrackGroup, Connection> _connectionsMap = new Dictionary<SubTrackGroup, Connection>();
         private readonly Dictionary<InstanceWrapper, SubTrack> _instancesMap = new Dictionary<InstanceWrapper, SubTrack>();
 
-        public TrackConnections(WorldContext world, SplitTrack track)
+        public TrackConnections(EventRegistry eventRegistry, SplitTrack track)
         {
-            this._track = track;
-            world.eventRegistry.RegisterConsumer(this);
+            _track = track;
+            eventRegistry.RegisterConsumer(this);
         }
 
         public void RegisterSubTrack(InstanceWrapper instance, SubTrack subTrack)

@@ -1,40 +1,44 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using IaS.WorldBuilder.Splines;
+﻿using UnityEngine;
 
 namespace IaS.WorldBuilder.Xml
 {
     public class Track
     {
-        public String id { get; private set; }
-        public TrackNode[] nodes { get; private set; }
-        public Vector3 down { get; private set; }
+        public string Id { get; private set; }
+        public TrackNode[] Nodes { get; private set; }
+        public Vector3 Down { get; private set; }
 
-        public Track(String id, Vector3 down, TrackNode[] nodes)
+        public string StartRef { get; private set; }
+        public string EndRef { get; private set; }
+
+
+        public Track(string id, Vector3 down, TrackNode[] nodes, string startRef=null, string endRef=null)
         {
-            this.id = id;
-            this.down = down;
-            this.nodes = nodes;
+            Id = id;
+            Down = down;
+            Nodes = nodes;
+            StartRef = startRef;
+            EndRef = endRef;
         }
     }
 
     public class TrackNode
     {
-        public Vector3 position { get; private set; }
-        internal TrackNode previous { get; private set; }
-        internal TrackNode next { get; private set; }
+        
+        public Vector3 Position { get; private set; }
+        public string Id { get; private set; }
+        internal TrackNode Previous { get; private set; }
+        internal TrackNode Next { get; private set; }
 
-        public TrackNode(Vector3 position, TrackNode previous = null)
+        public TrackNode(string id, Vector3 position, TrackNode previous = null)
         {
-            this.position = position;
-            this.previous = previous;
+            Id = id;
+            Position = position;
+            Previous = previous;
+           
             if(previous != null)
             {
-                previous.next = this;
+                previous.Next = this;
             }
         }
     }

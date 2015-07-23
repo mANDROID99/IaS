@@ -1,78 +1,77 @@
 using System;
-using UnityEngine;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using System.Xml.Schema;
-using System.IO;
+using UnityEngine;
 
 namespace IaS.WorldBuilder.Xml
 {
     public class WorldParser
     {
 
-		private const string ELEMENT_LEVEL = "level";
-		private const string ELEMENT_GROUPS = "groups";
-		private const string ELEMENT_GROUP = "group";
-		private const string ELEMENT_MESH = "mesh";
-		private const string ELEMENT_MESHBLOCK = "sub";
-        private const string ELEMENT_ROTATION = "rot";
-		private const string ELEMENT_SPLIT = "split";
-        private const string ELEMENT_SUBSPLITS_L = "subsplits_left";
-        private const string ELEMENT_SUBSPLITS_R = "subsplits_right";
-        private const string ELEMENT_TRACK = "track";
-        private const string ELEMENT_TRACK_NODE = "node";
+		private const string ElementLevel = "level";
+		private const string ElementGroups = "groups";
+		private const string ElementGroup = "group";
+		private const string ElementMesh = "mesh";
+		private const string ElementMeshblock = "sub";
+        private const string ElementRotation = "rot";
+		private const string ElementSplit = "split";
+        private const string ElementSubsplitsL = "subsplits_left";
+        private const string ElementSubsplitsR = "subsplits_right";
+        private const string ElementTrack = "track";
+        private const string ElementTrackNode = "node";
 
-        private const string ATTR_ID = "id";
-		private const string ATTR_MESHBLOCK_POSITION = "p";
-		private const string ATTR_MESHBLOCK_SIZE = "s";
-        private const string ATTR_MESHBLOCK_TYPE = "m";
-		private const string ATTR_WEDGE_ROTATION = "r";
-		private const string ATTR_GROUP_POSITION = "p";
-        private const string ATTR_ROT_DIRECTION = "dir";
-        private const string ATTR_ROT_AMOUNT = "r";
-		private const string ATTR_SPLIT_AXIS = "axis";
-		private const string ATTR_SPLIT_VALUE = "val";
-        private const string ATTR_SPLIT_PIVOT = "pivot";
-        private const string ATTR_TRACK_START_DIRECTION = "startdir";
-        private const string ATTR_TRACK_NODE_POSITION = "p";
+        private const string AttrId = "id";
+		private const string AttrMeshblockPosition = "p";
+		private const string AttrMeshblockSize = "s";
+        private const string AttrMeshblockType = "m";
+		private const string AttrGroupPosition = "p";
+        private const string AttrRotDirection = "dir";
+        private const string AttrRotAmount = "r";
+		private const string AttrSplitAxis = "axis";
+		private const string AttrSplitValue = "val";
+        private const string AttrSplitPivot = "pivot";
+        private const string AttrTrackStartDirection = "startdir";
+        private const string AttrTrackNodePosition = "p";
+        private const string AttrTrackStartRef = "startref";
+        private const string AttrTrackEndRef = "endref";
 
-        private int idCount_split = 0;
-        private int idCount_block = 0;
-        private int idCount_group = 0;
-        private int idCount_track = 0;
+        private int _idCountSplit = 0;
+        private int _idCountBlock = 0;
+        private int _idCountGroup = 0;
+        private int _idCountTrack = 0;
 
-        private int occludeOrderCount = 0;
+        private int _occludeOrderCount = 0;
 
         public Level Parse(TextAsset source, TextAsset schema)
         {
 
             XmlReader sourceReader = XmlReader.Create(new StringReader(source.text));
             XDocument xDoc = new XDocument(XDocument.Load(sourceReader));
-            XElement xLevel = xDoc.Element(ELEMENT_LEVEL);
+            XElement xLevel = xDoc.Element(ElementLevel);
             return ParseElementLevel(xLevel);
         }
 
         private Level ParseElementLevel(XElement xLevel)
         {
             Level level = new Level();
-            foreach (XElement xGroup in xLevel.Element(ELEMENT_GROUPS).Elements(ELEMENT_GROUP))
+            foreach (XElement xGroup in xLevel.Element(ElementGroups).Elements(ElementGroup))
             {
-                level.groups.Add(ParseBlockGroup(xGroup));
+                level.Groups.Add(ParseBlockGroup(xGroup));
             }
             return level;
         }
 
         private LevelGroup ParseBlockGroup(XElement xGroup)
         {
-            String id = GetId(xGroup, "group", ref idCount_group);
-            Vector3 groupPos = PositionParser.ParsePosition(xGroup.Attribute(ATTR_GROUP_POSITION).Value);
+            string id = GetId(xGroup, "group", ref _idCountGroup);
+            Vector3 groupPos = XmlAttributeHelper.ParsePosition(xGroup.Attribute(AttrGroupPosition), false);
 
-            MeshBlock[] meshBlocks = xGroup.Element(ELEMENT_MESH).Elements(ELEMENT_MESHBLOCK).Select(xBlock => ParseMeshBlock(xBlock)).ToArray();
-            Split[] splits = xGroup.Elements(ELEMENT_SPLIT).Select(xSplit => ParseSplit(xSplit)).ToArray();
-            Track[] tracks = xGroup.Elements(ELEMENT_TRACK).Select(xTrack => ParseTrack(xTrack)).ToArray();
+            MeshBlock[] meshBlocks = xGroup.Element(ElementMesh).Elements(ElementMeshblock).Select(element => ParseMeshBlock(element)).ToArray();
+            Split[] splits = xGroup.Elements(ElementSplit).Select(element => ParseSplit(element)).ToArray();
+            Track[] tracks = xGroup.Elements(ElementTrack).Select(element => ParseTrack(element)).ToArray();
 
             LevelGroup blockGroup = new LevelGroup(id, groupPos, meshBlocks, splits, tracks);
             return blockGroup;
@@ -82,14 +81,14 @@ namespace IaS.WorldBuilder.Xml
 
         private MeshBlock ParseMeshBlock(XElement xBlock)
         {
-            Vector3 position = PositionParser.ParsePosition(xBlock.Attribute(ATTR_MESHBLOCK_POSITION).Value);
-            Vector3 size = PositionParser.ParsePosition(xBlock.Attribute(ATTR_MESHBLOCK_SIZE).Value);
-     
-            String typeStr = xBlock.Attribute(ATTR_MESHBLOCK_TYPE).Value;
-            int type = MeshBlock.TypeStringToType(typeStr);
-            String id = GetId(xBlock, String.Format("sub_{0}", typeStr), ref idCount_block);
+            Vector3 position = XmlAttributeHelper.ParsePosition(xBlock.Attribute(AttrMeshblockPosition), false);
+            Vector3 size = XmlAttributeHelper.ParsePosition(xBlock.Attribute(AttrMeshblockSize), false);
 
-            BlockRotation rotation = ParseRotation(xBlock.Element(ELEMENT_ROTATION));
+            string typeStr = XmlAttributeHelper.Parse(xBlock.Attribute(AttrMeshblockType), false);
+            int type = MeshBlock.TypeStringToType(typeStr);
+            string id = GetId(xBlock, string.Format("sub_{0}", typeStr), ref _idCountBlock);
+
+            BlockRotation rotation = ParseRotation(xBlock.Element(ElementRotation));
 
             MeshSource goBuilder;
             if (MeshBlock.TYPE_CUBOID.Equals(type))
@@ -107,10 +106,10 @@ namespace IaS.WorldBuilder.Xml
             }
             else
             {
-                throw new Exception(String.Format("Invalid block type encountered: {0}", type));
+                throw new Exception(string.Format("Invalid block type encountered: {0}", type));
             }
             BlockBounds blockBounds = new BlockBounds(position, size);
-            return new MeshBlock(id, goBuilder, type, blockBounds, rotation, occludeOrderCount++);
+            return new MeshBlock(id, goBuilder, type, blockBounds, rotation, _occludeOrderCount++);
         }
 
         private BlockRotation ParseRotation(XElement xRot)
@@ -119,22 +118,22 @@ namespace IaS.WorldBuilder.Xml
                 return new BlockRotation();
             }
 
-            String direction = xRot.Attribute(ATTR_ROT_DIRECTION).Value;
-            float amount = Single.Parse(xRot.Attribute(ATTR_ROT_AMOUNT).Value);
+            string direction = xRot.Attribute(AttrRotDirection).Value;
+            float amount = float.Parse(xRot.Attribute(AttrRotAmount).Value);
             return new BlockRotation(direction, amount);
         }
 
 		private Split ParseSplit(XElement xSplit)
 		{
-			float value = Int32.Parse(xSplit.Attribute (ATTR_SPLIT_VALUE).Value);
-            Vector3 pivot = PositionParser.ParsePosition(xSplit.Attribute(ATTR_SPLIT_PIVOT).Value);
-            Vector3 axis = AxisParser.ParseAxis(xSplit.Attribute(ATTR_SPLIT_AXIS).Value);
-            String id = GetId(xSplit, "split", ref idCount_split);
+		    float value = XmlAttributeHelper.ParseFloat(xSplit.Attribute(AttrSplitValue), false);
+            Vector3 pivot = XmlAttributeHelper.ParsePosition(xSplit.Attribute(AttrSplitPivot), false);
+            Vector3 axis = XmlAttributeHelper.ParseAxis(xSplit.Attribute(AttrSplitAxis), false);
+            string id = GetId(xSplit, "split", ref _idCountSplit);
 
-            XElement xSubSplits_L = xSplit.Element(ELEMENT_SUBSPLITS_L);
-            XElement xSubSplits_R = xSplit.Element(ELEMENT_SUBSPLITS_R);
+            XElement xSubSplitsL = xSplit.Element(ElementSubsplitsL);
+            XElement xSubSplitsR = xSplit.Element(ElementSubsplitsR);
 
-            SubSplit[] subSplits = (ParseSubSplit(xSubSplits_L, true).Concat(ParseSubSplit(xSubSplits_R, false))).ToArray();
+            SubSplit[] subSplits = (ParseSubSplit(xSubSplitsL, true).Concat(ParseSubSplit(xSubSplitsR, false))).ToArray();
             Split split = new Split(id, axis, pivot, value, subSplits);
             return split;
 		}
@@ -146,36 +145,38 @@ namespace IaS.WorldBuilder.Xml
                 return new SubSplit[0];
             }
 
-            return xSubSplit.Elements(ELEMENT_SPLIT).Select(xSplit => new SubSplit(ParseSplit(xSplit), clipParentLeft));
+            return xSubSplit.Elements(ElementSplit).Select(xSplit => new SubSplit(ParseSplit(xSplit), clipParentLeft));
         }
 
         private Track ParseTrack(XElement xTrack)
         {
-            String id = GetId(xTrack, "track", ref idCount_track);
-            Vector3 initialDirection = DirectionParser.ParseDirection(xTrack.Attribute(ATTR_TRACK_START_DIRECTION).Value);
-            TrackNode[] nodes = xTrack.Elements(ELEMENT_TRACK_NODE).Select(xNode => ParseTrackNode(xNode)).ToArray();
-            return new Track(id, initialDirection, nodes);
+            string id = GetId(xTrack, "track", ref _idCountTrack);
+            Vector3 initialDirection = XmlAttributeHelper.ParseDirection(xTrack.Attribute(AttrTrackStartDirection), true, Vector3.forward);
+            string startRef = XmlAttributeHelper.Parse(xTrack.Attribute(AttrTrackStartRef), true, null);
+            string endRef = XmlAttributeHelper.Parse(xTrack.Attribute(AttrTrackEndRef), true, null);
+
+            TrackNode[] nodes = xTrack.Elements(ElementTrackNode).Select(xNode => ParseTrackNode(xNode)).ToArray();
+            return new Track(id, initialDirection, nodes, startRef, endRef);
         }
 
         private TrackNode ParseTrackNode(XElement xNode)
         {
-            Vector3 position = PositionParser.ParsePosition(xNode.Attribute(ATTR_TRACK_NODE_POSITION).Value);
-            return new TrackNode(position);
+            Vector3 position = XmlAttributeHelper.ParsePosition(xNode.Attribute(AttrTrackNodePosition), false);
+            string id = XmlAttributeHelper.Parse(xNode.Attribute(AttrId), true, null);
+            return new TrackNode(id, position);
         }
 
 
-        private String GetId(XElement element, String elementType, ref int count)
+        private string GetId(XElement element, string elementType, ref int count)
         {
-            XAttribute attr = element.Attribute(ATTR_ID);
-            if(attr == null)
+            string value;
+            if (XmlAttributeHelper.TryFindAttribute(element.Attribute(AttrId), out value))
             {
-                count += 1;
-                return String.Format("{0}_{1}", elementType, count);
+                return value;
             }
-            else
-            {
-                return attr.Value;
-            }
+           
+            count += 1;
+            return string.Format("{0}_{1}", elementType, count);
         }
     }
 }
