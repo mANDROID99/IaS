@@ -10,23 +10,28 @@ using IaS.Helpers;
 
 namespace IaS.GameObjects{
 
-    public class BlockRotater : Controller {
+    public class BlockRotaterController : Controller {
 
-        private GroupContext _group;
-        private HalfSplitRotation[] splitHalfRotations;
-        private InstanceWrapper[] allInstances;
-        private bool readyToRot = true;
+        private readonly HalfSplitRotation[] _splitHalfRotations;
+        private InstanceWrapper[] _allInstances = new InstanceWrapper[0];
+        private readonly EventRegistry _eventRegistry;
+        private bool _readyToRot = true;
 
-        public BlockRotater(GroupContext _group, InstanceWrapper[] instances)
+
+        public BlockRotaterController(EventRegistry eventRegistry, Split[] splits)
         {
-            this._group = _group;
-            this.allInstances = instances;
-            splitHalfRotations = _group.Splits.SelectMany(split =>
-            {
-                return new HalfSplitRotation[]{
-                    new HalfSplitRotation(split, true),
-                    new HalfSplitRotation(split, false)};
-            }).ToArray();
+            _eventRegistry = eventRegistry;
+            _splitHalfRotations = splits.SelectMany(split => new[]{
+                new HalfSplitRotation(split, true),
+                new HalfSplitRotation(split, false)}).ToArray();
+        }
+
+        public void AddInstancesToRotate(InstanceWrapper[] instances)
+        {
+            InstanceWrapper[] temp = new InstanceWrapper[_allInstances.Length + instances.Length];
+            _allInstances.CopyTo(temp, 0);
+            instances.CopyTo(temp, _allInstances.Length);
+            _allInstances = temp;
         }
 
         IEnumerator Rotate90Degrees(int direction, HalfSplitRotation splitRotation)
@@ -44,23 +49,23 @@ namespace IaS.GameObjects{
                     Vector3 position = transformation.Transform(rotated.bounds.Position);
                     rotated.gameObject.transform.localRotation = lerpRotation;
                     rotated.gameObject.transform.localPosition = position;
-                    _group.EventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.Update));
+                    _eventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.Update));
 
                     if(deltaTime == 1)
                     {
-                        _group.EventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.AfterRotation));
+                        _eventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.AfterRotation));
                     }
                 }
 
                 yield return null;
             } while (deltaTime < 1);
-            readyToRot = true;
+            _readyToRot = true;
         }
 
         private bool CanRotate(HalfSplitRotation halfSplit)
         {
             halfSplit.resetMeshBlocks();
-            foreach (InstanceWrapper instance in allInstances)
+            foreach (InstanceWrapper instance in _allInstances)
             {
                 float constrainResult = halfSplit.split.Constrains(halfSplit.lhs, instance.rotatedBounds);
                 if (constrainResult == Split.CONSTRAIN_BLOCKED)
@@ -84,7 +89,7 @@ namespace IaS.GameObjects{
                 rotated.rotatedBounds.SetToRotationFrom(rotated.endRotation, splitRotation.split.pivot, rotated.bounds);
 
                 Transformation transform = new RotateAroundPivotTransform(splitRotation.split.pivot, rotated.endRotation);
-                _group.EventRegistry.Notify(new BlockRotationEvent(rotated, transform, BlockRotationEvent.EventType.BeforeRotation));
+                _eventRegistry.Notify(new BlockRotationEvent(rotated, transform, BlockRotationEvent.EventType.BeforeRotation));
             }
         }
 
@@ -93,7 +98,7 @@ namespace IaS.GameObjects{
             int rotX = 0;
             int rotY = 0;
             int rotZ = 0;
-            if (readyToRot)
+            if (_readyToRot)
             {
                 rotX = Input.GetKey(KeyCode.S) ? -1 : rotX;
                 rotX = Input.GetKey(KeyCode.W) ? 1 : rotX;
@@ -104,7 +109,7 @@ namespace IaS.GameObjects{
 
                 if ((rotX != 0) || (rotY != 0) || (rotZ != 0))
                 {
-                    foreach (HalfSplitRotation splitRotation in splitHalfRotations)
+                    foreach (HalfSplitRotation splitRotation in _splitHalfRotations)
                     {
                         int w = 
                             rotX != 0 && splitRotation.split.axis.Equals(Vector3.right) ? rotX :
@@ -113,7 +118,7 @@ namespace IaS.GameObjects{
 
                         if ((w != 0) && (splitRotation.lhs) && CanRotate(splitRotation))
                         {
-                            readyToRot = false;
+                            _readyToRot = false;
                             UpdateInstanceRotation(w, splitRotation);
                             mono.StartCoroutine(Rotate90Degrees(w, splitRotation));
 						    break;

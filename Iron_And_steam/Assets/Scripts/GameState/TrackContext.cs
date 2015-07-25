@@ -1,16 +1,18 @@
-﻿using IaS.WorldBuilder.Tracks;
+﻿using IaS.Domain;
+using IaS.WorldBuilder.Tracks;
 
 namespace IaS.GameState
 {
     public class TrackContext
     {
-        public SplitTrack splitTrack { get; private set; }
-        public TrackConnections connections { get; private set; }
+        public readonly SplitTrack SplitTrack;
+        public GroupContext Group { get; internal set; }
 
-        internal TrackContext(TrackConnections trackConnections, SplitTrack splitTrack)
+        internal TrackContext(SplitTrack splitTrack)
         {
-            this.splitTrack = splitTrack;
-            this.connections = trackConnections;
+            SplitTrack = splitTrack;
         }
+
+        
     }
 }

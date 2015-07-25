@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
+using IaS.Domain;
+using IaS.WorldBuilder;
+using IaS.WorldBuilder.Splines;
+using IaS.WorldBuilder.Tracks;
+using IaS.WorldBuilder.Xml;
 using NUnit.Framework;
 using UnityEngine;
-using IaS.WorldBuilder.Tracks;
-using IaS.WorldBuilder.Splines;
-using IaS.WorldBuilder.Xml;
-using IaS.WorldBuilder;
 
 namespace IASTest
 {
     [TestFixture]
-    [Category("Track Spline Tests")]
+    [Category("TrackDTO Spline Tests")]
     class TestTrackSpline
     {
 
@@ -31,11 +29,11 @@ namespace IASTest
         [Test]
         public void twoYAlignedNodes_producesYLineBetween()
         {
-            Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(null, new Vector3(0, 0, 0)),
-                new TrackNode(null, new Vector3(0, 3, 0))
+            TrackDTO trackDto = new TrackDTO("id", Vector3.forward, null, new TrackNodeDTO[]{
+                new TrackNodeDTO(null, new Vector3(0, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(0, 3, 0))
             });
-            BezierSpline spline = GetSplineNoSplits(track, 0, 0);
+            BezierSpline spline = GetSplineNoSplits(trackDto, 0, 0);
 
             Assert.That(spline.pts.Length, Is.EqualTo(1));
             AssertSplinePt(spline.pts[0], new Vector3(0.5f, 0, 0.5f), new Vector3(0.5f, 3, 0.5f));
@@ -44,12 +42,12 @@ namespace IASTest
         [Test]
         public void twoXAlignedNodes_producesXLineBetween()
         {
-            Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(null, new Vector3(0, 0, 0)),
-                new TrackNode(null, new Vector3(3, 0, 0))
+            TrackDTO trackDto = new TrackDTO("id", Vector3.forward, null, new TrackNodeDTO[]{
+                new TrackNodeDTO(null, new Vector3(0, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(3, 0, 0))
             });
 
-            BezierSpline spline = GetSplineNoSplits(track, 0, 0);
+            BezierSpline spline = GetSplineNoSplits(trackDto, 0, 0);
             Assert.That(spline.pts.Length, Is.EqualTo(1));
             AssertSplinePt(spline.pts[0], new Vector3(0, 0.5f, 0.5f), new Vector3(3, 0.5f, 0.5f));
         }
@@ -57,12 +55,12 @@ namespace IASTest
         [Test]
         public void twoZAlignedNodes_producesZLineBetween()
         {
-            Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(null, new Vector3(0, 0, 0)),
-                new TrackNode(null, new Vector3(0, 0, 3))
+            TrackDTO trackDto = new TrackDTO("id", Vector3.forward, null, new TrackNodeDTO[]{
+                new TrackNodeDTO(null, new Vector3(0, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(0, 0, 3))
             });
 
-            BezierSpline spline = GetSplineNoSplits(track, 0, 0);
+            BezierSpline spline = GetSplineNoSplits(trackDto, 0, 0);
             Assert.That(spline.pts.Length, Is.EqualTo(1));
             AssertSplinePt(spline.pts[0], new Vector3(0.5f, 0.5f, 0), new Vector3(0.5f, 0.5f, 3));
         }
@@ -70,13 +68,13 @@ namespace IASTest
         [Test]
         public void lineUpThenCurveRight_producesCorrectSpline()
         {
-            Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(null, new Vector3(0, 0, 0)),
-                new TrackNode(null, new Vector3(0, 3, 0)),
-                new TrackNode(null, new Vector3(3, 3, 0))
+            TrackDTO trackDto = new TrackDTO("id", Vector3.forward, null, new TrackNodeDTO[]{
+                new TrackNodeDTO(null, new Vector3(0, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(0, 3, 0)),
+                new TrackNodeDTO(null, new Vector3(3, 3, 0))
             });
 
-            BezierSpline spline = GetSplineNoSplits(track, 0, 0);
+            BezierSpline spline = GetSplineNoSplits(trackDto, 0, 0);
             Assert.That(spline.pts.Length, Is.EqualTo(3));
             AssertSplinePt(spline.pts[0], new Vector3(0.5f, 0, 0.5f), new Vector3(0.5f, 3, 0.5f));
             AssertSplinePt(spline.pts[1], new Vector3(0.5f, 3, 0.5f), new Vector3(1, 3.5f, 0.5f));
@@ -86,13 +84,13 @@ namespace IASTest
         [Test]
         public void lineRightThenCurveBack_producesCorrectSpline()
         {
-            Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(null, new Vector3(0, 0, 0)),
-                new TrackNode(null, new Vector3(3, 0, 0)),
-                new TrackNode(null, new Vector3(3, 0, 3))
+            TrackDTO trackDto = new TrackDTO("id", Vector3.forward, null, new TrackNodeDTO[]{
+                new TrackNodeDTO(null, new Vector3(0, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(3, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(3, 0, 3))
             });
 
-            BezierSpline spline = GetSplineNoSplits(track, 0, 0);
+            BezierSpline spline = GetSplineNoSplits(trackDto, 0, 0);
             Assert.That(spline.pts.Length, Is.EqualTo(3));
             AssertSplinePt(spline.pts[0], new Vector3(0, 0.5f, 0.5f), new Vector3(3, 0.5f, 0.5f));
             AssertSplinePt(spline.pts[1], new Vector3(3, 0.5f, 0.5f), new Vector3(3.5f, 0.5f, 1));
@@ -102,14 +100,14 @@ namespace IASTest
         [Test]
         public void twoConsecutiveCurves_producesCorrectSpline()
         {
-            Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(null, new Vector3(0, 0, 0)),
-                new TrackNode(null, new Vector3(0, 2, 0)),
-                new TrackNode(null, new Vector3(1, 2, 0)),
-                new TrackNode(null, new Vector3(1, 3, 0))
+            TrackDTO trackDto = new TrackDTO("id", Vector3.forward, null, new TrackNodeDTO[]{
+                new TrackNodeDTO(null, new Vector3(0, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(0, 2, 0)),
+                new TrackNodeDTO(null, new Vector3(1, 2, 0)),
+                new TrackNodeDTO(null, new Vector3(1, 3, 0))
             });
 
-            BezierSpline spline = GetSplineNoSplits(track, 0, 0);
+            BezierSpline spline = GetSplineNoSplits(trackDto, 0, 0);
             Assert.That(spline.pts.Length, Is.EqualTo(3));
             AssertSplinePt(spline.pts[0], new Vector3(0.5f, 0, 0.5f), new Vector3(0.5f, 2, 0.5f));
             AssertSplinePt(spline.pts[1], new Vector3(0.5f, 2, 0.5f), new Vector3(1, 2.5f, 0.5f));
@@ -119,26 +117,26 @@ namespace IASTest
         [Test]
         public void withOffset_and_twoYAlignedNodesFacingForward_movesTrackForward()
         {
-            Track track = new Track("id", Vector3.forward, new TrackNode[]{
-                new TrackNode(null, new Vector3(0, 0, 0)),
-                new TrackNode(null, new Vector3(0, 3, 0))
+            TrackDTO trackDto = new TrackDTO("id", Vector3.forward, null, new TrackNodeDTO[]{
+                new TrackNodeDTO(null, new Vector3(0, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(0, 3, 0))
             });
 
             config.curveOffset = 0.25f;
-            BezierSpline spline = GetSplineNoSplits(track, 0, 0);
+            BezierSpline spline = GetSplineNoSplits(trackDto, 0, 0);
             AssertSplinePt(spline.pts[0], new Vector3(0.5f, 0, 0.75f), new Vector3(0.5f, 3, 0.75f));
         }
 
        [Test]
         public void withOffset_and_twoXAlignedNodesFacingUpward_movesTrackUpward()
         {
-            Track track = new Track("id", Vector3.up, new TrackNode[]{
-                new TrackNode(null, new Vector3(0, 0, 0)),
-                new TrackNode(null, new Vector3(3, 0, 0))
+            TrackDTO trackDto = new TrackDTO("id", Vector3.up, null, new TrackNodeDTO[]{
+                new TrackNodeDTO(null, new Vector3(0, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(3, 0, 0))
             });
 
             config.curveOffset = 0.25f;
-            BezierSpline spline = GetSplineNoSplits(track, 0, 0);
+            BezierSpline spline = GetSplineNoSplits(trackDto, 0, 0);
             Assert.That(spline.pts.Length, Is.EqualTo(1));
             AssertSplinePt(spline.pts[0], new Vector3(0, 0.75f, 0.5f), new Vector3(3, 0.75f, 0.5f));
         }
@@ -146,14 +144,14 @@ namespace IASTest
         [Test]
         public void withOffset_and_singleCurveRightFacingLeft_movesTrackCorrectly()
         {
-            Track track = new Track("id", Vector3.left, new TrackNode[]{
-                new TrackNode(null, new Vector3(0, 0, 0)),
-                new TrackNode(null, new Vector3(0, 2, 0)),
-                new TrackNode(null, new Vector3(2, 2, 0))
+            TrackDTO trackDto = new TrackDTO("id", Vector3.left, null, new TrackNodeDTO[]{
+                new TrackNodeDTO(null, new Vector3(0, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(0, 2, 0)),
+                new TrackNodeDTO(null, new Vector3(2, 2, 0))
             });
 
             config.curveOffset = 0.25f;
-            BezierSpline spline = GetSplineNoSplits(track, 0, 0);
+            BezierSpline spline = GetSplineNoSplits(trackDto, 0, 0);
             Assert.That(spline.pts.Length, Is.EqualTo(3));
             AssertSplinePt(spline.pts[0], new Vector3(0.25f, 0, 0.5f), new Vector3(0.25f, 2, 0.5f));
             AssertSplinePt(spline.pts[1], new Vector3(0.25f, 2, 0.5f), new Vector3(1, 2.75f, 0.5f));
@@ -164,13 +162,13 @@ namespace IASTest
         [Test]
         public void curveAdjacentToSplit_doesNotAddCurveEndPosTwice()
         {
-            Track track = new Track("id", Vector3.left, new[]{
-                new TrackNode(null, new Vector3(0, 0, 0)),
-                new TrackNode(null, new Vector3(0, 1, 0)),
-                new TrackNode(null, new Vector3(3, 1, 0))
+            TrackDTO trackDto = new TrackDTO("id", Vector3.left, null, new[]{
+                new TrackNodeDTO(null, new Vector3(0, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(0, 1, 0)),
+                new TrackNodeDTO(null, new Vector3(3, 1, 0))
             });
 
-            BezierSpline[][] splines = GetSplinesWithSplits(track, new[]{
+            BezierSpline[][] splines = GetSplinesWithSplits(trackDto, new[]{
                 new Split("split_id", Vector3.right, new Vector3(), 1, new SubSplit[0]),
             });
 
@@ -183,33 +181,16 @@ namespace IASTest
             AssertSplinePt(splines[1][0].pts[0], new Vector3(1, 1.5f, 0.5f), new Vector3(3, 1.5f, 0.5f));
         }
 
-        [Test]
-        public void crossroadsTrack_addsCrossroadsConnection()
+        private BezierSpline[][] GetSplinesWithSplits(TrackDTO trackDto, Split[] splits)
         {
-            Track track = new Track("track_1", Vector3.forward, new TrackNode[]
-            {
-                new TrackNode(null, new Vector3(0, 0, 0)),
-                new TrackNode("crossroads", new Vector3(0, 3, 0)),
-                new TrackNode(null, new Vector3(3, 3, 0))
-            });
-            Track track2 = new Track("track_2", Vector3.forward, new[]
-            {
-                new TrackNode(null, new Vector3(-3, 3, 0)),
-            }, "crossroads");
-
-            
-        }
-
-        private BezierSpline[][] GetSplinesWithSplits(Track track, Split[] splits)
-        {
-            SplitTrack splitTrack = splitter.SplitTrack(track, splits);
+            SplitTrack splitTrack = splitter.SplitTrack(trackDto, splits);
             return splitTrack.SubTracks.Select(subTrack => splineGenerator.GenerateSplines(splitTrack, subTrack)).ToArray();
         }
 
 
-        private BezierSpline GetSplineNoSplits(Track track, int subTrackIdx, int groupIdx)
+        private BezierSpline GetSplineNoSplits(TrackDTO trackDto, int subTrackIdx, int groupIdx)
         {
-            SplitTrack splitTrack = splitter.SplitTrack(track, new Split[0]);
+            SplitTrack splitTrack = splitter.SplitTrack(trackDto, new Split[0]);
             return splineGenerator.GenerateSplines(splitTrack, splitTrack.SubTracks[subTrackIdx])[groupIdx];
         }
 

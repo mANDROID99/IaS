@@ -1,8 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 
 namespace IaS.WorldBuilder
 {
@@ -29,9 +25,9 @@ namespace IaS.WorldBuilder
         public float value { get; private set; }
 
         public SubSplit[] subSplits { get; private set; }
-        public String id { get; private set; }
+        public string id { get; private set; }
 
-        public Split(String id, Vector3 splitAxis, Vector3 pivot, float splitValue, SubSplit[] subSplits)
+        public Split(string id, Vector3 splitAxis, Vector3 pivot, float splitValue, SubSplit[] subSplits)
         {
             this.axis = splitAxis;
             this.pivot = pivot;

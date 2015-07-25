@@ -1,11 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
 using Assets.Scripts.Controllers;
-using IaS.GameObjects;
 using IaS.GameState;
-using IaS.WorldBuilder;
+using IaS.GameState.Creators;
 using IaS.WorldBuilder.Xml;
-using IaS.Controllers.World;
 using UnityEngine;
 
 public class WorldController : MonoBehaviour {
@@ -21,12 +18,12 @@ public class WorldController : MonoBehaviour {
     [SerializeField]
     public GameObject TrainPrefab;
 
-    private GroupContext[] _groups;
+    private WorldContext _world;
     private Controller[] _controllers;
 
     void Start()
     {
-        this.LoadWorld();
+        LoadWorld();
     }
 
 	// Update is called once per frame
@@ -39,27 +36,18 @@ public class WorldController : MonoBehaviour {
 
     public void LoadWorld()
     {
-        var worldParser = new WorldParser();
-        var level = worldParser.Parse(LevelXmlAsset, LevelXmlSchemaAsset);
         RemoveAllChildren();
 
-        var groupContextCreator = new GroupContextCreator();
-        var groupGameObjectBuilder = new GroupGameObjectBuilder(BlockPrefab, TrackPrefab);
+        var worldParser = new WorldParser();
+        LevelDTO levelDto = worldParser.Parse(LevelXmlAsset, LevelXmlSchemaAsset);
+
         var controllers = new List<Controller>();
+        var worldContextCreator = new WorldContextCreator();
+        var prefabs = new Prefabs(TrackPrefab, BlockPrefab, TrainPrefab, this.transform);
+        var eventRegistry = new EventRegistry();
 
-        _groups = level.Groups.Select(group =>
-        {
-            var eventRegistry = new EventRegistry();
-            GroupContext groupCtx = groupContextCreator.CreateGroupContext(group, eventRegistry);
-            GameObject groupGameObject;
-            InstanceWrapper[] instances = groupGameObjectBuilder.BuildGroupGameObject(groupCtx, this.transform, out groupGameObject);
-
-            controllers.Add(new BlockRotater(groupCtx, instances));
-            controllers.Add(new TrainController(groupGameObject.transform, TrainPrefab, groupCtx, 0));
-
-            return groupCtx;
-        }).ToArray();
-
+        _world = worldContextCreator.CreateWorld(levelDto);
+        worldContextCreator.CreateWorldControllers(_world, eventRegistry, controllers, prefabs);
         _controllers = controllers.ToArray();
     }
 

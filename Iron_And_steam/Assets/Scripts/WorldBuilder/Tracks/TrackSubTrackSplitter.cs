@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using IaS.Domain;
 using UnityEngine;
 using IaS.WorldBuilder.Xml;
 using IaS.WorldBuilder;
@@ -18,10 +19,10 @@ namespace IaS.WorldBuilder.Tracks
             this.config = config;
         }
 
-        public SplitTrack SplitTrack(Track track, Split[] splits)
+        public SplitTrack SplitTrack(TrackDTO trackDto, Split[] splits)
         {
-            List<SubTrackNode> subTrackNodes = CreateCornerDuplicatedTrackNodes(track);
-            SplitTrack splitTrack = SplitSubTrackNodes(subTrackNodes, splits, track);
+            List<SubTrackNode> subTrackNodes = CreateCornerDuplicatedTrackNodes(trackDto);
+            SplitTrack splitTrack = SplitSubTrackNodes(subTrackNodes, splits, trackDto);
             return splitTrack;
         }
 
@@ -31,7 +32,7 @@ namespace IaS.WorldBuilder.Tracks
             return (new Vector3(0.5f, 0.5f, 0.5f) - forward / 2f);
         }
 
-        private SplitTrack SplitSubTrackNodes(List<SubTrackNode> trackNodes, Split[] splits, Track trackRef)
+        private SplitTrack SplitSubTrackNodes(List<SubTrackNode> trackNodes, Split[] splits, TrackDTO trackDtoRef)
         {
             BlockBounds[] splitBounds = SplitContainingBounds(trackNodes, splits);
             Dictionary<BlockBounds, List<List<SubTrackNode>>> splitTrack = splitBounds.ToDictionary(bounds => bounds, bounds => new List<List<SubTrackNode>>());
@@ -91,7 +92,7 @@ namespace IaS.WorldBuilder.Tracks
             }
 
             splitTrack[currentSubBounds].Add(currentSubTrackNodes);
-            return ConvertDictionaryToSplitTrack(splitTrack, trackNodes[0], trackRef);
+            return ConvertDictionaryToSplitTrack(splitTrack, trackNodes[0], trackDtoRef);
         }
 
         private void UpdateLinks(SubTrackNode previous, SubTrackNode next)
@@ -102,20 +103,20 @@ namespace IaS.WorldBuilder.Tracks
                 next.previous = previous;
         }
 
-        private List<SubTrackNode> CreateCornerDuplicatedTrackNodes(Track track)
+        private List<SubTrackNode> CreateCornerDuplicatedTrackNodes(TrackDTO trackDto)
         {
             SubTrackNode previousTrackNode = null;
-            Vector3 down = track.Down;
+            Vector3 down = trackDto.Down;
             Vector3? lastForward = null;
 
-            TrackNode[] nodes = track.Nodes;
+            TrackNodeDTO[] nodesDto = trackDto.NodesDto;
             List<SubTrackNode> subTrackNodes = new List<SubTrackNode>();
 
-            for (int i = 0; i < nodes.Length; i++)
+            for (int i = 0; i < nodesDto.Length; i++)
             {
-                Vector3 position = nodes[i].Position;
-                Vector3? previousPos = i > 0 ? nodes[i - 1].Position : (Vector3?)null;
-                Vector3? nextPos = i < nodes.Length - 1 ? nodes[i + 1].Position : (Vector3?)null;
+                Vector3 position = nodesDto[i].Position;
+                Vector3? previousPos = i > 0 ? nodesDto[i - 1].Position : (Vector3?)null;
+                Vector3? nextPos = i < nodesDto.Length - 1 ? nodesDto[i + 1].Position : (Vector3?)null;
 
                 Vector3 forward = GetForward(position, previousPos, nextPos);
                 down = GetNextDownDirection(forward, lastForward, down);
@@ -171,7 +172,7 @@ namespace IaS.WorldBuilder.Tracks
         }
 
 
-        private SplitTrack ConvertDictionaryToSplitTrack(Dictionary<BlockBounds, List<List<SubTrackNode>>> dict, SubTrackNode firstTrackNode, Track trackRef)
+        private SplitTrack ConvertDictionaryToSplitTrack(Dictionary<BlockBounds, List<List<SubTrackNode>>> dict, SubTrackNode firstTrackNode, TrackDTO trackDtoRef)
         {
            SubTrack[] subTracks = dict.Keys
                .Where(subBounds => dict[subBounds].Count > 0)
@@ -180,7 +181,7 @@ namespace IaS.WorldBuilder.Tracks
                     return new SubTrack(subBounds, trackGroups);
                 }).ToArray();
 
-           return new SplitTrack(trackRef, subTracks, firstTrackNode);
+           return new SplitTrack(trackDtoRef, subTracks, firstTrackNode);
         }
 
 

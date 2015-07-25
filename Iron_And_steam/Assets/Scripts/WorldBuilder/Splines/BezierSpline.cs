@@ -1,8 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using System;
+﻿using System;
 using System.Linq;
+using UnityEngine;
 
 namespace IaS.WorldBuilder.Splines
 {
@@ -154,7 +152,7 @@ namespace IaS.WorldBuilder.Splines
 		}
 
         public override string ToString() {
-            return String.Join("\n", pts.Select(pt => pt.ToString()).ToArray());
+            return string.Join("\n", pts.Select(pt => pt.ToString()).ToArray());
         }
 
 		[Serializable]
@@ -184,7 +182,7 @@ namespace IaS.WorldBuilder.Splines
 
             public override string ToString()
             {
-                return String.Format("(p:{0}, p2:{1}, a1:{2}, a2:{3})", startPos, endPos, anchor1, anchor2);
+                return string.Format("(p:{0}, p2:{1}, a1:{2}, a2:{3})", startPos, endPos, anchor1, anchor2);
             }
 		}
 

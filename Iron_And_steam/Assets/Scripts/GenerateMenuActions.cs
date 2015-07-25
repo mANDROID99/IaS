@@ -26,21 +26,21 @@ public class GenerateMenuActions : MonoBehaviour {
     static void Generate()
     {
 		MeshPartsData meshPartsData = MeshPartsData.CreateAsset();
-		foreach (ProcMeshGroup group in meshPartsData.AllMeshGroups ()) 
+		foreach (ProcMeshGroup GroupDto in meshPartsData.AllMeshGroups ()) 
 		{
-			GameObject combinedInstance = CreateCombinedProcMeshGameObj(group.GroupName);
-			foreach (ProcMeshPart part in group.Parts)
+			GameObject combinedInstance = CreateCombinedProcMeshGameObj(GroupDto.GroupName);
+			foreach (ProcMeshPart part in GroupDto.Parts)
 			{
-				Mesh mesh = PrepareMesh(group.GroupName, part.GetMeshName(group.GroupName));
+				Mesh mesh = PrepareMesh(GroupDto.GroupName, part.GetMeshName(GroupDto.GroupName));
 				part.mesh = mesh;
 				ProcMeshGenerator meshGenerator = ProcMeshGeneratorFactory.Get(Type.GetType(part.MeshGeneratorType));
 				meshGenerator.BuildMesh(mesh, part);
 
 				combinedInstance.GetComponent<CombinedProcMesh>()
-					.Attach(CreateAttachedGameObj(mesh, part.TemplateName, part.GetMeshName(group.GroupName))
+					.Attach(CreateAttachedGameObj(mesh, part.TemplateName, part.GetMeshName(GroupDto.GroupName))
 					        , part.DefaultEnabled, part.PartName);
 			}
-			ReplacePrefab (group.GroupName, combinedInstance);
+			ReplacePrefab (GroupDto.GroupName, combinedInstance);
 			UnityEngine.Object.DestroyImmediate (combinedInstance);
 		}
 

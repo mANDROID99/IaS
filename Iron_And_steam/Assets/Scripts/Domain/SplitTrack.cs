@@ -1,26 +1,25 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using IaS.WorldBuilder.Xml;
 
-namespace IaS.WorldBuilder.Tracks
+namespace IaS.Domain
 {
     public class SplitTrack
     {
         public SubTrack[] SubTracks { get; private set; }
-        public Track TrackRef { get; private set; }
+        public TrackDTO TrackDto { get; private set; }
         public SubTrackNode FirstTrackNode { get; private set; }
         //public bool AreSubTracksWarmedUp { get; set; }
 
-        public SplitTrack(Track track, SubTrack[] subTracks, SubTrackNode firstTrackNode)
+        public SplitTrack(TrackDTO trackDto, SubTrack[] subTracks, SubTrackNode firstTrackNode)
         {
             SubTracks = subTracks;
-            TrackRef = track;
+            TrackDto = trackDto;
             FirstTrackNode = firstTrackNode;
         }
 
         public override string ToString()
         {
-            return String.Join(",\n------\n", SubTracks.Select(subTrack => subTrack.ToString()).ToArray());
+            return string.Join(",\n------\n", SubTracks.Select(subTrack => subTrack.ToString()).ToArray());
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using IaS.GameState;
+using IaS.WorldBuilder;
 using IaS.WorldBuilder.Splines;
 using UnityEngine;
 
-namespace IaS.WorldBuilder.Tracks
+namespace IaS.Domain
 {
     public class SubTrack
     {
@@ -89,7 +90,7 @@ namespace IaS.WorldBuilder.Tracks
 
         public override string ToString()
         {
-            return String.Format("{{pos:{0}, fwd:{1}}}", position, forward);
+            return string.Format("{{pos:{0}, fwd:{1}}}", position, forward);
         }
 
         

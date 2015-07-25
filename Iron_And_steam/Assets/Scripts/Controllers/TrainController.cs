@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Controllers;
+using IaS.Domain;
 using IaS.GameState;
 using IaS.Helpers;
 using IaS.WorldBuilder.Splines;
@@ -10,7 +11,7 @@ namespace IaS.GameObjects
     public class TrainController : EventConsumer<BlockRotationEvent>, Controller
     {
         private readonly GameObject _train;
-        private readonly GroupContext _group;
+        private readonly TrackConnections _trackConnections;
         private readonly int _trackIndex;
 
         private readonly BezierSpline.LinearInterpolator _splineInterpolator;
@@ -27,15 +28,15 @@ namespace IaS.GameObjects
         private Quaternion _bezierRotation = Quaternion.identity;
         private Quaternion _worldRotation = Quaternion.identity;
 
-        public TrainController(Transform parent, GameObject trainPrefab, GroupContext _group, int trackIndex)
+        public TrainController(Transform parent, GameObject trainPrefab, EventRegistry eventRegistry, TrackConnections trackConnections, GroupContext groupContext, int trackIndex)
         {
             _train = InstantiateGameObject(parent, trainPrefab);
-            this._group = _group;
+            _trackConnections = trackConnections;
             _trackIndex = trackIndex;
-            _group.EventRegistry.RegisterConsumer(this);
+            eventRegistry.RegisterConsumer(this);
 
-            TrackContext trackContext = _group.Tracks[_trackIndex];
-            _currentStGroup = trackContext.splitTrack.FirstTrackNode.group;
+            TrackContext trackContext = groupContext.Tracks[_trackIndex];
+            _currentStGroup = trackContext.SplitTrack.FirstTrackNode.group;
             _splineInterpolator = _currentStGroup.spline.linearInterpolator();
 
             var startPos = _currentStGroup.spline.pts[0].startPos;
@@ -57,8 +58,7 @@ namespace IaS.GameObjects
             if (_currentStGroup == null)
                 return;
 
-            var trackContext = _group.Tracks[_trackIndex];
-            _currentStGroup = trackContext.connections.GetNext(_currentStGroup, out _transformation);
+            _currentStGroup = _trackConnections.GetNext(_currentStGroup, out _transformation);
             
             if (_currentStGroup == null)
                 return;

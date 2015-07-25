@@ -1,22 +1,23 @@
-﻿using System;
+﻿using IaS.Domain;
 using IaS.WorldBuilder;
 
 namespace IaS.GameState
 {
     public class GroupContext
     {
+        public WorldContext World { get; internal set; }
         public readonly string GroupId;
-        public TrackContext[] Tracks { get; private set; }
-        public EventRegistry EventRegistry { get; private set; }
-        public MeshBlock[] MeshBlocks { get; private set; }
-        public Split[] Splits { get; private set; }
+        public readonly TrackContext[] Tracks;
+        public readonly BlocksContext BlockContext;
+        public readonly Split[] Splits;
+        public readonly Junction[] Junctions;
 
-        public GroupContext(String groupId, TrackContext[] tracks, EventRegistry eventRegistry, MeshBlock[] meshBlocks, Split[] splits)
+        public GroupContext(string groupId, TrackContext[] tracks, BlocksContext blockContext, Split[] splits, Junction[] junctions)
         {
+            Junctions = junctions;
             GroupId = groupId;
             Tracks = tracks;
-            EventRegistry = eventRegistry;
-            MeshBlocks = meshBlocks;
+            BlockContext = blockContext;
             Splits = splits;
         }
     }

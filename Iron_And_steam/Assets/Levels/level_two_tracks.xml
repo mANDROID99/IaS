@@ -1,19 +1,37 @@
 <level>
   <groups>
     <group p="0,0,0">
-      <mesh>
+      <submeshes>
         <sub m="block" p="0,0,0" s="6,6,6"/>
-      </mesh>
-      <split axis="y" val="3" pivot="3, 3, 3" id="split_y"/>
-      <split axis="x" val="3" pivot="3, 3, 3" id="split_y"/>
-      <split axis="z" val="3" pivot="3, 3, 3" id="split_y"/>
+      </submeshes>
 
-      <track startdir="forward" id="track_1">
-        <node p="3,0,-1"/>
-        <node p="3,6,-1"/>
-        <node p="3,6,2" id="crossroads"/>
-        <node p="5,6,2"/>
-      </track>
+      <splits>
+        <split axis="y" val="3" pivot="3, 3, 3" id="split_y"/>
+        <split axis="x" val="3" pivot="3, 3, 3" id="split_y"/>
+        <split axis="z" val="3" pivot="3, 3, 3" id="split_y"/>
+      </splits>
+
+      <tracks>
+        <track startdir="forward" down="forward" id="TrackDTO_1">
+          <node p="3,0,-1"/>
+          <node p="3,6,-1"/>
+          <node p="3,6,2"/>
+        </track>
+
+        <track startdir="forward" down="forward" id="TrackDTO_2">
+          <node p="3,6,2"/>
+          <node p="5,6,2"/>
+        </track>
+
+        <track startdir="forward" down="forward" id="TrackDTO_3">
+          <node p="3,6,2"/>
+          <node p="0,6,2"/>
+        </track>
+      </tracks>
+
+      <junctions>
+        <junction root="@TrackDTO_1" branch_default="@TrackDTO_2" branch_alternate="@TrackDTO_3"/>
+      </junctions>
       
     </group>
   </groups>

@@ -1,4 +1,6 @@
 ﻿
+using IaS.Domain;
+
 namespace IaS.WorldBuilder.Tracks
 {
     public class TrackJunctionProcessor

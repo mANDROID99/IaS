@@ -1,9 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
 using UnityEditor;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using IaS.WorldBuilder.MeshLoader;
+using UnityEngine;
 
 namespace IaS.WorldBuilder.Meshes
 {
@@ -11,12 +8,12 @@ namespace IaS.WorldBuilder.Meshes
 
 		private const string TEMPLATES_PATH = "Assets/Procedural/Templates";
 
-		public static GameObject InstantiateProcMeshTemplate(String templateName)
+		public static GameObject InstantiateProcMeshTemplate(string templateName)
 		{
-			String templatePath = String.Format ("{0}/{1}.prefab", TEMPLATES_PATH, templateName);
+			string templatePath = string.Format ("{0}/{1}.prefab", TEMPLATES_PATH, templateName);
 			GameObject prefab = (GameObject) AssetDatabase.LoadAssetAtPath(templatePath, typeof(GameObject));
 			if (prefab == null) {
-				throw new Exception(String.Format("Could not find template located at path: {0}", templatePath));
+				throw new Exception(string.Format("Could not find template located at path: {0}", templatePath));
 			}
 
             return GameObject.Instantiate(prefab);

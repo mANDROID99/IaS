@@ -1,29 +1,28 @@
 using System;
-using UnityEngine;
 using System.Collections.Generic;
 
 namespace IaS.WorldBuilder.Meshes
 {
-	public interface ProcMeshGenerator
+	public interface IProcMeshGenerator
 	{
-		void BuildMesh(String partName, AdjacencyMatrix adjacencyMatrix, MeshBuilder meshBuilder, BlockBounds clipBounds);
+		void BuildMesh(string partName, AdjacencyMatrix adjacencyMatrix, MeshBuilder meshBuilder, BlockBounds clipBounds);
 	}
 
 	public class ProcMeshGeneratorFactory
 	{
-		private static Dictionary<Type, ProcMeshGenerator> instances = new Dictionary<Type, ProcMeshGenerator>();
+		private static Dictionary<Type, IProcMeshGenerator> instances = new Dictionary<Type, IProcMeshGenerator>();
 
 		public static void ClearInstances(){
-			instances = new Dictionary<Type, ProcMeshGenerator>();
+			instances = new Dictionary<Type, IProcMeshGenerator>();
 		}
 
-		public static ProcMeshGenerator Get(Type t)
+		public static IProcMeshGenerator Get(Type t)
 		{
 			if (instances.ContainsKey (t)) {
 				return instances[t];
 			}
 			
-			ProcMeshGenerator instance = null;
+			IProcMeshGenerator instance = null;
 			if (t == typeof(BlockOuterEdgeMeshGenerator)) 
             {
 				instance = new BlockOuterEdgeMeshGenerator ();

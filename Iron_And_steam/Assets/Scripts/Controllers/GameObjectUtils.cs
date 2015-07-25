@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using System.Text;
+﻿using UnityEngine;
 
 namespace IaS.GameObjects
 {
@@ -16,7 +12,7 @@ namespace IaS.GameObjects
             return child;
         }
 
-        public static GameObject EmptyGameObject(String name, Transform parent, Vector3 localPosition)
+        public static GameObject EmptyGameObject(string name, Transform parent, Vector3 localPosition)
         {
             GameObject instance = new GameObject(name);
             instance.transform.parent = parent;
@@ -24,9 +20,9 @@ namespace IaS.GameObjects
             return instance;
         }
 
-        public static GameObject GameObjectScript<T>(String name, Transform parent, Vector3 localPosition, out T component) where T : MonoBehaviour
+        public static GameObject GameObjectScript<T>(string name, Transform parent, Vector3 localPosition, out T component) where T : MonoBehaviour
         {
-            GameObject instance = GameObjectUtils.EmptyGameObject(name, parent, localPosition);
+            GameObject instance = EmptyGameObject(name, parent, localPosition);
             component = instance.AddComponent<T>();
             return instance;
         }

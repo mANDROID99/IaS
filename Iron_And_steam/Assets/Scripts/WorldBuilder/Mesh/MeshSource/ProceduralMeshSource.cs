@@ -1,10 +1,8 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using IaS.WorldBuilder.MeshLoader;
 using IaS.WorldBuilder.Meshes;
+using UnityEngine;
 
 namespace IaS.WorldBuilder
 {
@@ -61,7 +59,7 @@ namespace IaS.WorldBuilder
         };
 
         private Part[] blockParts;
-        private Dictionary<Type, ProcMeshGenerator> meshGenerators = new Dictionary<Type,ProcMeshGenerator>();
+        private Dictionary<Type, IProcMeshGenerator> meshGenerators = new Dictionary<Type,IProcMeshGenerator>();
 
         private ProceduralMeshSource(Part[] blockParts)
         {
@@ -71,7 +69,7 @@ namespace IaS.WorldBuilder
         public static ProceduralMeshSource GetInstance(int proceduralBlockType)
         {
             if (!DIC_PROCEDURAL_MESHES.ContainsKey(proceduralBlockType))
-                throw new Exception(String.Format("Couldn't find procedural mesh with id {0}", proceduralBlockType));
+                throw new Exception(string.Format("Couldn't find procedural mesh with id {0}", proceduralBlockType));
 
             Part[] parts = DIC_PROCEDURAL_MESHES[proceduralBlockType];
             return new ProceduralMeshSource(parts);
@@ -107,9 +105,9 @@ namespace IaS.WorldBuilder
             {
                 if ((part.direction == null) || (!adjacencyMatrix.RPt(part.direction[0], part.direction[1], part.direction[2]).Occluded))
                 {
-                    ProcMeshGenerator meshGenerator;
+                    IProcMeshGenerator meshGenerator;
 					if(!meshGenerators.TryGetValue(part.meshGenerator, out meshGenerator)){
-						meshGenerators[part.meshGenerator] = (meshGenerator = (ProcMeshGenerator)Activator.CreateInstance(part.meshGenerator));
+						meshGenerators[part.meshGenerator] = (meshGenerator = (IProcMeshGenerator)Activator.CreateInstance(part.meshGenerator));
 					}
 
                     meshGenerator.BuildMesh(part.partName, adjacencyMatrix, meshBuilder, localClipBounds);
@@ -119,12 +117,12 @@ namespace IaS.WorldBuilder
 
         internal class Part
         {
-            internal String partName;
+            internal string partName;
             internal int occlusionShape;
             internal int[] direction;
 			internal Type meshGenerator;
 
-			internal Part(Type meshGenerator, String partName, int occlusionShape, int[] direction)
+			internal Part(Type meshGenerator, string partName, int occlusionShape, int[] direction)
             {
                 this.partName = partName;
                 this.occlusionShape = occlusionShape;

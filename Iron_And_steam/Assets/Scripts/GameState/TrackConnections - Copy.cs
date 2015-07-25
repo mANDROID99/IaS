@@ -1,34 +1,43 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using IaS.Domain;
 using IaS.GameObjects;
 using IaS.Helpers;
 using IaS.WorldBuilder.Tracks;
+using IaS.WorldBuilder.Xml;
 using UnityEngine;
 
 namespace IaS.GameState
 {
-    public class TrackConnections : EventConsumer<BlockRotationEvent>
+    public class TrackConnections2 : EventConsumer<BlockRotationEvent>
     {
         private readonly SplitTrack _track;
         private readonly List<Connection> _connections = new List<Connection>();
         private readonly Dictionary<SubTrackGroup, Connection> _connectionsMap = new Dictionary<SubTrackGroup, Connection>();
         private readonly Dictionary<InstanceWrapper, SubTrack> _instancesMap = new Dictionary<InstanceWrapper, SubTrack>();
+        private readonly BlockRotaterController _blockRotaterController;
 
-        public TrackConnections(EventRegistry eventRegistry, SplitTrack track)
+        public TrackConnections2(BlockRotaterController blockRotaterController, EventRegistry eventRegistry, TrackContext[] tracks, Junction[] junctions)
         {
-            _track = track;
+            _blockRotaterController = blockRotaterController;
+            _track = tracks[0].SplitTrack;
             eventRegistry.RegisterConsumer(this);
         }
 
-        public void RegisterSubTrack(InstanceWrapper instance, SubTrack subTrack)
+        public void AddSubTrackTrackInstances(SubTrack[] subTracks)
         {
-            _instancesMap.Add(instance, subTrack);
-            foreach (var group in subTrack.trackGroups)
+            _blockRotaterController.AddInstancesToRotate(subTracks.Select(subTrack => subTrack.instanceWrapper).ToArray());
+            foreach (SubTrack subTrack in subTracks)
             {
-                var conn = new Connection(group);
-                _connections.Add(conn);
-                _connectionsMap.Add(group, conn);
-                RefreshConnections(conn);
+                _instancesMap.Add(subTrack.instanceWrapper, subTrack);
+                
+                foreach (var group in subTrack.trackGroups)
+                {
+                    var conn = new Connection(group);
+                    _connections.Add(conn);
+                    _connectionsMap.Add(group, conn);
+                    RefreshConnections(conn);
+                }
             }
         }
 

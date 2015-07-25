@@ -1,10 +1,9 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using IaS.WorldBuilder.Meshes;
+using UnityEditor;
+using UnityEngine;
 
 namespace IaS.WorldBuilder
 {
@@ -35,7 +34,7 @@ namespace IaS.WorldBuilder
         public const string PART_INNER_EDGE_LEFT = "inner_edge_left";
 
 		[SerializeField]
-		private List<String> meshGroupDicKeys = new List<string>();
+		private List<string> meshGroupDicKeys = new List<string>();
 		[SerializeField]
 		private List<ProcMeshGroup> meshGroupDicValues = new List<ProcMeshGroup>();
 		private static MeshPartsData instance = null;
@@ -50,13 +49,13 @@ namespace IaS.WorldBuilder
 		}
 
 		public static MeshPartsData CreateAsset(){
-			MeshPartsData instance = ScriptableObject.CreateInstance<MeshPartsData> ();
+			MeshPartsData instance = CreateInstance<MeshPartsData> ();
 			MeshPartsData.instance = instance;
 
-			String blockEdgeMeshGenerator = typeof(BlockOuterEdgeMeshGenerator).ToString();
-			String blockSideMeshGenerator = typeof(BlockSideMeshGenerator).ToString();
-			String blockCornerMeshGenerator = typeof(BlockCornerMeshGenerator).ToString();
-            String blockInnerMeshGenerator = typeof(BlockInnerEdgeMeshGenerator).ToString();
+			string blockEdgeMeshGenerator = typeof(BlockOuterEdgeMeshGenerator).ToString();
+			string blockSideMeshGenerator = typeof(BlockSideMeshGenerator).ToString();
+			string blockCornerMeshGenerator = typeof(BlockCornerMeshGenerator).ToString();
+            string blockInnerMeshGenerator = typeof(BlockInnerEdgeMeshGenerator).ToString();
 
 			instance.meshGroups = new Dictionary<string, ProcMeshGroup>()
 			{
@@ -113,7 +112,7 @@ namespace IaS.WorldBuilder
 			instance = null;
 		}
 
-		public ProcMeshPart GetMeshPart(String groupName, String partName)
+		public ProcMeshPart GetMeshPart(string groupName, string partName)
 		{
 			if (!meshGroups.ContainsKey (groupName)) {
 				return null;
@@ -126,7 +125,7 @@ namespace IaS.WorldBuilder
 			return null;
 		}
 
-		public ProcMeshGroup GetMeshGroup(String groupName)
+		public ProcMeshGroup GetMeshGroup(string groupName)
 		{
 			if (!meshGroups.ContainsKey (groupName)) {
 				return null;
@@ -148,18 +147,18 @@ namespace IaS.WorldBuilder
 	[Serializable]
 	public class ProcMeshGroup{
 		[SerializeField]
-		private String groupName;
+		private string groupName;
 		[SerializeField]
 		private ProcMeshPart[] parts;
 
-		public String GroupName { get { return groupName; } }
+		public string GroupName { get { return groupName; } }
 		public IList<ProcMeshPart>  Parts { get { return parts; } }
 
 		public ProcMeshGroup()
 		{
 		}
 
-		public ProcMeshGroup(String groupName, ProcMeshPart[] parts)
+		public ProcMeshGroup(string groupName, ProcMeshPart[] parts)
 		{
 			this.groupName = groupName;
 			this.parts = parts;
@@ -179,12 +178,12 @@ namespace IaS.WorldBuilder
 		[SerializeField]
 		public Mesh mesh;
 
-		public String PartName { get { return partName; } }
+		public string PartName { get { return partName; } }
 		public bool DefaultEnabled { get { return defaultEnabled; } }
-		public String TemplateName { get { return templateName;} }
-		public String MeshGeneratorType { get { return meshGeneratorType;} }
+		public string TemplateName { get { return templateName;} }
+		public string MeshGeneratorType { get { return meshGeneratorType;} }
 
-		public ProcMeshPart(String partName, String templateName, bool defaultEnabled, String meshGeneratorType)
+		public ProcMeshPart(string partName, string templateName, bool defaultEnabled, string meshGeneratorType)
 		{
 			this.partName = partName;
 			this.defaultEnabled = defaultEnabled;
@@ -193,9 +192,9 @@ namespace IaS.WorldBuilder
 			this.mesh = null;
 		}
 
-		public String GetMeshName(String groupName)
+		public string GetMeshName(string groupName)
 		{
-			return String.Format ("{0}_{1}", groupName, partName);
+			return string.Format ("{0}_{1}", groupName, partName);
 		}
 	}
 }

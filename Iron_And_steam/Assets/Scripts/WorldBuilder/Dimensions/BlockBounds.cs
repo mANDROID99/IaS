@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 using IaS.Helpers;
-using IaS.GameObjects;
+using UnityEngine;
 
 namespace IaS.WorldBuilder
 {
@@ -118,7 +115,7 @@ namespace IaS.WorldBuilder
 
         public override string ToString()
         {
-            return String.Format("[pos: {0}, size: {1}]", Position, Size);
+            return string.Format("[pos: {0}, size: {1}]", Position, Size);
         }
 
         public override bool Equals(object obj)

@@ -1,14 +1,12 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace IaS.WorldBuilder.Meshes
 {
-	public class BlockCornerMeshGenerator : ProcMeshGenerator {
+	public class BlockCornerMeshGenerator : IProcMeshGenerator {
 
-        public void BuildMesh(String partName, AdjacencyMatrix adjMatrix, MeshBuilder meshBuilder, BlockBounds clipBounds)
+        public void BuildMesh(string partName, AdjacencyMatrix adjMatrix, MeshBuilder meshBuilder, BlockBounds clipBounds)
 		{
             SlopedMeshBuilder slopeBuilder = new SlopedMeshBuilder(meshBuilder);
 			if (MeshPartsData.PART_OUTER_CORNER.Equals (partName)) {

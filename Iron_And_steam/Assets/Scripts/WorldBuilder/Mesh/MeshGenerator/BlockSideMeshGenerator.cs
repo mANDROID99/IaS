@@ -1,13 +1,10 @@
-using System;
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace IaS.WorldBuilder.Meshes
 {
-	public class BlockSideMeshGenerator : ProcMeshGenerator {
+	public class BlockSideMeshGenerator : IProcMeshGenerator {
 
-		public void BuildMesh(String partName, AdjacencyMatrix adjMatrix,  MeshBuilder meshBuilder, BlockBounds clipBounds)
+		public void BuildMesh(string partName, AdjacencyMatrix adjMatrix,  MeshBuilder meshBuilder, BlockBounds clipBounds)
 		{
 			if (MeshPartsData.PART_BLOCK_FRONT.Equals (partName)) {
 				meshBuilder.AddTriangleStrip(

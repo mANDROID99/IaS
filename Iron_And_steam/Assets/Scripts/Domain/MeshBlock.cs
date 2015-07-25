@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 using IaS.WorldBuilder.Xml;
+using UnityEngine;
 
 namespace IaS.WorldBuilder
 {
@@ -25,8 +22,8 @@ namespace IaS.WorldBuilder
         public const string TYPE_STR_SLOPE = "slope";
 
         public Quaternion rotationQuat { get; set; }
-		public LevelGroup group {get; private set; }
-        public String id { get; private set; }
+		public LevelGroupDTO GroupDto {get; private set; }
+        public string id { get; private set; }
         public int type { get; private set; }
 		public MeshSource meshSource { get; private set; }
 
@@ -35,10 +32,10 @@ namespace IaS.WorldBuilder
         public BlockBounds bounds { get; private set; }
         public BlockBounds rotatedBlockBounds { get; private set; }
 
-        public MeshBlock(String id, MeshSource gameObjectBuilder, int type, BlockBounds blockBounds, BlockRotation blockRotation, int occludeOrder)
+        public MeshBlock(string id, MeshSource gameObjectBuilder, int type, BlockBounds blockBounds, BlockRotation blockRotation, int occludeOrder)
         {
             this.id = id;
-			this.group = group;
+			this.GroupDto = GroupDto;
 			this.meshSource = gameObjectBuilder;
             this.type = type;
             this.rotation = blockRotation;
@@ -68,7 +65,7 @@ namespace IaS.WorldBuilder
             return new MeshBlock(this.id, this.meshSource, this.type, blockBounds, this.rotation, this.occludeOrder);
         }
 
-        public static int TypeStringToType(String type)
+        public static int TypeStringToType(string type)
         {
             if (type == TYPE_STR_CUBOID)
             {

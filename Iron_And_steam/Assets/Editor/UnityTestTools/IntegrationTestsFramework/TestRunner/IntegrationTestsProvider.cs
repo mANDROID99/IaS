@@ -18,7 +18,7 @@ namespace UnityTest.IntegrationTestRunner
             {
                 if (test.IsTestGroup())
                 {
-                    throw new Exception(test.Name + " is test a group");
+                    throw new Exception(test.Name + " is test a GroupDto");
                 }
                 AddTestToList(test);
             }

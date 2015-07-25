@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 namespace IaS.WorldBuilder.MeshLoader
 {
@@ -10,14 +8,14 @@ namespace IaS.WorldBuilder.MeshLoader
 	public class CombinedProcMesh : MonoBehaviour
 	{
 		[SerializeField] 
-		private String groupName;
+		private string groupName;
 		[SerializeField]
 		private List<PartVisibility> partsEnabled = new List<PartVisibility>();
 		public IList<PartVisibility> PartsEnabled { get { return partsEnabled; } }
 
-		public String GroupName { get { return groupName;	} set{ groupName = value; } }
+		public string GroupName { get { return groupName;	} set{ groupName = value; } }
 
-		public void Attach(GameObject childGo, bool defaultEnabled, String partName)
+		public void Attach(GameObject childGo, bool defaultEnabled, string partName)
 		{
 			childGo.transform.parent = this.transform;
 			childGo.transform.localPosition = new Vector3 ();
@@ -25,7 +23,7 @@ namespace IaS.WorldBuilder.MeshLoader
 			SetPartEnabled (partsEnabled.Count - 1, defaultEnabled);
 		}
 
-		public String GetPartName(int idx)
+		public string GetPartName(int idx)
 		{
 			return partsEnabled [idx].partName;
 		}
@@ -55,7 +53,7 @@ namespace IaS.WorldBuilder.MeshLoader
 		[Serializable]
 		public class PartVisibility{
 			[SerializeField]
-			public String partName;
+			public string partName;
 			[SerializeField]
 			public bool enabled;
 		}

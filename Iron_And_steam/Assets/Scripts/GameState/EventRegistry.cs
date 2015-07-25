@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace IaS.GameState
 {
     public class EventRegistry
     {
-        private Dictionary<Type, Object> consumers = new Dictionary<Type, Object>();
+        private readonly Dictionary<Type, object> _consumers = new Dictionary<Type, object>();
 
         public void RegisterConsumer<E>(EventConsumer<E> consumer) where E : IEvent
         {
             Type eventType = typeof(E);
-            Object consumersGeneric;
+            object consumersGeneric;
             List<EventConsumer<E>> consumers;
-            if(!this.consumers.TryGetValue(eventType, out consumersGeneric))
+            if(!this._consumers.TryGetValue(eventType, out consumersGeneric))
             {
                 consumers = new List<EventConsumer<E>>();
-                this.consumers.Add(eventType, consumers);
+                this._consumers.Add(eventType, consumers);
             }
             else
             {
@@ -28,8 +26,8 @@ namespace IaS.GameState
 
         public void Notify<E>(E e) where E : IEvent
         {
-            Object consumersGeneric;
-            if(this.consumers.TryGetValue(typeof(E), out consumersGeneric)){
+            object consumersGeneric;
+            if(this._consumers.TryGetValue(typeof(E), out consumersGeneric)){
                 List<EventConsumer<E>> consumers = (List<EventConsumer<E>>)consumersGeneric;
                 foreach(EventConsumer<E> consumer in consumers)
                 {

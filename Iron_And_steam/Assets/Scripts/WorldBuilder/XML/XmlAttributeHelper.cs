@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Linq.Expressions;
+using System.Linq;
 using System.Xml.Linq;
+using IaS.WorldBuilder.XML;
 using UnityEngine;
 
 namespace IaS.WorldBuilder.Xml
@@ -18,7 +19,7 @@ namespace IaS.WorldBuilder.Xml
         public const string AxisY = "y";
         public const string AxisZ = "z";
 
-        public static bool TryFindAttribute(XAttribute attrib, out string value)
+        public static bool TryGetAttributeValue(XAttribute attrib, out string value)
         {
             value = attrib == null ? null : attrib.Value;
             return value != null;
@@ -34,15 +35,20 @@ namespace IaS.WorldBuilder.Xml
             return new Exception(string.Format("Attribute of attribType '{0}' is malformed", attribName));
         }
 
-        public static T ParseGeneric<T>(XAttribute attrib, Func<string, T> evaluator, Func<T> defaultEvaluator, String attribType, bool optional = true)
+        private static Exception UnresolvedReferenceException(string refId)
+        {
+            return new Exception(string.Format("Reference {0} could not be resolved", refId));
+        }
+
+        public static T ParseGeneric<T>(XAttribute attrib, Func<string, T> evaluator, T defaultValue, string attribType, bool optional = true)
         {
             string value;
-            if (!TryFindAttribute(attrib, out value) && !optional)
+            if (!TryGetAttributeValue(attrib, out value) && !optional)
             {
                 throw CouldntFindRequiredAttribException(attribType);
             }
 
-            return value == null ? defaultEvaluator.Invoke() : evaluator.Invoke(value);
+            return value == null ? defaultValue : evaluator.Invoke(value);
         }
 
         public static Vector3 ParseAxis(XAttribute attrib, bool optional = true, Vector3 defaultVal = new Vector3())
@@ -59,7 +65,7 @@ namespace IaS.WorldBuilder.Xml
                         return Vector3.forward;
                 }
                 throw MalformedAttribException("axis");
-            }, () => defaultVal, "axis", optional);
+            }, defaultVal, "axis", optional);
         }
 
 
@@ -69,40 +75,66 @@ namespace IaS.WorldBuilder.Xml
             {
                 string[] strSplit = s.Split(',');
                 return new Vector3(float.Parse(strSplit[0]), float.Parse(strSplit[1]), float.Parse(strSplit[2]));
-            }, () => defaultVal, "position", optional);
+            }, defaultVal, "position", optional);
         }
 
-        public static Vector3 ParseDirection(XAttribute attrib, bool optional = true, Vector3 defaultVal = new Vector3())
+        public static Vector3 ParseDirectionMandatory(XAttribute attrib)
         {
-            return ParseGeneric(attrib, s =>
+            Vector3? direction = ParseDirectionOptional(attrib);
+            if (!direction.HasValue)
+                throw CouldntFindRequiredAttribException("direction");
+            return direction.Value;
+        }
+
+        public static Vector3? ParseDirectionOptional(XAttribute attr)
+        {
+            string value;
+            if (!TryGetAttributeValue(attr, out value))
             {
-                switch (s)
-                {
-                    case DirStringForward:
-                        return Vector3.forward;
-                    case DirStringBack:
-                        return Vector3.back;
-                    case DirStringLeft:
-                        return Vector3.left;
-                    case DirStringRight:
-                        return Vector3.right;
-                    case DirStringUp:
-                        return Vector3.up;
-                    case DirStringDown:
-                        return Vector3.down;
-                }
-                throw MalformedAttribException("direction");
-            }, () => defaultVal, "direction", optional);
+                return null;
+            }
+            switch (value)
+            {
+                case DirStringForward:
+                    return Vector3.forward;
+                case DirStringBack:
+                    return Vector3.back;
+                case DirStringLeft:
+                    return Vector3.left;
+                case DirStringRight:
+                    return Vector3.right;
+                case DirStringUp:
+                    return Vector3.up;
+                case DirStringDown:
+                    return Vector3.down;
+            }
+            throw MalformedAttribException("direction");
         }
 
         public static float ParseFloat(XAttribute attrib, bool optional = true, float defaultVal = 0)
         {
-            return ParseGeneric(attrib, s => float.Parse(s), () => defaultVal, "float", optional);
+            return ParseGeneric(attrib, s => float.Parse(s), defaultVal, "float", optional);
         }
 
         public static string Parse(XAttribute attrib, bool optional = true, string defaultVal = "")
         {
-            return ParseGeneric(attrib, s => s, () => defaultVal, "string", optional);
+            return ParseGeneric(attrib, s => s, defaultVal, "string", optional);
+        }
+
+        public static T ParseReference<T>(XAttribute attrib, T[] references, bool optional = true) where T : IXmlReferenceable
+        {
+            string refId = Parse(attrib, optional, null);
+            if (refId == null) return default(T);
+
+            T refObj = references.FirstOrDefault(reference => ToRefId(reference.GetId()).Equals(refId));
+            
+            if (refObj == null) throw UnresolvedReferenceException(refId);
+            return refObj;
+        }
+
+        private static string ToRefId(string id)
+        {
+            return "@" + id;
         }
     }
 }

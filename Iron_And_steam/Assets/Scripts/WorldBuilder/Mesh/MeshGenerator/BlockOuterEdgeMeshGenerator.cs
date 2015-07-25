@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace IaS.WorldBuilder.Meshes
 {
-    public class BlockOuterEdgeMeshGenerator : ProcMeshGenerator
+    public class BlockOuterEdgeMeshGenerator : IProcMeshGenerator
     {
-        public void BuildMesh(String partName, AdjacencyMatrix adjMatrix, MeshBuilder meshBuilder, BlockBounds clipBounds)
+        public void BuildMesh(string partName, AdjacencyMatrix adjMatrix, MeshBuilder meshBuilder, BlockBounds clipBounds)
         {
             SlopedMeshBuilder slopeBuilder = new SlopedMeshBuilder(meshBuilder);
 	
