@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using IaS.WorldBuilder.Xml;
+using UnityEngine;
 
 namespace IaS.Domain
 {
@@ -8,6 +9,7 @@ namespace IaS.Domain
         public SubTrack[] SubTracks { get; private set; }
         public TrackDTO TrackDto { get; private set; }
         public SubTrackNode FirstTrackNode { get; private set; }
+
         //public bool AreSubTracksWarmedUp { get; set; }
 
         public SplitTrack(TrackDTO trackDto, SubTrack[] subTracks, SubTrackNode firstTrackNode)

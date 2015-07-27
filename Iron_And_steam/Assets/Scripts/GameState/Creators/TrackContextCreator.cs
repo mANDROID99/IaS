@@ -29,7 +29,7 @@ namespace IaS.GameState
             return new TrackContext(splitTrack);
         }
 
-        public void CreateTrackControllers(TrackContext trackContext, TrackConnections trackConnections, List<Controller> controllers, Prefabs prefabs, Transform parent)
+        public void CreateTrackControllers(TrackContext trackContext, TrackConnectionMapper trackConnectionMapper, List<Controller> controllers, Prefabs prefabs, Transform parent)
         {
             SplitTrack splitTrack = trackContext.SplitTrack;
             foreach (var subTrack in splitTrack.SubTracks)
@@ -37,7 +37,7 @@ namespace IaS.GameState
                 GameObject subTrackGameObj = BuildSubTrackGameObject(splitTrack, subTrack, parent, prefabs.TrackPrefab);
                 subTrack.instanceWrapper = new InstanceWrapper(subTrackGameObj, subTrack.subBounds);
             }
-            trackConnections.AddSubTrackTrackInstances(splitTrack.SubTracks);
+            trackConnectionMapper.AddSubTrackTrackInstances(splitTrack.SubTracks);
         }
 
         private GameObject BuildSubTrackGameObject(SplitTrack track, SubTrack subTrack, Transform parent, GameObject prefab)

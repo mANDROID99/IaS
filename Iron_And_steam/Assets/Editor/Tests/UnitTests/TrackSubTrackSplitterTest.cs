@@ -91,74 +91,19 @@ namespace IASTest
         {
             TrackDTO trackDto = new TrackDTO("id", Vector3.forward, null, new TrackNodeDTO[]{
                 new TrackNodeDTO(null, new Vector3(0, 0, 0)),
-                new TrackNodeDTO(null, new Vector3(2, 0, 0)),
-                new TrackNodeDTO(null, new Vector3(2, 1, 0)),
+                new TrackNodeDTO(null, new Vector3(4, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(4, 1, 0)),
                 new TrackNodeDTO(null, new Vector3(0, 1, 0))
             });
 
             IList<SubTrack> subTracks = splitter.SplitTrack(trackDto, new Split[]{
-                new Split("split_id", Vector3.right, new Vector3(), 1, new SubSplit[0])
+                new Split("split_id", Vector3.right, new Vector3(), 2, new SubSplit[0])
             }).SubTracks;
 
             Assert.That(subTracks.Count, Is.EqualTo(2));
-            AssertSubtrackContainsNodes(subTracks[0], 0, new Vector3[] { new Vector3(0, 0, 0), new Vector3(1, 0, 0) });
-            AssertSubtrackContainsNodes(subTracks[1], 0, new Vector3[] { new Vector3(1, 0, 0), new Vector3(2, 0, 0), new Vector3(2, 0, 0), new Vector3(2, 1, 0), new Vector3(2, 1, 0), new Vector3(1, 1, 0) });
-            AssertSubtrackContainsNodes(subTracks[0], 1, new Vector3[] { new Vector3(1, 1, 0), new Vector3(0, 1, 0) });
-        }
-
-        [Test]
-        public void trackDownwardsSplitBelowPrevious_doesNotAddTrackNodeTwice()
-        {
-            TrackDTO trackDto = new TrackDTO("id", Vector3.forward, null, new TrackNodeDTO[]{
-                new TrackNodeDTO(null, new Vector3(0, 3, 0)),
-                new TrackNodeDTO(null, new Vector3(0, 0, 0))
-            });
-
-            IList<SubTrack> subTracks = splitter.SplitTrack(trackDto, new Split[]{
-                new Split("split_id", Vector3.up, new Vector3(), 3, new SubSplit[0])
-            }).SubTracks;
-
-            Assert.That(subTracks.Count, Is.EqualTo(2));
-            AssertSubtrackContainsNodes(subTracks[0], 0, new Vector3[] { new Vector3(0, 3, 0), new Vector3(0, 0, 0) });
-            AssertSubtrackContainsNodes(subTracks[1], 0, new Vector3[] { new Vector3(0, 3, 0) });
-        }
-
-        [Test]
-        public void firstNodeAtSplit_doesNotAddIntersectNode()
-        {
-            TrackDTO trackDto = new TrackDTO("id", Vector3.left, null, new TrackNodeDTO[]{
-                new TrackNodeDTO(null, new Vector3(0, 2, 0)),
-                new TrackNodeDTO(null, new Vector3(0, 0, 0))
-            });
-
-            IList<SubTrack> subTracks = splitter.SplitTrack(trackDto, new Split[]{
-                new Split("", Vector3.up, new Vector3(), 2, new SubSplit[0])
-            }).SubTracks;
-
-            Assert.That(SecondPart(subTracks).NumTrackNodes, Is.EqualTo(1));
-            Assert.That(FirstPart(subTracks).NumTrackNodes, Is.EqualTo(2));
-            Assert.That(SecondPart(subTracks)[0].next, Is.EqualTo(FirstPart(subTracks)[1]));
-            Assert.That(FirstPart(subTracks)[1].previous, Is.EqualTo(SecondPart(subTracks)[0]));
-            Assert.That(FirstPart(subTracks)[0], Is.EqualTo(SecondPart(subTracks)[0]));
-        }
-
-        [Test]
-        public void secondNodeAtSplit_doesNotAddIntersectNode()
-        {
-            TrackDTO trackDto = new TrackDTO("id", Vector3.left, null, new TrackNodeDTO[]{
-                new TrackNodeDTO(null, new Vector3(0, 0, 0)),
-                new TrackNodeDTO(null, new Vector3(0, 2, 0))
-            });
-
-            IList<SubTrack> subTracks = splitter.SplitTrack(trackDto, new Split[]{
-                new Split("", Vector3.up, new Vector3(), 2, new SubSplit[0])
-            }).SubTracks;
-
-            Assert.That(FirstPart(subTracks).NumTrackNodes, Is.EqualTo(2));
-            Assert.That(SecondPart(subTracks).NumTrackNodes, Is.EqualTo(1));
-            Assert.That(FirstPart(subTracks)[0].next, Is.EqualTo(SecondPart(subTracks)[0]));
-            Assert.That(FirstPart(subTracks)[1], Is.EqualTo(SecondPart(subTracks)[0]));
-            Assert.That(SecondPart(subTracks)[0].previous, Is.EqualTo(FirstPart(subTracks)[0]));
+            AssertSubtrackContainsNodes(subTracks[0], 0, new [] { new Vector3(0, 0, 0), new Vector3(2, 0, 0) });
+            AssertSubtrackContainsNodes(subTracks[1], 0, new [] { new Vector3(2, 0, 0), new Vector3(4, 0, 0), new Vector3(4, 0, 0), new Vector3(4, 1, 0), new Vector3(4, 1, 0), new Vector3(1, 1, 0) });
+            AssertSubtrackContainsNodes(subTracks[0], 1, new [] { new Vector3(1, 1, 0), new Vector3(0, 1, 0) });
         }
 
         [Test]
@@ -221,6 +166,41 @@ namespace IASTest
             Assert.That(SecondPart(subTracks)[1].forward, Is.EqualTo(Vector3.up));
             Assert.That(SecondPart(subTracks)[2].forward, Is.EqualTo(Vector3.right));
             Assert.That(SecondPart(subTracks)[3].forward, Is.EqualTo(Vector3.right));
+        }
+
+        [Test]
+        public void ImmediateCurveToRight()
+        {
+            TrackDTO trackDto = new TrackDTO("id", Vector3.forward, Vector3.up, new[]{
+                new TrackNodeDTO(null, new Vector3(0, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(3, 0, 0)), 
+            });
+
+            IList<SubTrack> subTracks = splitter.SplitTrack(trackDto, new Split[0]).SubTracks;
+
+            Assert.That(FirstPart(subTracks)[0].position, Is.EqualTo(new Vector3(0, 0, 0)));
+            Assert.That(FirstPart(subTracks)[0].forward, Is.EqualTo(Vector3.up));
+
+            Assert.That(FirstPart(subTracks)[1].position, Is.EqualTo(new Vector3(0, 0, 0)));
+            Assert.That(FirstPart(subTracks)[1].forward, Is.EqualTo(Vector3.right));
+
+            Assert.That(FirstPart(subTracks)[2].position, Is.EqualTo(new Vector3(3, 0, 0)));
+            Assert.That(FirstPart(subTracks)[2].forward, Is.EqualTo(Vector3.right));
+        }
+
+        [Test]
+        public void SplitsAtSamePointAsLastNode()
+        {
+            TrackDTO trackDto = new TrackDTO("id", Vector3.forward, Vector3.up, new []{
+                new TrackNodeDTO(null, new Vector3(0, 0, 0)),
+                new TrackNodeDTO(null, new Vector3(0, 3, 0)),
+            });
+
+            IList<SubTrack> subTracks = splitter.SplitTrack(trackDto, new []{
+                new Split("", Vector3.up, new Vector3(), 3, new SubSplit[0])
+            }).SubTracks;
+
+            Assert.That(subTracks.Count, Is.EqualTo(1));
         }
 
 

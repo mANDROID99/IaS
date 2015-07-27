@@ -46,7 +46,7 @@ namespace IaS.GameState
             GameObject tracksContainer = GameObjectUtils.EmptyGameObject("TracksDto", groupContainer.transform, new Vector3());
 
             var blockRotater = new BlockRotaterController(eventRegistry, groupContext.Splits);
-            var trackConnections = new TrackConnections(blockRotater, eventRegistry, groupContext.Tracks, groupContext.Junctions);
+            var trackConnections = new TrackConnectionMapper(blockRotater, eventRegistry, groupContext.Tracks, groupContext.Junctions);
             controllers.Add(blockRotater);
 
             _blocksContextCreator.CreateBlockControllers(groupContext.BlockContext, blockRotater, controllers, prefabs, blocksContainer.transform);

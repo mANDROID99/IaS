@@ -91,7 +91,10 @@ namespace IaS.WorldBuilder.Tracks
                 currentSubTrackNodes.Add(nextNode);
             }
 
-            splitTrack[currentSubBounds].Add(currentSubTrackNodes);
+            if (currentSubTrackNodes.Count > 1)
+            {
+                splitTrack[currentSubBounds].Add(currentSubTrackNodes);
+            }
             return ConvertDictionaryToSplitTrack(splitTrack, trackNodes[0], trackDtoRef);
         }
 
@@ -107,10 +110,12 @@ namespace IaS.WorldBuilder.Tracks
         {
             SubTrackNode previousTrackNode = null;
             Vector3 down = trackDto.Down;
-            Vector3? lastForward = null;
+            Vector3? lastForward = trackDto.StartDir;
 
             TrackNodeDTO[] nodesDto = trackDto.NodesDto;
             List<SubTrackNode> subTrackNodes = new List<SubTrackNode>();
+
+            if(nodesDto.Length < 2) return subTrackNodes;
 
             for (int i = 0; i < nodesDto.Length; i++)
             {
@@ -118,7 +123,17 @@ namespace IaS.WorldBuilder.Tracks
                 Vector3? previousPos = i > 0 ? nodesDto[i - 1].Position : (Vector3?)null;
                 Vector3? nextPos = i < nodesDto.Length - 1 ? nodesDto[i + 1].Position : (Vector3?)null;
 
-                Vector3 forward = GetForward(position, previousPos, nextPos);
+                Vector3? nextForward = nextPos.HasValue ? (nextPos.Value - position).normalized : (Vector3?)null;
+                Vector3 forward;
+                if (i == 0)
+                {
+                    forward = trackDto.StartDir ?? (nextPos.Value - position).normalized;
+                }
+                else
+                {
+                    forward = (position - previousPos.Value).normalized;
+                }
+
                 down = GetNextDownDirection(forward, lastForward, down);
                 lastForward = forward;
 
@@ -128,14 +143,15 @@ namespace IaS.WorldBuilder.Tracks
                 previousTrackNode = currentNode;
                 subTrackNodes.Add(currentNode);
 
-                if ((previousPos.HasValue) && (nextPos.HasValue) && (IsCorner(position, previousPos.Value, nextPos.Value)))
+
+
+                if ((nextForward.HasValue) && (Vector3.Angle(forward, nextForward.Value) > 0.1f))
                 {
                     // corner
-                    Vector3 nextForward = (nextPos.Value - position).normalized;
-                    down = GetNextDownDirection(nextForward, lastForward, down);
+                    down = GetNextDownDirection(nextForward.Value, lastForward, down);
                     lastForward = nextForward;
 
-                    SubTrackNode cornerNode = new SubTrackNode(position, nextForward, down);
+                    SubTrackNode cornerNode = new SubTrackNode(position, nextForward.Value, down);
                     UpdateLinks(currentNode, cornerNode);
 
                     previousTrackNode = cornerNode;
@@ -146,15 +162,6 @@ namespace IaS.WorldBuilder.Tracks
             return subTrackNodes;
         }
 
-        private Vector3 GetForward(Vector3 position, Vector3? previousPos, Vector3? nextPos)
-        {
-            if (previousPos.HasValue)
-                return (position - previousPos.Value).normalized;
-            if (nextPos.HasValue)
-                return (nextPos.Value - position).normalized;
-            else return new Vector3();
-        }
-
         private Vector3 GetNextDownDirection(Vector3 forward, Vector3? lastForward, Vector3 down)
         {
             if (lastForward.HasValue)
@@ -162,14 +169,10 @@ namespace IaS.WorldBuilder.Tracks
                 down = Quaternion.FromToRotation(lastForward.Value, forward) * down;
                 down = MathHelper.RoundVector3ToDp(down, 3);
             }
-            lastForward = forward;
             return down;
         }
 
-        private bool IsCorner(Vector3 pos, Vector3 previousPos, Vector3 nextPos)
-        {
-            return Vector3.Angle((pos - previousPos).normalized, (nextPos - pos).normalized) > 0.1f;
-        }
+        
 
 
         private SplitTrack ConvertDictionaryToSplitTrack(Dictionary<BlockBounds, List<List<SubTrackNode>>> dict, SubTrackNode firstTrackNode, TrackDTO trackDtoRef)

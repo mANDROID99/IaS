@@ -11,8 +11,10 @@
         <split axis="z" val="3" pivot="3, 3, 3" id="split_y"/>
       </splits>
 
+      
       <tracks>
-        <track startdir="forward" down="forward" id="TrackDTO_1">
+        
+        <track startdir="up" down="forward" id="TrackDTO_1">
           <node p="3,0,-1"/>
           <node p="3,6,-1"/>
           <node p="3,6,2"/>
@@ -21,16 +23,20 @@
         <track startdir="forward" down="forward" id="TrackDTO_2">
           <node p="3,6,2"/>
           <node p="5,6,2"/>
+          <node p="5,6,4"/>
+          <node p="2,6,4"/>
         </track>
 
         <track startdir="forward" down="forward" id="TrackDTO_3">
           <node p="3,6,2"/>
-          <node p="0,6,2"/>
+          <node p="1,6,2"/>
+          <node p="1,6,4"/>
+          <node p="3,6,4"/>
         </track>
       </tracks>
 
       <junctions>
-        <junction root="@TrackDTO_1" branch_default="@TrackDTO_2" branch_alternate="@TrackDTO_3"/>
+        <junction connection="@TrackDTO_1" branch_default="@TrackDTO_2" branch_alternate="@TrackDTO_3"/>
       </junctions>
       
     </group>

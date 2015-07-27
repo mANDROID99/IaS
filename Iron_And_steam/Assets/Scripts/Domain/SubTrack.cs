@@ -3,6 +3,7 @@ using System.Linq;
 using IaS.GameState;
 using IaS.WorldBuilder;
 using IaS.WorldBuilder.Splines;
+using IaS.WorldBuilder.Xml;
 using UnityEngine;
 
 namespace IaS.Domain
@@ -27,45 +28,6 @@ namespace IaS.Domain
             {
                 trackGroup.subTrack = this;
                 trackGroup.UpdateReferences();
-            }
-        }
-    }
-
-    public class SubTrackGroup
-    {
-        public SubTrackNode[] nodes { get; private set; }
-        public SubTrack subTrack { get; internal set; }
-        public BezierSpline spline { get; internal set; }
-        public int NumTrackNodes
-        {
-            get
-            {
-                return nodes.Length;
-            }
-        }
-
-        public SubTrackNode this[int i]{
-            get { 
-                return nodes[i];
-            }
-        }
-
-        public SubTrackNode Last()
-        {
-            return nodes.Last();
-        }
-
-        public SubTrackGroup(BezierSpline spline, SubTrackNode[] nodes)
-        {
-            this.spline = spline;
-            this.nodes = nodes;
-        }
-
-        internal void UpdateReferences()
-        {
-            foreach (SubTrackNode node in nodes)
-            {
-                node.group = this;
             }
         }
     }

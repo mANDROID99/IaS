@@ -11,7 +11,7 @@ namespace IaS.GameObjects
     public class TrainController : EventConsumer<BlockRotationEvent>, Controller
     {
         private readonly GameObject _train;
-        private readonly TrackConnections _trackConnections;
+        private readonly TrackConnectionMapper _trackConnectionMapper;
         private readonly int _trackIndex;
 
         private readonly BezierSpline.LinearInterpolator _splineInterpolator;
@@ -28,10 +28,10 @@ namespace IaS.GameObjects
         private Quaternion _bezierRotation = Quaternion.identity;
         private Quaternion _worldRotation = Quaternion.identity;
 
-        public TrainController(Transform parent, GameObject trainPrefab, EventRegistry eventRegistry, TrackConnections trackConnections, GroupContext groupContext, int trackIndex)
+        public TrainController(Transform parent, GameObject trainPrefab, EventRegistry eventRegistry, TrackConnectionMapper trackConnectionMapper, GroupContext groupContext, int trackIndex)
         {
             _train = InstantiateGameObject(parent, trainPrefab);
-            _trackConnections = trackConnections;
+            _trackConnectionMapper = trackConnectionMapper;
             _trackIndex = trackIndex;
             eventRegistry.RegisterConsumer(this);
 
@@ -58,7 +58,7 @@ namespace IaS.GameObjects
             if (_currentStGroup == null)
                 return;
 
-            _currentStGroup = _trackConnections.GetNext(_currentStGroup, out _transformation);
+            _currentStGroup = _trackConnectionMapper.GetNext(_currentStGroup, out _transformation);
             
             if (_currentStGroup == null)
                 return;

@@ -181,6 +181,7 @@ namespace IASTest
             AssertSplinePt(splines[1][0].pts[0], new Vector3(1, 1.5f, 0.5f), new Vector3(3, 1.5f, 0.5f));
         }
 
+
         private BezierSpline[][] GetSplinesWithSplits(TrackDTO trackDto, Split[] splits)
         {
             SplitTrack splitTrack = splitter.SplitTrack(trackDto, splits);

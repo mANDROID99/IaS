@@ -3,13 +3,11 @@ using System.Linq;
 using IaS.Domain;
 using IaS.GameObjects;
 using IaS.Helpers;
-using IaS.WorldBuilder.Tracks;
-using IaS.WorldBuilder.Xml;
 using UnityEngine;
 
 namespace IaS.GameState
 {
-    public class TrackConnections : EventConsumer<BlockRotationEvent>
+    public class TrackConnectionMapper : EventConsumer<BlockRotationEvent>
     {
         private readonly SplitTrack _track;
         private readonly List<Connection> _connections = new List<Connection>();
@@ -17,7 +15,7 @@ namespace IaS.GameState
         private readonly Dictionary<InstanceWrapper, SubTrack> _instancesMap = new Dictionary<InstanceWrapper, SubTrack>();
         private readonly BlockRotaterController _blockRotaterController;
 
-        public TrackConnections(BlockRotaterController blockRotaterController, EventRegistry eventRegistry, TrackContext[] tracks, Junction[] junctions)
+        public TrackConnectionMapper(BlockRotaterController blockRotaterController, EventRegistry eventRegistry, TrackContext[] tracks, Junction[] junctions)
         {
             _blockRotaterController = blockRotaterController;
             _track = tracks[0].SplitTrack;

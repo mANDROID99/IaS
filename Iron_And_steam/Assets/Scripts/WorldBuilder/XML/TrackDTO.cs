@@ -1,4 +1,6 @@
-﻿using IaS.WorldBuilder.XML;
+﻿using System.Linq;
+using IaS.Domain;
+using IaS.WorldBuilder.XML;
 using UnityEngine;
 
 namespace IaS.WorldBuilder.Xml
@@ -17,6 +19,26 @@ namespace IaS.WorldBuilder.Xml
             NodesDto = nodesDto;
             StartDir = startDir;
         }
+
+
+        public Vector3 EndForwardDTO
+        {
+            get
+            {
+                TrackNodeDTO lastNode = NodesDto[NodesDto.Length - 1];
+                return (lastNode.Position - lastNode.Previous.Position).normalized;
+            }
+        }
+
+        public Vector3 StartForwardDTO
+        {
+            get
+            {
+                TrackNodeDTO firstNode = NodesDto[0];
+                return (firstNode.Next.Position - firstNode.Position);
+            }
+        }
+
 
         public string GetId()
         {
