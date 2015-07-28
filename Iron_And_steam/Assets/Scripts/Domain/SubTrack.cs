@@ -13,9 +13,13 @@ namespace IaS.Domain
         public BlockBounds subBounds { get; private set; }
         public SubTrackGroup[] trackGroups { get; private set; }
         public InstanceWrapper instanceWrapper { get; set; }
+        public readonly SubTrackGroup FirstGroup;
+        public readonly SubTrackGroup LastGroup;
 
-        public SubTrack(BlockBounds subBounds, SubTrackGroup[] trackGroups)
+        public SubTrack(BlockBounds subBounds, SubTrackGroup[] trackGroups, SubTrackGroup firstGroup, SubTrackGroup lastGroup)
         {
+            FirstGroup = firstGroup;
+            LastGroup = lastGroup;
             this.instanceWrapper = null;
             this.subBounds = subBounds;
             this.trackGroups = trackGroups;

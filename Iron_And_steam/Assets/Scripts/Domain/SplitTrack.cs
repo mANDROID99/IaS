@@ -8,15 +8,16 @@ namespace IaS.Domain
     {
         public SubTrack[] SubTracks { get; private set; }
         public TrackDTO TrackDto { get; private set; }
-        public SubTrackNode FirstTrackNode { get; private set; }
 
-        //public bool AreSubTracksWarmedUp { get; set; }
+        public readonly SubTrack FirstSubTrack;
+        public readonly SubTrack LastSubTrack;
 
-        public SplitTrack(TrackDTO trackDto, SubTrack[] subTracks, SubTrackNode firstTrackNode)
+        public SplitTrack(TrackDTO trackDto, SubTrack[] subTracks, SubTrack firstSubTrack, SubTrack lastSubTrack)
         {
             SubTracks = subTracks;
             TrackDto = trackDto;
-            FirstTrackNode = firstTrackNode;
+            FirstSubTrack = firstSubTrack;
+            LastSubTrack = lastSubTrack;
         }
 
         public override string ToString()

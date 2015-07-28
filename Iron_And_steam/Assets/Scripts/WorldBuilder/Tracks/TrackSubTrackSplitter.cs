@@ -37,6 +37,8 @@ namespace IaS.WorldBuilder.Tracks
             BlockBounds[] splitBounds = SplitContainingBounds(trackNodes, splits);
             Dictionary<BlockBounds, List<List<SubTrackNode>>> splitTrack = splitBounds.ToDictionary(bounds => bounds, bounds => new List<List<SubTrackNode>>());
 
+            BlockBounds firstBlockBounds = null;
+            BlockBounds lastBlockBounds = null;
             BlockBounds currentSubBounds = null;
             List<SubTrackNode> currentSubTrackNodes = null;
 
@@ -86,6 +88,9 @@ namespace IaS.WorldBuilder.Tracks
 
                     currentSubTrackNodes = nextSubTrackNodes;
                     currentSubBounds = nextSubBounds;
+
+                    firstBlockBounds = firstBlockBounds ?? currentSubBounds;
+                    lastBlockBounds = currentSubBounds;
                 }
 
                 currentSubTrackNodes.Add(nextNode);
@@ -95,7 +100,7 @@ namespace IaS.WorldBuilder.Tracks
             {
                 splitTrack[currentSubBounds].Add(currentSubTrackNodes);
             }
-            return ConvertDictionaryToSplitTrack(splitTrack, trackNodes[0], trackDtoRef);
+            return ConvertDictionaryToSplitTrack(splitTrack, trackDtoRef, firstBlockBounds, lastBlockBounds);
         }
 
         private void UpdateLinks(SubTrackNode previous, SubTrackNode next)
@@ -172,19 +177,31 @@ namespace IaS.WorldBuilder.Tracks
             return down;
         }
 
-        
-
-
-        private SplitTrack ConvertDictionaryToSplitTrack(Dictionary<BlockBounds, List<List<SubTrackNode>>> dict, SubTrackNode firstTrackNode, TrackDTO trackDtoRef)
+        private SplitTrack ConvertDictionaryToSplitTrack(Dictionary<BlockBounds, List<List<SubTrackNode>>> dict, TrackDTO trackDtoRef, BlockBounds firstSubTrackBounds, BlockBounds lastSubTrackBounds)
         {
-           SubTrack[] subTracks = dict.Keys
-               .Where(subBounds => dict[subBounds].Count > 0)
-               .Select(subBounds => {
+            SubTrack firstSubTrack = null;
+            SubTrack lastSubTrack = null;
+            SubTrack[] subTracks = dict.Keys
+                .Where(subBounds => dict[subBounds].Count > 0)
+                .Select(subBounds => {
                     SubTrackGroup[] trackGroups = dict[subBounds].Select(group => new SubTrackGroup(null, group.ToArray())).ToArray();
-                    return new SubTrack(subBounds, trackGroups);
+                    SubTrackGroup firstGroup = trackGroups[0];
+                    SubTrackGroup lastGroup = trackGroups.Last();
+                    SubTrack subTrack = new SubTrack(subBounds, trackGroups, firstGroup, lastGroup);
+
+                    if (subBounds == firstSubTrackBounds)
+                    {
+                        firstSubTrack = subTrack;
+                    }
+                    if (subBounds == lastSubTrackBounds)
+                    {
+                        lastSubTrack = subTrack;
+                    }
+
+                    return subTrack;
                 }).ToArray();
 
-           return new SplitTrack(trackDtoRef, subTracks, firstTrackNode);
+            return new SplitTrack(trackDtoRef, subTracks, firstSubTrack, lastSubTrack);
         }
 
 

@@ -5,17 +5,24 @@ using UnityEngine;
 
 namespace IaS.GameState.TrackConnections
 {
-    public interface ConnectionFilter
+    public interface IStartConnectionFilter
     {
         SubTrackGroup GetSubTrackGroup();
-        Vector3? GetJunctionPos();
-        Vector3? GetJunctionForward();
         Vector3 GetStartPos();
-        Vector3 GetEndPos();
         Vector3 GetStartForward();
+        void Rotate(Transformation transformation);
+
+        bool AllowPrevious(IEndConnectionFilter previous);
+
+    }
+
+    public interface IEndConnectionFilter
+    {
+        SubTrackGroup GetSubTrackGroup();
+        Vector3 GetEndPos();
         Vector3 GetEndForward();
         void Rotate(Transformation transformation);
 
-        bool Filter(ConnectionFilter filter, bool matchAgainstNext);
+        bool AllowNext(IStartConnectionFilter next);
     }
 }

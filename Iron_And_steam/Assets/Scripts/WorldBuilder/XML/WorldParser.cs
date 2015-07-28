@@ -40,9 +40,9 @@ namespace IaS.WorldBuilder.Xml
         private const string AttrTrackDown = "down";
         private const string AttrTrackStartDirection = "startdir";
         private const string AttrTrackNodePosition = "p";
-        private const string AttrJunctionRoot = "root";
         private const string AttrJunctionBranchDefault = "branch_default";
         private const string AttrJunctionBranchAlternate = "branch_alternate";
+        private const string AttrJunctionDirection = "direction";
 
         private int _idCountSplit = 0;
         private int _idCountBlock = 0;
@@ -72,7 +72,7 @@ namespace IaS.WorldBuilder.Xml
         private LevelGroupDTO ParseBlockGroup(XElement xGroup)
         {
             string id = GetId(xGroup, "GroupDto", ref _idCountGroup);
-            Vector3 groupPos = XmlAttributeHelper.ParsePosition(xGroup.Attribute(AttrGroupPosition), false);
+            Vector3 groupPos = XmlAttributeHelper.ParsePositionAttrib(xGroup, AttrGroupPosition).Value;
 
             MeshBlock[] meshBlocks = ParseSubMeshes(xGroup.Element(ElementSubMeshes));
             Split[] splits = ParseSplits(xGroup.Element(ElementSplits));
@@ -107,10 +107,10 @@ namespace IaS.WorldBuilder.Xml
 
         private MeshBlock ParseMeshBlock(XElement xBlock)
         {
-            Vector3 position = XmlAttributeHelper.ParsePosition(xBlock.Attribute(AttrMeshblockPosition), false);
-            Vector3 size = XmlAttributeHelper.ParsePosition(xBlock.Attribute(AttrMeshblockSize), false);
+            Vector3 position = XmlAttributeHelper.ParsePositionAttrib(xBlock, AttrMeshblockPosition).Value;
+            Vector3 size = XmlAttributeHelper.ParsePositionAttrib(xBlock, AttrMeshblockSize).Value;
 
-            string typeStr = XmlAttributeHelper.Parse(xBlock.Attribute(AttrMeshblockType), false);
+            string typeStr = XmlAttributeHelper.ParseTextAttrib(xBlock, AttrMeshblockType).Value;
             int type = MeshBlock.TypeStringToType(typeStr);
             string id = GetId(xBlock, string.Format("sub_{0}", typeStr), ref _idCountBlock);
 
@@ -144,17 +144,17 @@ namespace IaS.WorldBuilder.Xml
                 return new BlockRotation();
             }
 
-            string direction = XmlAttributeHelper.Parse(xRot.Attribute(AttrRotDirection), false);
-            float amount = XmlAttributeHelper.ParseFloat(xRot.Attribute(AttrRotAmount), false);
+            string direction = XmlAttributeHelper.ParseTextAttrib(xRot, AttrRotDirection).Value;
+            float amount = XmlAttributeHelper.ParseFloatAttrib(xRot, AttrRotAmount).Value;
 
             return new BlockRotation(direction, amount);
         }
 
 		private Split ParseSplit(XElement xSplit)
 		{
-		    float value = XmlAttributeHelper.ParseFloat(xSplit.Attribute(AttrSplitValue), false);
-            Vector3 pivot = XmlAttributeHelper.ParsePosition(xSplit.Attribute(AttrSplitPivot), false);
-            Vector3 axis = XmlAttributeHelper.ParseAxis(xSplit.Attribute(AttrSplitAxis), false);
+		    float value = XmlAttributeHelper.ParseFloatAttrib(xSplit, AttrSplitValue).Value;
+		    Vector3 pivot = XmlAttributeHelper.ParsePositionAttrib(xSplit, AttrSplitPivot).Value;
+            Vector3 axis = XmlAttributeHelper.ParseAxisAttrib(xSplit, AttrSplitAxis).Value;
             string id = GetId(xSplit, "split", ref _idCountSplit);
 
             XElement xSubSplitsL = xSplit.Element(ElementSubsplitsL);
@@ -178,8 +178,9 @@ namespace IaS.WorldBuilder.Xml
         private TrackDTO ParseTrack(XElement xTrack)
         {
             string id = GetId(xTrack, "TrackDTO", ref _idCountTrack);
-            Vector3? startDir = XmlAttributeHelper.ParseDirectionOptional(xTrack.Attribute(AttrTrackStartDirection));
-            Vector3 downDir = XmlAttributeHelper.ParseDirectionMandatory(xTrack.Attribute(AttrTrackDown));
+
+            Vector3? startDir = XmlAttributeHelper.ParseDirectionAttrib(xTrack, AttrTrackStartDirection, true).ToOptional<Vector3>();
+            Vector3 downDir = XmlAttributeHelper.ParseDirectionAttrib(xTrack, AttrTrackDown).Value;
 
             TrackNodeDTO[] nodesDto = xTrack.Elements(ElementTrackNode).Select(xNode => ParseTrackNode(xNode)).ToArray();
             return new TrackDTO(id, downDir, startDir, nodesDto);
@@ -187,23 +188,23 @@ namespace IaS.WorldBuilder.Xml
 
         private TrackNodeDTO ParseTrackNode(XElement xNode)
         {
-            Vector3 position = XmlAttributeHelper.ParsePosition(xNode.Attribute(AttrTrackNodePosition), false);
-            string id = XmlAttributeHelper.Parse(xNode.Attribute(AttrId), true, null);
+            Vector3 position = XmlAttributeHelper.ParsePositionAttrib(xNode, AttrTrackNodePosition).Value;
+            string id = XmlAttributeHelper.ParseTextAttrib(xNode, AttrId, true).Value;
             return new TrackNodeDTO(id, position);
         }
 
         private JunctionDTO ParseJunction(XElement xJunction, TrackDTO[] tracksDto)
         {
-            TrackDTO root = XmlAttributeHelper.ParseReference(xJunction.Attribute(AttrJunctionRoot), tracksDto, false);
-            TrackDTO branchLeft = XmlAttributeHelper.ParseReference(xJunction.Attribute(AttrJunctionBranchAlternate), tracksDto, false);
-            TrackDTO branchRight = XmlAttributeHelper.ParseReference(xJunction.Attribute(AttrJunctionBranchDefault), tracksDto, false);
-            return new JunctionDTO(root, branchLeft, branchRight);
+            TrackDTO branchLeft = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchAlternate, tracksDto).Value;
+            TrackDTO branchRight = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchDefault, tracksDto).Value;
+            JunctionDTO.JunctionDirection junctionDirection = XmlAttributeHelper.ParseEnumAttrib<JunctionDTO.JunctionDirection>(xJunction, AttrJunctionDirection).Value;
+            return new JunctionDTO(branchLeft, branchRight, junctionDirection);
         }
 
         private string GetId(XElement element, string elementType, ref int count)
         {
             string value;
-            if (XmlAttributeHelper.TryGetAttributeValue(element.Attribute(AttrId), out value))
+            if (XmlAttributeHelper.TryGetAttributeValue(element, AttrId, out value))
             {
                 return value;
             }

@@ -36,7 +36,7 @@ namespace IaS.GameObjects
             eventRegistry.RegisterConsumer(this);
 
             TrackContext trackContext = groupContext.Tracks[_trackIndex];
-            _currentStGroup = trackContext.SplitTrack.FirstTrackNode.group;
+            _currentStGroup = trackContext.SplitTrack.FirstSubTrack.FirstGroup;
             _splineInterpolator = _currentStGroup.spline.linearInterpolator();
 
             var startPos = _currentStGroup.spline.pts[0].startPos;

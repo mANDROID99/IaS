@@ -9,15 +9,13 @@ namespace IaS.Domain
             BranchDefault, BranchAlternate
         }
 
-        public readonly SplitTrack Root;
-        public readonly SplitTrack BranchDefault;
-        public readonly SplitTrack BranchAlternate;
+        public readonly SubTrackGroup BranchDefault;
+        public readonly SubTrackGroup BranchAlternate;
 
         public BranchType NextBranch { get; private set; }
 
-        public Junction(SplitTrack root, SplitTrack branchDefault, SplitTrack branchAlternate)
+        public Junction(SubTrackGroup branchDefault, SubTrackGroup branchAlternate)
         {
-            Root = root;
             BranchDefault = branchDefault;
             BranchAlternate = branchAlternate;
             NextBranch = BranchType.BranchDefault;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Assets.Scripts.Controllers;
 using IaS.GameState;
@@ -19,7 +20,7 @@ public class WorldController : MonoBehaviour {
     public GameObject TrainPrefab;
 
     private WorldContext _world;
-    private Controller[] _controllers;
+    private Controller[] _controllers = new Controller[0];
 
     void Start()
     {
@@ -39,7 +40,8 @@ public class WorldController : MonoBehaviour {
         RemoveAllChildren();
 
         var worldParser = new WorldParser();
-        LevelDTO levelDto = worldParser.Parse(LevelXmlAsset, LevelXmlSchemaAsset);
+        LevelDTO levelDto;
+        levelDto = worldParser.Parse(LevelXmlAsset, LevelXmlSchemaAsset);
 
         var controllers = new List<Controller>();
         var worldContextCreator = new WorldContextCreator();

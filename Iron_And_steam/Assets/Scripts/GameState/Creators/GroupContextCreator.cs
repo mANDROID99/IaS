@@ -33,10 +33,9 @@ namespace IaS.GameState
         private Junction CreateJunction(JunctionDTO dto, TrackContext[] tracks)
         {
             var splitTracks = tracks.Select(t => t.SplitTrack).ToArray();
-            SplitTrack rootTrack = splitTracks.FirstOrDefault(t => dto.Root == t.TrackDto);
             SplitTrack branchLeft = splitTracks.FirstOrDefault(t => dto.BranchDefault == t.TrackDto);
             SplitTrack branchRight = splitTracks.FirstOrDefault(t => dto.BranchAlternate == t.TrackDto);
-            return new Junction(rootTrack, branchLeft, branchRight);
+            return new Junction(branchLeft.FirstSubTrack.FirstGroup, branchRight.FirstSubTrack.FirstGroup);
         }
 
         public void CreateGroupControllers(GroupContext groupContext, EventRegistry eventRegistry, List<Controller> controllers, Prefabs prefabs)

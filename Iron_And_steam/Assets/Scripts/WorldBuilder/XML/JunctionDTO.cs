@@ -2,15 +2,21 @@
 {
     public class JunctionDTO
     {
-        public TrackDTO Root;
-        public TrackDTO BranchDefault;
-        public TrackDTO BranchAlternate;
-
-        public JunctionDTO(TrackDTO root, TrackDTO branchDefault, TrackDTO branchAlternate)
+        public enum JunctionDirection
         {
-            Root = root;
+            OneToMany,
+            ManyToOne
+        }
+
+        public readonly TrackDTO BranchDefault;
+        public readonly TrackDTO BranchAlternate;
+        public readonly JunctionDirection Direction;
+
+        public JunctionDTO(TrackDTO branchDefault, TrackDTO branchAlternate, JunctionDirection direction)
+        {
             BranchDefault = branchDefault;
             BranchAlternate = branchAlternate;
+            Direction = direction;
         }
     }
 }
