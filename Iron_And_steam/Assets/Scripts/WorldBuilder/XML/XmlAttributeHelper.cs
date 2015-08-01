@@ -149,7 +149,7 @@ namespace IaS.WorldBuilder.Xml
                 {
                     return (T) Enum.Parse(typeof (T), s);
                 }
-                catch (ArgumentException e)
+                catch (ArgumentException)
                 {
                     throw UnparseableEnumException(element.Name.LocalName, attribName, s);
                 }

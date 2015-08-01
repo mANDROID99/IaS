@@ -27,7 +27,7 @@ namespace IaS.GameState.TrackConnections
 
             public Vector3 GetStartPos()
             {
-                return StartForward;
+                return StartPos;
             }
 
             public Vector3 GetStartForward()
@@ -37,8 +37,8 @@ namespace IaS.GameState.TrackConnections
 
             public void Rotate(Transformation transform)
             {
-                StartPos = transform.Transform(TrackGroup.spline.pts[0].startPos);
-                StartForward = transform.TransformVector(TrackGroup[0].forward);
+                StartPos = transform.Transform(TrackGroup.StartBezierPos);
+                StartForward = transform.TransformVector(TrackGroup.StartForward);
             }
 
             public virtual bool AllowPrevious(IEndConnectionFilter previous)
@@ -76,8 +76,8 @@ namespace IaS.GameState.TrackConnections
 
             public void Rotate(Transformation transform)
             {
-                EndPos = transform.Transform(TrackGroup.spline.pts.Last().endPos);
-                EndForward = transform.TransformVector(TrackGroup.spline.pts.Last().endPos);
+                EndPos = transform.Transform(TrackGroup.EndBezierPos);
+                EndForward = transform.TransformVector(TrackGroup.EndForward);
             }
 
             public virtual bool AllowNext(IStartConnectionFilter next)

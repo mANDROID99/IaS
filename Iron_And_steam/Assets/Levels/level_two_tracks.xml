@@ -30,7 +30,7 @@
       </tracks>
 
       <junctions>
-        <junction branch_default="@TrackDTO_2" branch_alternate="@TrackDTO_3" direction="OneToMany"/>
+        <junction branch_default="@TrackDTO_2" branch_alternate="@TrackDTO_3" type="OneToMany"/>
       </junctions>
       
     </group>

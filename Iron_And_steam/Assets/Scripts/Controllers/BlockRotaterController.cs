@@ -13,7 +13,7 @@ namespace IaS.GameObjects{
     public class BlockRotaterController : Controller {
 
         private readonly HalfSplitRotation[] _splitHalfRotations;
-        private InstanceWrapper[] _allInstances = new InstanceWrapper[0];
+        private List<InstanceWrapper> _allInstances = new List<InstanceWrapper>();
         private readonly EventRegistry _eventRegistry;
         private bool _readyToRot = true;
 
@@ -26,12 +26,9 @@ namespace IaS.GameObjects{
                 new HalfSplitRotation(split, false)}).ToArray();
         }
 
-        public void AddInstancesToRotate(InstanceWrapper[] instances)
+        internal void AddInstanceToRotate(InstanceWrapper instanceWrapper)
         {
-            InstanceWrapper[] temp = new InstanceWrapper[_allInstances.Length + instances.Length];
-            _allInstances.CopyTo(temp, 0);
-            instances.CopyTo(temp, _allInstances.Length);
-            _allInstances = temp;
+           _allInstances.Add(instanceWrapper);
         }
 
         IEnumerator Rotate90Degrees(int direction, HalfSplitRotation splitRotation)
@@ -61,7 +58,7 @@ namespace IaS.GameObjects{
             } while (deltaTime < 1);
             _readyToRot = true;
         }
-
+        
         private bool CanRotate(HalfSplitRotation halfSplit)
         {
             halfSplit.resetMeshBlocks();

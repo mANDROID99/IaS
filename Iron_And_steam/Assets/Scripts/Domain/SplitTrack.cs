@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using IaS.WorldBuilder.Xml;
 using UnityEngine;
 
@@ -18,6 +19,11 @@ namespace IaS.Domain
             TrackDto = trackDto;
             FirstSubTrack = firstSubTrack;
             LastSubTrack = lastSubTrack;
+        }
+
+        public IEnumerable<SubTrackGroup> AllSubTrackGroups()
+        {
+            return SubTracks.SelectMany(s => s.TrackGroups);
         }
 
         public override string ToString()

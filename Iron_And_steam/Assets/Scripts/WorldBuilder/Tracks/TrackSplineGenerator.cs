@@ -18,9 +18,9 @@ namespace IaS.WorldBuilder.Tracks
         public BezierSpline[] GenerateSplines(SplitTrack track, SubTrack subTrack)
         {
             List<BezierSpline> splines = new List<BezierSpline>();
-            for (int groupIdx = 0; groupIdx < subTrack.trackGroups.Length; groupIdx ++ )
+            for (int groupIdx = 0; groupIdx < subTrack.TrackGroups.Length; groupIdx ++ )
             {
-                SubTrackGroup group = subTrack.trackGroups[groupIdx];
+                SubTrackGroup group = subTrack.TrackGroups[groupIdx];
                 if (group.NumTrackNodes < 2)
                     continue;
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
+using IaS.Domain;
 using UnityEngine;
 
 namespace IaS.WorldBuilder.Xml
@@ -42,7 +43,7 @@ namespace IaS.WorldBuilder.Xml
         private const string AttrTrackNodePosition = "p";
         private const string AttrJunctionBranchDefault = "branch_default";
         private const string AttrJunctionBranchAlternate = "branch_alternate";
-        private const string AttrJunctionDirection = "direction";
+        private const string AttrJunctionDirection = "type";
 
         private int _idCountSplit = 0;
         private int _idCountBlock = 0;
@@ -197,7 +198,7 @@ namespace IaS.WorldBuilder.Xml
         {
             TrackDTO branchLeft = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchAlternate, tracksDto).Value;
             TrackDTO branchRight = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchDefault, tracksDto).Value;
-            JunctionDTO.JunctionDirection junctionDirection = XmlAttributeHelper.ParseEnumAttrib<JunctionDTO.JunctionDirection>(xJunction, AttrJunctionDirection).Value;
+            Junction.JunctionDirection junctionDirection = XmlAttributeHelper.ParseEnumAttrib<Junction.JunctionDirection>(xJunction, AttrJunctionDirection).Value;
             return new JunctionDTO(branchLeft, branchRight, junctionDirection);
         }
 

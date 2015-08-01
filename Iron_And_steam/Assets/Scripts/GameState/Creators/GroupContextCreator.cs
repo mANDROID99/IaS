@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Controllers;
+using IaS.Controllers;
 using IaS.Domain;
 using IaS.GameObjects;
 using IaS.GameState.Creators;
@@ -35,7 +36,7 @@ namespace IaS.GameState
             var splitTracks = tracks.Select(t => t.SplitTrack).ToArray();
             SplitTrack branchLeft = splitTracks.FirstOrDefault(t => dto.BranchDefault == t.TrackDto);
             SplitTrack branchRight = splitTracks.FirstOrDefault(t => dto.BranchAlternate == t.TrackDto);
-            return new Junction(branchLeft.FirstSubTrack.FirstGroup, branchRight.FirstSubTrack.FirstGroup);
+            return new Junction(branchLeft.FirstSubTrack.FirstGroup, branchRight.FirstSubTrack.FirstGroup, dto.Direction);
         }
 
         public void CreateGroupControllers(GroupContext groupContext, EventRegistry eventRegistry, List<Controller> controllers, Prefabs prefabs)
@@ -45,15 +46,16 @@ namespace IaS.GameState
             GameObject tracksContainer = GameObjectUtils.EmptyGameObject("TracksDto", groupContainer.transform, new Vector3());
 
             var blockRotater = new BlockRotaterController(eventRegistry, groupContext.Splits);
-            var trackConnections = new TrackConnectionMapper(blockRotater, eventRegistry, groupContext.Tracks, groupContext.Junctions);
-            controllers.Add(blockRotater);
-
             _blocksContextCreator.CreateBlockControllers(groupContext.BlockContext, blockRotater, controllers, prefabs, blocksContainer.transform);
             foreach (TrackContext trackContext in groupContext.Tracks)
             {
-                _trackContextCreator.CreateTrackControllers(trackContext, trackConnections, controllers, prefabs, tracksContainer.transform);
+                _trackContextCreator.CreateTrackControllers(blockRotater, trackContext, controllers, prefabs, tracksContainer.transform);
             }
-           
+
+            var trackConnections = new TrackConnectionResolver(eventRegistry, groupContext.Tracks, groupContext.Junctions);
+
+            controllers.Add(blockRotater);
+            controllers.AddRange(groupContext.Junctions.Select(j => new JunctionController(j)).Cast<Controller>());
             controllers.Add(new TrainController(groupContainer.transform, prefabs.TrainPrefab, eventRegistry, trackConnections, groupContext, 0));
         }
     }

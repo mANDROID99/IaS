@@ -33,11 +33,12 @@ namespace IaS.GameState
         public void CreateBlockControllers(BlocksContext blockContext, BlockRotaterController blockRotaterController, List<Controller> controllers, Prefabs prefabs, Transform container)
         {
             var adjacencyCalculator = new AdjacencyCalculator();
-            InstanceWrapper[] instances = blockContext.Blocks
-                .Select(block => BuildGameObj(block, blockContext.Blocks, blockContext.GroupContext.Splits, container, prefabs.BlockPrefab, adjacencyCalculator))
-                .ToArray();
-
-            blockRotaterController.AddInstancesToRotate(instances);
+            foreach (MeshBlock block in blockContext.Blocks)
+            {
+                InstanceWrapper blockInstance = BuildGameObj(block, blockContext.Blocks,
+                    blockContext.GroupContext.Splits, container, prefabs.BlockPrefab, adjacencyCalculator);
+                blockRotaterController.AddInstanceToRotate(blockInstance);
+            }
         }
 
         public InstanceWrapper[] BuildGameObjects(GroupContext groupCtx, Transform container, GameObject blockPrefab)

@@ -1,34 +1,37 @@
-﻿using System;
-using System.Linq;
-using IaS.GameState;
+﻿using IaS.GameState;
 using IaS.WorldBuilder;
-using IaS.WorldBuilder.Splines;
-using IaS.WorldBuilder.Xml;
 using UnityEngine;
 
 namespace IaS.Domain
 {
     public class SubTrack
     {
-        public BlockBounds subBounds { get; private set; }
-        public SubTrackGroup[] trackGroups { get; private set; }
-        public InstanceWrapper instanceWrapper { get; set; }
+        public BlockBounds SubBounds { get; private set; }
+        public SubTrackGroup[] TrackGroups { get; private set; }
+        public InstanceWrapper InstanceWrapper { get; set; }
         public readonly SubTrackGroup FirstGroup;
         public readonly SubTrackGroup LastGroup;
+
+        public bool HasInstance
+        {
+            get { return InstanceWrapper != null; }
+        }
 
         public SubTrack(BlockBounds subBounds, SubTrackGroup[] trackGroups, SubTrackGroup firstGroup, SubTrackGroup lastGroup)
         {
             FirstGroup = firstGroup;
             LastGroup = lastGroup;
-            this.instanceWrapper = null;
-            this.subBounds = subBounds;
-            this.trackGroups = trackGroups;
+            InstanceWrapper = null;
+            SubBounds = subBounds;
+            TrackGroups = trackGroups;
             UpdateReferences();
         }
 
+        
+
         private void UpdateReferences()
         {
-            foreach (SubTrackGroup trackGroup in trackGroups)
+            foreach (SubTrackGroup trackGroup in TrackGroups)
             {
                 trackGroup.subTrack = this;
                 trackGroup.UpdateReferences();

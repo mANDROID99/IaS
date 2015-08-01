@@ -29,30 +29,31 @@ namespace IaS.GameState
             return new TrackContext(splitTrack);
         }
 
-        public void CreateTrackControllers(TrackContext trackContext, TrackConnectionMapper trackConnectionMapper, List<Controller> controllers, Prefabs prefabs, Transform parent)
+        public void CreateTrackControllers(BlockRotaterController blockRotaterController, TrackContext trackContext, List<Controller> controllers, Prefabs prefabs, Transform parent)
         {
             SplitTrack splitTrack = trackContext.SplitTrack;
             foreach (var subTrack in splitTrack.SubTracks)
             {
                 GameObject subTrackGameObj = BuildSubTrackGameObject(splitTrack, subTrack, parent, prefabs.TrackPrefab);
-                subTrack.instanceWrapper = new InstanceWrapper(subTrackGameObj, subTrack.subBounds);
+                subTrack.InstanceWrapper = new InstanceWrapper(subTrackGameObj, subTrack.SubBounds);
+                blockRotaterController.AddInstanceToRotate(subTrack.InstanceWrapper);
             }
-            trackConnectionMapper.AddSubTrackTrackInstances(splitTrack.SubTracks);
+            //trackConnectionResolver.AddSubTrackTrackInstances(splitTrack.SubTracks);
         }
 
         private GameObject BuildSubTrackGameObject(SplitTrack track, SubTrack subTrack, Transform parent, GameObject prefab)
         {
-            GameObject subTrackGameObj = GameObjectUtils.AsChildOf(parent, subTrack.subBounds.Position, new GameObject(GetName(track.TrackDto.Id)));
+            GameObject subTrackGameObj = GameObjectUtils.AsChildOf(parent, subTrack.SubBounds.Position, new GameObject(GetName(track.TrackDto.Id)));
 
             TrackBuilderConfiguration config = TrackBuilderConfiguration.DefaultConfig();
             var trackExtruder = new TrackExtruder(config);
 
             var i = 0;
-            foreach (SubTrackGroup subTrackGroup in subTrack.trackGroups)
+            foreach (SubTrackGroup subTrackGroup in subTrack.TrackGroups)
             {
                 BezierSpline spline = subTrackGroup.spline;
                 Mesh trackMesh = trackExtruder.ExtrudeAlong(spline, track.TrackDto.Down);
-                GameObject childTrack = GameObjectUtils.AsChildOf(subTrackGameObj.transform, -subTrack.subBounds.Position, Object.Instantiate(prefab));
+                GameObject childTrack = GameObjectUtils.AsChildOf(subTrackGameObj.transform, -subTrack.SubBounds.Position, Object.Instantiate(prefab));
                 childTrack.name = GetChildName(i++);
                 childTrack.GetComponent<MeshFilter>().mesh = trackMesh;
             }

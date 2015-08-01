@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using IaS.GameState;
 using IaS.WorldBuilder.Splines;
 using UnityEngine;
 
@@ -25,6 +26,36 @@ namespace IaS.Domain
         public Vector3 EndPos
         {
             get { return nodes[nodes.Length - 1].position; }
+        }
+
+        public Vector3 StartBezierPos
+        {
+            get { return spline.pts[0].startPos; }
+        }
+
+        public Vector3 EndBezierPos
+        {
+            get { return spline.pts.Last().endPos; }
+        }
+
+        public Vector3 StartForward
+        {
+            get { return nodes[0].forward; }
+        }
+
+        public Vector3 EndForward
+        {
+            get { return nodes[nodes.Length - 1].forward; }
+        }
+
+        public bool HasInstance
+        {
+            get { return subTrack.HasInstance; }
+        }
+
+        public InstanceWrapper InstanceWrapper
+        {
+            get { return subTrack.InstanceWrapper; }
         }
 
         public SubTrackNode this[int i]

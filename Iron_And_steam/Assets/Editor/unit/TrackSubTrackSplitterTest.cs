@@ -206,9 +206,9 @@ namespace IASTest
 
         private void AssertSubtrackContainsNodes(SubTrack subtrack, int groupIdx, Vector3[] nodePositions, bool allowSubset = false){
             if(!allowSubset){
-                Assert.That(subtrack.trackGroups[groupIdx].NumTrackNodes, Is.EqualTo(nodePositions.Length));
+                Assert.That(subtrack.TrackGroups[groupIdx].NumTrackNodes, Is.EqualTo(nodePositions.Length));
             }
-            Assert.That(nodePositions, Is.SubsetOf(subtrack.trackGroups[groupIdx].nodes.Select(t => t.position)));
+            Assert.That(nodePositions, Is.SubsetOf(subtrack.TrackGroups[groupIdx].nodes.Select(t => t.position)));
         }
 
         private void AssertSubTrackNode(int group, int i, SubTrackNode node, Vector3 position, Vector3 forward, Vector3 down)
@@ -220,12 +220,12 @@ namespace IASTest
 
         private SubTrackGroup FirstPart(IList<SubTrack> subTrack, int group=0)
         {
-            return subTrack[0].trackGroups[group];
+            return subTrack[0].TrackGroups[group];
         }
 
         private SubTrackGroup SecondPart(IList<SubTrack> subTrack, int group = 0)
         {
-            return subTrack[1].trackGroups[group];
+            return subTrack[1].TrackGroups[group];
         }
 
     }

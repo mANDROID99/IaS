@@ -12,10 +12,9 @@ namespace IaS.GameState
             Type eventType = typeof(E);
             object consumersGeneric;
             List<EventConsumer<E>> consumers;
-            if(!this._consumers.TryGetValue(eventType, out consumersGeneric))
+            if(!_consumers.TryGetValue(eventType, out consumersGeneric))
             {
-                consumers = new List<EventConsumer<E>>();
-                this._consumers.Add(eventType, consumers);
+                _consumers.Add(eventType, (consumers = new List<EventConsumer<E>>()));
             }
             else
             {
@@ -27,8 +26,8 @@ namespace IaS.GameState
         public void Notify<E>(E e) where E : IEvent
         {
             object consumersGeneric;
-            if(this._consumers.TryGetValue(typeof(E), out consumersGeneric)){
-                List<EventConsumer<E>> consumers = (List<EventConsumer<E>>)consumersGeneric;
+            if(_consumers.TryGetValue(typeof(E), out consumersGeneric)){
+                var consumers = (List<EventConsumer<E>>) consumersGeneric;
                 foreach(EventConsumer<E> consumer in consumers)
                 {
                     consumer.OnEvent(e);

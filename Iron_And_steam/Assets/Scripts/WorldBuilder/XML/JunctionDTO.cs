@@ -1,18 +1,16 @@
-﻿namespace IaS.WorldBuilder.Xml
+﻿using IaS.Domain;
+
+namespace IaS.WorldBuilder.Xml
 {
     public class JunctionDTO
     {
-        public enum JunctionDirection
-        {
-            OneToMany,
-            ManyToOne
-        }
+        
 
         public readonly TrackDTO BranchDefault;
         public readonly TrackDTO BranchAlternate;
-        public readonly JunctionDirection Direction;
+        public readonly Junction.JunctionDirection Direction;
 
-        public JunctionDTO(TrackDTO branchDefault, TrackDTO branchAlternate, JunctionDirection direction)
+        public JunctionDTO(TrackDTO branchDefault, TrackDTO branchAlternate, Junction.JunctionDirection direction)
         {
             BranchDefault = branchDefault;
             BranchAlternate = branchAlternate;
