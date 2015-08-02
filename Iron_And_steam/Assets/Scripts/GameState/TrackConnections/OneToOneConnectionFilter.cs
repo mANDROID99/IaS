@@ -41,9 +41,14 @@ namespace IaS.GameState.TrackConnections
                 StartForward = transform.TransformVector(TrackGroup.StartForward);
             }
 
-            public virtual bool AllowPrevious(IEndConnectionFilter previous)
+            public virtual bool AllowConnection(IEndConnectionFilter previous)
             {
                 return (Vector3.Distance(StartPos, previous.GetEndPos()) < 0.1f) && (Vector3.Angle(StartForward, previous.GetEndForward()) < 0.1f);
+            }
+
+            public virtual bool AllowReversed(IStartConnectionFilter reversed)
+            {
+                return (Vector3.Distance(StartPos, reversed.GetStartPos()) < 0.1f) && (Vector3.Angle(StartForward, -reversed.GetStartForward()) < 0.1f);
             }
         }
 
@@ -80,9 +85,14 @@ namespace IaS.GameState.TrackConnections
                 EndForward = transform.TransformVector(TrackGroup.EndForward);
             }
 
-            public virtual bool AllowNext(IStartConnectionFilter next)
+            public virtual bool AllowConnection(IStartConnectionFilter next)
             {
                 return (Vector3.Distance(EndPos, next.GetStartPos()) < 0.1f) && (Vector3.Angle(EndForward, next.GetStartForward()) < 0.1f);
+            }
+
+            public virtual bool AllowReversed(IEndConnectionFilter reversed)
+            {
+                return (Vector3.Distance(EndPos, reversed.GetEndPos()) < 0.1f) && (Vector3.Angle(EndForward, -reversed.GetEndForward()) < 0.1f);
             }
         }
     }

@@ -10,47 +10,68 @@ namespace IaS.WorldBuilder.Splines
         {
             private const int LUT_INTERVALS = 1000;
             private float[] lut = new float[LUT_INTERVALS];
-            private BezierSpline spline;
+            private BezierSpline _spline;
 
-            private int curveIdx;
-            private float totalDistance, dist;
-            private BezierPoint bezierPt;
+            private int _curveIdx;
+            private float _totalDistance = 0;
+            private float _lastDistance = 0;
+            private float _dist;
+            private BezierPoint _bezierPt;
+            private bool _reverse;
 
-            public LinearInterpolator(BezierSpline spline)
+            public LinearInterpolator(BezierSpline spline, bool reverse = false)
             {
-                this.spline = spline;
-                this.UpdateSpline(spline);
+                this._spline = spline;
+                this.UpdateSpline(spline, reverse);
             }
 
-            public void UpdateSpline(BezierSpline spline)
+            public void UpdateSpline(BezierSpline spline, bool reverse)
             {
-                this.spline = spline;
-                this.curveIdx = -1;
-                this.totalDistance = 0;
-                this.dist = 0;
+                _spline = spline;
+                _curveIdx = -1;
+                _reverse = reverse;
+                _totalDistance = 0;
+                _dist = 0;
+
             }
 
             public void Step(float amt)
             {
-                dist += amt;
+                _dist += amt;
+            }
+
+            public bool ReachedEnd()
+            {
+                return _dist >= _totalDistance;
+            }
+
+            private int ReversedCurveIndex()
+            {
+                return _reverse ? _spline.pts.Length - (1 + _curveIdx) : _curveIdx;
+            }
+
+            private float ReversedDistance()
+            {
+                return _reverse ? _totalDistance - (_dist - _lastDistance) : _dist;
             }
 
             public BezierPtInfo? Value()
             {
-                if ((curveIdx == -1) || (dist >= totalDistance))
+                if ((_curveIdx == -1) || (_dist >= _totalDistance))
                 {
-                    curveIdx += 1;
+                    _curveIdx += 1;
 
-                    if (curveIdx >= spline.pts.Length)
+                    if (_curveIdx >= _spline.pts.Length)
                     {
                         return null;
                     }
 
-                    bezierPt = spline.pts[curveIdx];
-                    totalDistance = UpdateLUT(totalDistance, bezierPt);
+                    _bezierPt = _spline.pts[ReversedCurveIndex()];
+                    _lastDistance = _totalDistance;
+                    _totalDistance = UpdateLUT(_totalDistance, _bezierPt);
                 }
 
-                BezierPtInfo linearEntry = GetPointAtLinear(dist, lut, bezierPt);
+                BezierPtInfo linearEntry = GetPointAtLinear(ReversedDistance(), lut, _bezierPt);
                 return linearEntry;
             }
 
@@ -82,11 +103,13 @@ namespace IaS.WorldBuilder.Splines
 
             private BezierPtInfo CreateBezierPtInfo(float distance, float t, BezierPoint bezierPt)
             {
+                Vector3 firstDerivitive = _spline.GetFirstDerivative(t, bezierPt);
+                if (_reverse) firstDerivitive *= -1f;
                 return new BezierPtInfo
                 {
-                    firstDerivative = spline.GetFirstDerivative(t, bezierPt),
+                    firstDerivative = firstDerivitive,
                     cumulativeDist = distance,
-                    pt = spline.GetPoint(t, bezierPt),
+                    pt = _spline.GetPoint(t, bezierPt),
                     t = t
                 };
             }
@@ -110,7 +133,7 @@ namespace IaS.WorldBuilder.Splines
                 for (int i = 1; i < lutIntervals; i++)
                 {
                     float t = i / (float)lutIntervals;
-                    Vector3 pt2 = spline.GetPoint(t, pt);
+                    Vector3 pt2 = _spline.GetPoint(t, pt);
                     distance += Vector3.Distance(pt2, pt1);
                     lut[i] = distance;
                     pt1 = pt2;

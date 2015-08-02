@@ -13,19 +13,26 @@ namespace IaS.GameState.TrackConnections
                 _junction = junction;
             }
 
-            public override bool AllowPrevious(IEndConnectionFilter previous)
+            private bool IsNextBranch()
             {
-                bool isNextBranch;
                 if (_junction.NextBranch == Junction.BranchType.BranchDefault)
                 {
-                    isNextBranch = TrackGroup == _junction.BranchDefault;
+                    return TrackGroup == _junction.BranchDefault;
                 }
                 else
                 {
-                    isNextBranch = TrackGroup == _junction.BranchAlternate;
+                    return TrackGroup == _junction.BranchAlternate;
                 }
+            }
 
-                return isNextBranch && base.AllowPrevious(previous);
+            public override bool AllowConnection(IEndConnectionFilter previous)
+            {
+                return IsNextBranch() && base.AllowConnection(previous);
+            }
+
+            public override bool AllowReversed(IStartConnectionFilter reversed)
+            {
+                return IsNextBranch() && base.AllowReversed(reversed);
             }
         }
 
@@ -38,19 +45,26 @@ namespace IaS.GameState.TrackConnections
                 _junction = junction;
             }
 
-            public override bool AllowNext(IStartConnectionFilter next)
+            private bool IsPreviousBranch()
             {
-                bool isPreviousBranch;
                 if (_junction.NextBranch == Junction.BranchType.BranchDefault)
                 {
-                    isPreviousBranch = TrackGroup == _junction.BranchDefault;
+                    return TrackGroup == _junction.BranchDefault;
                 }
                 else
                 {
-                    isPreviousBranch = TrackGroup == _junction.BranchAlternate;
+                    return TrackGroup == _junction.BranchAlternate;
                 }
+            }
 
-                return isPreviousBranch && base.AllowNext(next);
+            public override bool AllowConnection(IStartConnectionFilter next)
+            {
+                return IsPreviousBranch() && base.AllowConnection(next);
+            }
+
+            public override bool AllowReversed(IEndConnectionFilter reversed)
+            {
+                return IsPreviousBranch() && base.AllowReversed(reversed);
             }
         }
     }

@@ -12,7 +12,9 @@ namespace IaS.GameState.TrackConnections
         Vector3 GetStartForward();
         void Rotate(Transformation transformation);
 
-        bool AllowPrevious(IEndConnectionFilter previous);
+        bool AllowConnection(IEndConnectionFilter previous);
+
+        bool AllowReversed(IStartConnectionFilter reversed);
 
     }
 
@@ -22,7 +24,9 @@ namespace IaS.GameState.TrackConnections
         Vector3 GetEndPos();
         Vector3 GetEndForward();
         void Rotate(Transformation transformation);
+ 
+        bool AllowConnection(IStartConnectionFilter next);
 
-        bool AllowNext(IStartConnectionFilter next);
+        bool AllowReversed(IEndConnectionFilter reversed);
     }
 }

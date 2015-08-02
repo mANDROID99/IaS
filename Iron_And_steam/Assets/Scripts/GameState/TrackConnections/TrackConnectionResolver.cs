@@ -74,20 +74,51 @@ namespace IaS.GameState
                 new OneToOneConnectionFilter.EndFilter(group));
         }
 
-        public SubTrackGroup GetNext(SubTrackGroup last, out Transformation transform)
+        public InterpolateableConnection GetStartingConnection(TrackContext trackContext)
         {
-            TrackConnection lastConnection = _connectionsMap[last];
+            SubTrackGroup firstSubTrackGroup = trackContext.SplitTrack.FirstSubTrack.FirstGroup;
+            TrackConnection conn = _connections.First(c => c.TrackGroup == firstSubTrackGroup);
+            return new InterpolateableConnection(conn, false);
+        }
+
+        public InterpolateableConnection GetNext(InterpolateableConnection last, out Transformation transform)
+        {
+            TrackConnection lastConnection = last.WrappedConnection;
             foreach (TrackConnection conn in _connections)
             {
                 if(conn == lastConnection) continue;
 
                 IStartConnectionFilter connStart = conn.StartFilter;
-                IEndConnectionFilter lastEnd = lastConnection.EndFilter; 
+                IEndConnectionFilter connEnd = conn.EndFilter;
+                IStartConnectionFilter lastStart = lastConnection.StartFilter;
+                IEndConnectionFilter lastEnd = lastConnection.EndFilter;
+                
 
-                if ((connStart.AllowPrevious(lastEnd)) && (lastEnd.AllowNext(connStart)))
+                transform = conn.Transformation;
+
+                if (!last.Reversed)
                 {
-                    transform = conn.Transformation;
-                    return conn.TrackGroup;
+                    if (connStart.AllowConnection(lastEnd))
+                    {
+                        return new InterpolateableConnection(conn, false);
+                    }
+
+                    if (connEnd.AllowReversed(lastEnd))
+                    {
+                        return new InterpolateableConnection(conn, true);
+                    }
+                }
+                else
+                {
+                    if (connEnd.AllowConnection(lastStart))
+                    {
+                        return new InterpolateableConnection(conn, true);
+                    }
+
+                    if (connStart.AllowReversed(lastStart))
+                    {
+                        return new InterpolateableConnection(conn, false);
+                    }
                 }
             }
 
@@ -109,7 +140,7 @@ namespace IaS.GameState
             connection.EndFilter.Rotate(evt.transformation);
         }
 
-        private class TrackConnection
+        public class TrackConnection
         {
             internal readonly SubTrackGroup TrackGroup;
             internal readonly IStartConnectionFilter StartFilter;
@@ -124,5 +155,7 @@ namespace IaS.GameState
                 Transformation = IdentityTransform.IDENTITY;
             }
         }
+
+        
     }
 }

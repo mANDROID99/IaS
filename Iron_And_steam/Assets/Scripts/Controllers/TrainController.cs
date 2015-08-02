@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.Controllers;
 using IaS.Domain;
 using IaS.GameState;
+using IaS.GameState.TrackConnections;
 using IaS.Helpers;
 using IaS.WorldBuilder.Splines;
 using IaS.WorldBuilder.Tracks;
@@ -14,9 +15,7 @@ namespace IaS.GameObjects
         private readonly TrackConnectionResolver _trackConnectionResolver;
         private readonly int _trackIndex;
 
-        private readonly BezierSpline.LinearInterpolator _splineInterpolator;
-
-        private SubTrackGroup _currentStGroup = null;
+        private InterpolateableConnection _currentConnection = null;
         private Transformation _transformation = IdentityTransform.IDENTITY;
         private bool _started = false;
         private bool _paused = false;
@@ -36,11 +35,8 @@ namespace IaS.GameObjects
             eventRegistry.RegisterConsumer(this);
 
             TrackContext trackContext = groupContext.Tracks[_trackIndex];
-            _currentStGroup = trackContext.SplitTrack.FirstSubTrack.FirstGroup;
-            _splineInterpolator = _currentStGroup.spline.linearInterpolator();
-
-            var startPos = _currentStGroup.spline.pts[0].startPos;
-            SetTrackPosition(startPos);
+            _currentConnection = _trackConnectionResolver.GetStartingConnection(trackContext);
+            _currentConnection.Step(0);
         }
 
         private GameObject InstantiateGameObject(Transform parent, GameObject prefab)
@@ -53,18 +49,6 @@ namespace IaS.GameObjects
             _train.transform.position = trackPosition;
         }
 
-        private void NextSubTrack()
-        {
-            if (_currentStGroup == null)
-                return;
-
-            _currentStGroup = _trackConnectionResolver.GetNext(_currentStGroup, out _transformation);
-            
-            if (_currentStGroup == null)
-                return;
-            _splineInterpolator.UpdateSpline(_currentStGroup.spline);
-        }
-
         public void Update(MonoBehaviour mono)
         {
             if(Input.GetKeyUp(KeyCode.Space))
@@ -74,31 +58,24 @@ namespace IaS.GameObjects
 
             if (_started && !_paused)
             {
-                _splineInterpolator.Step(1.5f * Time.deltaTime);
-            }
-
-            BezierSpline.BezierPtInfo? pt = _splineInterpolator.Value();
-            if(pt.HasValue)
-            {
-                _train.transform.localPosition = _transformation.Transform(pt.Value.pt);
-                Vector3 splineForward = pt.Value.firstDerivative.normalized;
-                _bezierRotation = Quaternion.FromToRotation(_lastSplineForward, splineForward) * _bezierRotation;
-                _train.transform.localRotation = _worldRotation * _bezierRotation;
-                _lastSplineForward = splineForward;
-            }
-            else
-            {
-                NextSubTrack();
-                if (_currentStGroup != null)
+                _currentConnection.Step(1.5f * Time.deltaTime);
+                if (_currentConnection.ReachedEnd)
                 {
-                    Update(mono);
+                    _currentConnection = _trackConnectionResolver.GetNext(_currentConnection, out _transformation);
+                    _currentConnection.Step(0);
                 }
             }
+            
+            _train.transform.localPosition = _transformation.Transform(_currentConnection.CurrentPos);
+            Vector3 splineForward = _currentConnection.CurrentForward;
+            _bezierRotation = Quaternion.FromToRotation(_lastSplineForward, splineForward) * _bezierRotation;
+            _train.transform.localRotation = _worldRotation * _bezierRotation;
+            _lastSplineForward = splineForward;
         }
 
         public void OnEvent(BlockRotationEvent evt)
         {
-            if (evt.rotatedInstance != _currentStGroup.subTrack.InstanceWrapper) return;
+            if (evt.rotatedInstance != _currentConnection.WrappedInstance) return;
 
             switch (evt.type)
             {
