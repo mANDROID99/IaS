@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using IaS.WorldBuilder.MeshLoader;
 using IaS.WorldBuilder.Meshes;
 
 namespace IaS.WorldBuilder

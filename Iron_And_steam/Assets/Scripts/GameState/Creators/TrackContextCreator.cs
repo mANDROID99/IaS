@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Assets.Scripts.Controllers;
 using IaS.Domain;
 using IaS.GameObjects;
@@ -29,12 +28,12 @@ namespace IaS.GameState
             return new TrackContext(splitTrack);
         }
 
-        public void CreateTrackControllers(BlockRotaterController blockRotaterController, TrackContext trackContext, List<Controller> controllers, Prefabs prefabs, Transform parent)
+        public void CreateTrackControllers(BlockRotaterController blockRotaterController, TrackContext trackContext, List<Controller> controllers, CreationState creationState)
         {
             SplitTrack splitTrack = trackContext.SplitTrack;
             foreach (var subTrack in splitTrack.SubTracks)
             {
-                GameObject subTrackGameObj = BuildSubTrackGameObject(splitTrack, subTrack, parent, prefabs.TrackPrefab);
+                GameObject subTrackGameObj = BuildSubTrackGameObject(splitTrack, subTrack, creationState.TracksTransform, creationState.TrackPrefab);
                 subTrack.InstanceWrapper = new InstanceWrapper(subTrackGameObj, subTrack.SubBounds);
                 blockRotaterController.AddInstanceToRotate(subTrack.InstanceWrapper);
             }

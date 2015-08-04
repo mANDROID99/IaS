@@ -6,10 +6,10 @@ namespace IaS.WorldBuilder.Meshes
 {
 	public class BlockCornerMeshGenerator : IProcMeshGenerator {
 
-        public void BuildMesh(string partName, AdjacencyMatrix adjMatrix, MeshBuilder meshBuilder, BlockBounds clipBounds)
+        public void BuildMesh(PartType partType, AdjacencyMatrix adjMatrix, MeshBuilder meshBuilder, BlockBounds clipBounds)
 		{
-            SlopedMeshBuilder slopeBuilder = new SlopedMeshBuilder(meshBuilder);
-			if (MeshPartsData.PART_OUTER_CORNER.Equals (partName)) {
+            var slopeBuilder = new SlopedMeshBuilder(meshBuilder);
+			if (partType == PartType.OuterCorner) {
 				BuildMeshCorner(slopeBuilder);
 			}
 		}
@@ -33,12 +33,7 @@ namespace IaS.WorldBuilder.Meshes
 
             for (int i = 1; i < nSidePts; i++)
             {
-                meshBuilder.builder.AddTriangleStrip(false, new Vertex[]{
-                    edgeVerticesR[i - 1],
-                    innerVerticesR[i - 1],
-                    edgeVerticesR[i],
-                    innerVerticesR[i],
-                });
+                meshBuilder.builder.AddTriangleStrip(false, edgeVerticesR[i - 1], innerVerticesR[i - 1], edgeVerticesR[i], innerVerticesR[i]);
             }
 
             // left side
@@ -58,12 +53,7 @@ namespace IaS.WorldBuilder.Meshes
 
             for (int i = 1; i < nSidePts; i++)
             {
-                meshBuilder.builder.AddTriangleStrip(false, new Vertex[]{
-                    innerVerticesL[i - 1],
-                    edgeVerticesL[i - 1],
-                    innerVerticesL[i],
-                    edgeVerticesL[i],
-                });
+                meshBuilder.builder.AddTriangleStrip(false, innerVerticesL[i - 1], edgeVerticesL[i - 1], innerVerticesL[i], edgeVerticesL[i]);
             }
 
             // center
@@ -97,12 +87,7 @@ namespace IaS.WorldBuilder.Meshes
 
                     if(i > 0 && j > 0)
                     {
-                        meshBuilder.builder.AddTriangleStrip(false, new Vertex[]{
-                            currentVertices[j],
-                            lastVertices[j],
-                            currentVertices[j - 1],
-                            lastVertices[j - 1]
-                        });
+                        meshBuilder.builder.AddTriangleStrip(false, currentVertices[j], lastVertices[j], currentVertices[j - 1], lastVertices[j - 1]);
 
 
                         if (j == nSidePts - 3)

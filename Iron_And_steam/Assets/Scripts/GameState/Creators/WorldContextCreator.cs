@@ -23,11 +23,11 @@ namespace IaS.GameState
             return worldContext;
         }
 
-        public void CreateWorldControllers(WorldContext worldContext, EventRegistry eventRegistry, List<Controller> controllers, Prefabs prefabs)
+        public void CreateWorldControllers(WorldContext worldContext, EventRegistry eventRegistry, List<Controller> controllers, CreationState creationState)
         {
             foreach (GroupContext group in worldContext.Groups)
             {
-                _groupContextCreator.CreateGroupControllers(group, eventRegistry, controllers, prefabs);
+                _groupContextCreator.CreateGroupControllers(group, eventRegistry, controllers, creationState);
             }
         }
     }

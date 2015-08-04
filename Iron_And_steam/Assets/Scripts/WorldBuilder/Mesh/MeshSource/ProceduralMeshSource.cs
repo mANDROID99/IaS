@@ -6,9 +6,24 @@ using UnityEngine;
 
 namespace IaS.WorldBuilder
 {
+    public enum PartType
+    {
+        BlockFront,
+        BlockBack,
+        BlockRight,
+        BlockLeft,
+        BlockTop,
+        BlockBottom,
+        OuterEdgeFront,
+        OuterEdgeRight,
+        OuterEdgeLeft,
+        OuterCorner,
+        InnerEdgeFront,
+        InnerEdgeLeft,
+        InnerEdgeRight
+    }
 
-	public class ProceduralMeshSource : MeshSource {
-
+    public class ProceduralMeshSource : MeshSource {
         private static readonly int SHAPE_NO_OCCLUSION = 0;
         private static readonly int SHAPE_QUAD = 1;
         private static readonly int SHAPE_EDGE_SIDE = 2;
@@ -17,53 +32,53 @@ namespace IaS.WorldBuilder
         private static readonly Dictionary<int, int[]> DIC_SHAPE_OCCLUSIONS = new Dictionary<int, int[]>()
         {
             {SHAPE_NO_OCCLUSION, new int[0]},
-            {SHAPE_QUAD, new int[]{SHAPE_QUAD, SHAPE_EDGE_SIDE, SHAPE_INNER_EDGE_SIDE}},
-            {SHAPE_EDGE_SIDE, new int[]{SHAPE_EDGE_SIDE}},
-            {SHAPE_INNER_EDGE_SIDE, new int[]{SHAPE_INNER_EDGE_SIDE}}
+            {SHAPE_QUAD, new[]{SHAPE_QUAD, SHAPE_EDGE_SIDE, SHAPE_INNER_EDGE_SIDE}},
+            {SHAPE_EDGE_SIDE, new[]{SHAPE_EDGE_SIDE}},
+            {SHAPE_INNER_EDGE_SIDE, new[]{SHAPE_INNER_EDGE_SIDE}}
         };
 
         private static readonly Dictionary<int, Part[]> DIC_PROCEDURAL_MESHES = new Dictionary<int, Part[]>(){
             {MeshBlock.TYPE_CUBOID, 
-                new Part[]{
-                    new Part(typeof(BlockSideMeshGenerator), MeshPartsData.PART_BLOCK_FRONT, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_FORWARD),
-				    new Part(typeof(BlockSideMeshGenerator), MeshPartsData.PART_BLOCK_BACK, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_BACK),
-				    new Part(typeof(BlockSideMeshGenerator), MeshPartsData.PART_BLOCK_RIGHT, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_RIGHT),
-				    new Part(typeof(BlockSideMeshGenerator), MeshPartsData.PART_BLOCK_LEFT, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_LEFT),
-                    new Part(typeof(BlockSideMeshGenerator), MeshPartsData.PART_BLOCK_TOP, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_UP),
-				    new Part(typeof(BlockSideMeshGenerator), MeshPartsData.PART_BLOCK_BOTTOM, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_DOWN),
+                new[]{
+                    new Part(typeof(BlockSideMeshGenerator), PartType.BlockFront, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_FORWARD),
+				    new Part(typeof(BlockSideMeshGenerator), PartType.BlockBack, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_BACK),
+				    new Part(typeof(BlockSideMeshGenerator), PartType.BlockRight, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_RIGHT),
+				    new Part(typeof(BlockSideMeshGenerator), PartType.BlockLeft, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_LEFT),
+                    new Part(typeof(BlockSideMeshGenerator), PartType.BlockTop, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_UP),
+				    new Part(typeof(BlockSideMeshGenerator), PartType.BlockBottom, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_DOWN),
                 }
             },
             {MeshBlock.TYPE_EDGE, 
-                new Part[]{
-                    new Part(typeof(BlockOuterEdgeMeshGenerator), MeshPartsData.PART_OUTER_EDGE_FRONT, SHAPE_NO_OCCLUSION, null),
-				    new Part(typeof(BlockOuterEdgeMeshGenerator), MeshPartsData.PART_OUTER_EDGE_RIGHT, SHAPE_EDGE_SIDE, AdjacencyMatrix.DIRECTION_RIGHT),
-				    new Part(typeof(BlockOuterEdgeMeshGenerator), MeshPartsData.PART_OUTER_EDGE_LEFT, SHAPE_EDGE_SIDE, AdjacencyMatrix.DIRECTION_LEFT),
-				    new Part(typeof(BlockSideMeshGenerator), MeshPartsData.PART_BLOCK_BOTTOM, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_DOWN),
-				    new Part(typeof(BlockSideMeshGenerator), MeshPartsData.PART_BLOCK_BACK, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_BACK)
+                new[]{
+                    new Part(typeof(BlockOuterEdgeMeshGenerator), PartType.OuterEdgeFront, SHAPE_NO_OCCLUSION, null),
+				    new Part(typeof(BlockOuterEdgeMeshGenerator), PartType.OuterEdgeRight, SHAPE_EDGE_SIDE, AdjacencyMatrix.DIRECTION_RIGHT),
+				    new Part(typeof(BlockOuterEdgeMeshGenerator), PartType.OuterEdgeLeft, SHAPE_EDGE_SIDE, AdjacencyMatrix.DIRECTION_LEFT),
+				    new Part(typeof(BlockSideMeshGenerator), PartType.BlockBottom, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_DOWN),
+				    new Part(typeof(BlockSideMeshGenerator), PartType.BlockBack, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_BACK)
                 }
             },
             {MeshBlock.TYPE_CORNER, 
-                new Part[]{
-                    new Part(typeof(BlockCornerMeshGenerator), MeshPartsData.PART_OUTER_CORNER, SHAPE_NO_OCCLUSION, null)
+                new[]{
+                    new Part(typeof(BlockCornerMeshGenerator), PartType.OuterCorner, SHAPE_NO_OCCLUSION, null)
                 }
             },
             {MeshBlock.TYPE_SLOPE, 
-                new Part[]{
-                    new Part(typeof(BlockInnerEdgeMeshGenerator), MeshPartsData.PART_INNER_EDGE_FRONT, SHAPE_NO_OCCLUSION, null),
-                    new Part(typeof(BlockInnerEdgeMeshGenerator), MeshPartsData.PART_INNER_EDGE_LEFT, SHAPE_INNER_EDGE_SIDE, AdjacencyMatrix.DIRECTION_LEFT),
-                    new Part(typeof(BlockInnerEdgeMeshGenerator), MeshPartsData.PART_INNER_EDGE_RIGHT, SHAPE_INNER_EDGE_SIDE, AdjacencyMatrix.DIRECTION_RIGHT),
-                    new Part(typeof(BlockSideMeshGenerator), MeshPartsData.PART_BLOCK_BACK, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_BACK),
-                    new Part(typeof(BlockSideMeshGenerator), MeshPartsData.PART_BLOCK_BOTTOM, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_DOWN)
+                new[]{
+                    new Part(typeof(BlockInnerEdgeMeshGenerator), PartType.InnerEdgeFront, SHAPE_NO_OCCLUSION, null),
+                    new Part(typeof(BlockInnerEdgeMeshGenerator), PartType.InnerEdgeLeft, SHAPE_INNER_EDGE_SIDE, AdjacencyMatrix.DIRECTION_LEFT),
+                    new Part(typeof(BlockInnerEdgeMeshGenerator), PartType.InnerEdgeRight, SHAPE_INNER_EDGE_SIDE, AdjacencyMatrix.DIRECTION_RIGHT),
+                    new Part(typeof(BlockSideMeshGenerator), PartType.BlockBack, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_BACK),
+                    new Part(typeof(BlockSideMeshGenerator), PartType.BlockBottom, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_DOWN)
                 }
             }
         };
 
-        private Part[] blockParts;
-        private Dictionary<Type, IProcMeshGenerator> meshGenerators = new Dictionary<Type,IProcMeshGenerator>();
+        private readonly Part[] _blockParts;
+        private readonly Dictionary<Type, IProcMeshGenerator> _meshGenerators = new Dictionary<Type,IProcMeshGenerator>();
 
         private ProceduralMeshSource(Part[] blockParts)
         {
-            this.blockParts = blockParts;
+            _blockParts = blockParts;
         }
 
         public static ProceduralMeshSource GetInstance(int proceduralBlockType)
@@ -77,20 +92,20 @@ namespace IaS.WorldBuilder
 
         public int GetShapeToOcclude(int[] direction)
         {
-            Part occludingPart = blockParts.FirstOrDefault(part => (part.direction != null) && 
-                (part.direction[0] == direction[0]) && (part.direction[1] == direction[1]) && (part.direction[2] == direction[2]));
-            return occludingPart == null ? SHAPE_NO_OCCLUSION : occludingPart.occlusionShape;
+            Part occludingPart = _blockParts.FirstOrDefault(part => (part.Direction != null) && 
+                (part.Direction[0] == direction[0]) && (part.Direction[1] == direction[1]) && (part.Direction[2] == direction[2]));
+            return occludingPart == null ? SHAPE_NO_OCCLUSION : occludingPart.OcclusionShape;
         }
 
         public bool OccludesShape(int[] direction, int occludedShape)
         {
-            Part occludedPart = blockParts.FirstOrDefault(part => (part.direction != null) &&
-                (part.direction[0] == direction[0]) && (part.direction[1] == direction[1]) && (part.direction[2] == direction[2]));
+            Part occludedPart = _blockParts.FirstOrDefault(part => (part.Direction != null) &&
+                (part.Direction[0] == direction[0]) && (part.Direction[1] == direction[1]) && (part.Direction[2] == direction[2]));
 
             if (occludedPart == null)
                 return false;
 
-            return DIC_SHAPE_OCCLUSIONS[occludedPart.occlusionShape].Contains(occludedShape);
+            return DIC_SHAPE_OCCLUSIONS[occludedPart.OcclusionShape].Contains(occludedShape);
         }
 
         public void Build(Vector3 pos, AdjacencyMatrix adjacencyMatrix, MeshBlock block, MeshBuilder meshBuilder, BlockBounds clipBounds)
@@ -101,33 +116,33 @@ namespace IaS.WorldBuilder
 			localClipBounds.SetToRotationFrom (Quaternion.Inverse(block.rotation.quaternion), new Vector3(0.5f, 0.5f, 0.5f));
 			meshBuilder.BeforeNext (transform, new Vector3(-0.5f, -0.5f, -0.5f), localClipBounds);
 
-            foreach (Part part in blockParts)
+            foreach (Part part in _blockParts)
             {
-                if ((part.direction == null) || (!adjacencyMatrix.RPt(part.direction[0], part.direction[1], part.direction[2]).Occluded))
+                if ((part.Direction == null) || (!adjacencyMatrix.RPt(part.Direction[0], part.Direction[1], part.Direction[2]).Occluded))
                 {
                     IProcMeshGenerator meshGenerator;
-					if(!meshGenerators.TryGetValue(part.meshGenerator, out meshGenerator)){
-						meshGenerators[part.meshGenerator] = (meshGenerator = (IProcMeshGenerator)Activator.CreateInstance(part.meshGenerator));
+					if(!_meshGenerators.TryGetValue(part.MeshGenerator, out meshGenerator)){
+						_meshGenerators[part.MeshGenerator] = (meshGenerator = (IProcMeshGenerator)Activator.CreateInstance(part.MeshGenerator));
 					}
 
-                    meshGenerator.BuildMesh(part.partName, adjacencyMatrix, meshBuilder, localClipBounds);
+                    meshGenerator.BuildMesh(part.PartType, adjacencyMatrix, meshBuilder, localClipBounds);
                 }
             }
         }
 
         internal class Part
         {
-            internal string partName;
-            internal int occlusionShape;
-            internal int[] direction;
-			internal Type meshGenerator;
+            internal PartType PartType;
+            internal int OcclusionShape;
+            internal int[] Direction;
+			internal Type MeshGenerator;
 
-			internal Part(Type meshGenerator, string partName, int occlusionShape, int[] direction)
+			internal Part(Type meshGenerator, PartType partType, int occlusionShape, int[] direction)
             {
-                this.partName = partName;
-                this.occlusionShape = occlusionShape;
-                this.direction = direction;
-				this.meshGenerator = meshGenerator;
+                PartType = partType;
+                OcclusionShape = occlusionShape;
+                Direction = direction;
+				MeshGenerator = meshGenerator;
             }
         }
 	}

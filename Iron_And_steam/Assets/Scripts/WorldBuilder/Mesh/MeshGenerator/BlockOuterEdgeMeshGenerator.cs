@@ -4,18 +4,18 @@ namespace IaS.WorldBuilder.Meshes
 {
     public class BlockOuterEdgeMeshGenerator : IProcMeshGenerator
     {
-        public void BuildMesh(string partName, AdjacencyMatrix adjMatrix, MeshBuilder meshBuilder, BlockBounds clipBounds)
+        public void BuildMesh(PartType partType, AdjacencyMatrix adjMatrix, MeshBuilder meshBuilder, BlockBounds clipBounds)
         {
             SlopedMeshBuilder slopeBuilder = new SlopedMeshBuilder(meshBuilder);
 	
-			if (MeshPartsData.PART_OUTER_EDGE_FRONT.Equals (partName)) {
+			if (PartType.OuterEdgeFront == partType) {
 
                 slopeBuilder.ConstructSlopedFront(slopeBuilder.GetOuterSlopePoints());
-			}else if (MeshPartsData.PART_OUTER_EDGE_LEFT.Equals (partName)) 
+			}else if (PartType.OuterEdgeLeft == partType) 
             {
                 Matrix4x4 mat = Matrix4x4.TRS(new Vector3(0, 0, 0), Quaternion.identity, new Vector3(-1, 1, 1));
                 slopeBuilder.ConstructSlopedSide(false, mat, slopeBuilder.GetOuterSlopePoints());
-			}else if (MeshPartsData.PART_OUTER_EDGE_RIGHT.Equals (partName)) 
+			}else if (PartType.OuterEdgeRight == partType) 
             {
                 Matrix4x4 mat = Matrix4x4.TRS(new Vector3(1, 0, 0), Quaternion.identity, new Vector3(1, 1, 1));
                 slopeBuilder.ConstructSlopedSide(true, mat, slopeBuilder.GetOuterSlopePoints());

@@ -14,6 +14,5 @@ public class WorldControllerEditor : Editor {
 		if (GUILayout.Button ("load world")) {
 			worldController.LoadWorld();
 		}
-		CleanupEditor.Cleanup ();
 	}
 }

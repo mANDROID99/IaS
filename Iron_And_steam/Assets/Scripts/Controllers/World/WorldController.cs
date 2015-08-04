@@ -18,6 +18,8 @@ public class WorldController : MonoBehaviour {
     public GameObject TrackPrefab;
     [SerializeField]
     public GameObject TrainPrefab;
+    [SerializeField]
+    public GameObject ArrowPrefab;
 
     private WorldContext _world;
     private Controller[] _controllers = new Controller[0];
@@ -45,7 +47,7 @@ public class WorldController : MonoBehaviour {
 
         var controllers = new List<Controller>();
         var worldContextCreator = new WorldContextCreator();
-        var prefabs = new Prefabs(TrackPrefab, BlockPrefab, TrainPrefab, this.transform);
+        var prefabs = new CreationState(TrackPrefab, BlockPrefab, TrainPrefab, ArrowPrefab, this.transform);
         var eventRegistry = new EventRegistry();
 
         _world = worldContextCreator.CreateWorld(levelDto);

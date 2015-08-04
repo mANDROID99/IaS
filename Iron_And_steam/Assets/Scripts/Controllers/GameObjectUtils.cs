@@ -7,16 +7,16 @@ namespace IaS.GameObjects
 
         public static GameObject AsChildOf(Transform parent, Vector3 position, GameObject child)
         {
-            child.transform.parent = parent;
             child.transform.localPosition = position;
+            child.transform.SetParent(parent, false);
             return child;
         }
 
         public static GameObject EmptyGameObject(string name, Transform parent, Vector3 localPosition)
         {
             GameObject instance = new GameObject(name);
-            instance.transform.parent = parent;
             instance.transform.localPosition = localPosition;
+            instance.transform.SetParent(parent, false);
             return instance;
         }
 
