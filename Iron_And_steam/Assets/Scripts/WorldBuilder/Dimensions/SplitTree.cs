@@ -1,37 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
-using IaS.Helpers;
-
 
 namespace IaS.WorldBuilder
 {
 
     public class SplitTree
     {
-        private SplitTreeNode root;
-        private IList<SplitTreeNode> latestGeneration;
+        public static readonly BlockBounds InfiniteBounds = new BlockBounds(float.MinValue, float.MinValue, float.MinValue, float.MaxValue, float.MaxValue, float.MaxValue);
+
+
+        private readonly SplitTreeNode _root;
+        private IList<SplitTreeNode> _latestGeneration;
 
         public SplitTree(BlockBounds bounds)
         {
-            root = new SplitTreeNode(null, null);
-            root.children = new SplitTreeNode[] { new SplitTreeNode(root, bounds) };
-            this.latestGeneration = root.children;
+            _root = new SplitTreeNode(null, null);
+            _root.children = new[] { new SplitTreeNode(_root, bounds) };
+            _latestGeneration = _root.children;
         }
-
-        /*
-        public SplitTree(IList<MeshBlock> meshBlocks)
-        {
-            root = new SplitTreeNode(null, null);
-            root.children = meshBlocks.Select(block => new SplitTreeNode(root, block)).ToArray();
-            this.latestGeneration = root.children;
-        }*/
 
         public BlockBounds[] GatherSplitBounds()
         {
-            return latestGeneration.Select(generation => generation.bounds).ToArray();
+            return _latestGeneration.Select(generation => generation.bounds).ToArray();
         }
 
         public void Split(IList<Split> splits)
@@ -44,11 +35,11 @@ namespace IaS.WorldBuilder
         {
 
             List<SplitTreeNode> newGeneration = new List<SplitTreeNode>();
-            foreach(SplitTreeNode child in latestGeneration)
+            foreach(SplitTreeNode child in _latestGeneration)
             {
                 BlockBounds childBounds = child.bounds;
                 BlockBounds splitL, splitR;
-                this.Split(split.axis, split.value, childBounds, out splitL, out splitR);
+                this.Split(split.Axis, split.Value, childBounds, out splitL, out splitR);
 
                 if ((splitL != null) && (splitR != null))
                 {
@@ -68,7 +59,7 @@ namespace IaS.WorldBuilder
                 }
             }
 
-            latestGeneration = newGeneration.ToArray();
+            _latestGeneration = newGeneration.ToArray();
         }
 
         private void Split(Vector3 axis, float value, BlockBounds bounds, out BlockBounds splitL, out BlockBounds splitR)
@@ -77,28 +68,28 @@ namespace IaS.WorldBuilder
             float splitY = axis.y * value;
             float splitZ = axis.z * value;
 
-            if(((axis.x != 0) && (splitX > bounds.minX)) ||
-                ((axis.y != 0) && (splitY > bounds.minY)) ||
-                ((axis.z != 0) && (splitZ > bounds.minZ)))
+            if(((axis.x != 0) && (splitX > bounds.MinX)) ||
+                ((axis.y != 0) && (splitY > bounds.MinY)) ||
+                ((axis.z != 0) && (splitZ > bounds.MinZ)))
             {
-                float maxX = axis.x == 0 ? bounds.maxX : Mathf.Min(splitX, bounds.maxX);
-                float maxY = axis.y == 0 ? bounds.maxY : Mathf.Min(splitY, bounds.maxY);
-                float maxZ = axis.z == 0 ? bounds.maxZ : Mathf.Min(splitZ, bounds.maxZ);
-                splitL = new BlockBounds(bounds.minX, bounds.minY, bounds.minZ, maxX, maxY, maxZ);
+                float maxX = axis.x == 0 ? bounds.MaxX : Mathf.Min(splitX, bounds.MaxX);
+                float maxY = axis.y == 0 ? bounds.MaxY : Mathf.Min(splitY, bounds.MaxY);
+                float maxZ = axis.z == 0 ? bounds.MaxZ : Mathf.Min(splitZ, bounds.MaxZ);
+                splitL = new BlockBounds(bounds.MinX, bounds.MinY, bounds.MinZ, maxX, maxY, maxZ);
             }
             else
             {
                 splitL = null;
             }
 
-            if (((axis.x != 0) && (splitX < bounds.maxX)) ||
-                ((axis.y != 0) && (splitY < bounds.maxY)) ||
-                ((axis.z != 0) && (splitZ < bounds.maxZ)))
+            if (((axis.x != 0) && (splitX < bounds.MaxX)) ||
+                ((axis.y != 0) && (splitY < bounds.MaxY)) ||
+                ((axis.z != 0) && (splitZ < bounds.MaxZ)))
             {
-                float minX = axis.x == 0 ? bounds.minX : Mathf.Max(splitX, bounds.minX);
-                float minY = axis.y == 0 ? bounds.minY : Mathf.Max(splitY, bounds.minY);
-                float minZ = axis.z == 0 ? bounds.minZ : Mathf.Max(splitZ, bounds.minZ);
-                splitR = new BlockBounds(minX, minY, minZ, bounds.maxX, bounds.maxY, bounds.maxZ);
+                float minX = axis.x == 0 ? bounds.MinX : Mathf.Max(splitX, bounds.MinX);
+                float minY = axis.y == 0 ? bounds.MinY : Mathf.Max(splitY, bounds.MinY);
+                float minZ = axis.z == 0 ? bounds.MinZ : Mathf.Max(splitZ, bounds.MinZ);
+                splitR = new BlockBounds(minX, minY, minZ, bounds.MaxX, bounds.MaxY, bounds.MaxZ);
             }
             else
             {

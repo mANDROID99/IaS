@@ -1,9 +1,5 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using IaS.WorldBuilder.Meshes;
+﻿using IaS.WorldBuilder.Meshes;
+using UnityEngine;
 
 namespace IaS.WorldBuilder
 {

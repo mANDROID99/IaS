@@ -1,22 +1,26 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using IaS.WorldBuilder.Xml;
-using UnityEngine;
 
 namespace IaS.Domain
 {
     public class SplitTrack
     {
         public SubTrack[] SubTracks { get; private set; }
-        public TrackDTO TrackDto { get; private set; }
+        public TrackXML TrackXml { get; private set; }
 
         public readonly SubTrack FirstSubTrack;
         public readonly SubTrack LastSubTrack;
 
-        public SplitTrack(TrackDTO trackDto, SubTrack[] subTracks, SubTrack firstSubTrack, SubTrack lastSubTrack)
+        public string Id
+        {
+            get { return TrackXml.Id; }
+        }
+
+        public SplitTrack(TrackXML trackXml, SubTrack[] subTracks, SubTrack firstSubTrack, SubTrack lastSubTrack)
         {
             SubTracks = subTracks;
-            TrackDto = trackDto;
+            TrackXml = trackXml;
             FirstSubTrack = firstSubTrack;
             LastSubTrack = lastSubTrack;
         }

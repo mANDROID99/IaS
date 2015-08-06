@@ -1,8 +1,7 @@
-using System;
-using System.Collections.Generic;
 using Assets.Scripts.Controllers;
 using IaS.GameState;
 using IaS.GameState.Creators;
+using IaS.GameState.WorldTree;
 using IaS.WorldBuilder.Xml;
 using UnityEngine;
 
@@ -21,8 +20,7 @@ public class WorldController : MonoBehaviour {
     [SerializeField]
     public GameObject ArrowPrefab;
 
-    private WorldContext _world;
-    private Controller[] _controllers = new Controller[0];
+    private LevelTree _level;
 
     void Start()
     {
@@ -31,9 +29,9 @@ public class WorldController : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-	    foreach (Controller controllers in _controllers)
+	    foreach (Controller controller in _level.Data.Controllers)
 	    {
-	        controllers.Update(this);
+	        controller.Update(this);
 	    }
 	}
 
@@ -42,17 +40,13 @@ public class WorldController : MonoBehaviour {
         RemoveAllChildren();
 
         var worldParser = new WorldParser();
-        LevelDTO levelDto;
-        levelDto = worldParser.Parse(LevelXmlAsset, LevelXmlSchemaAsset);
+        LevelXML levelXml;
+        levelXml = worldParser.Parse(LevelXmlAsset, LevelXmlSchemaAsset);
 
-        var controllers = new List<Controller>();
-        var worldContextCreator = new WorldContextCreator();
-        var prefabs = new CreationState(TrackPrefab, BlockPrefab, TrainPrefab, ArrowPrefab, this.transform);
-        var eventRegistry = new EventRegistry();
+        var worldContextCreator = new LevelCreator();
+        var prefabs = new Prefabs(TrackPrefab, BlockPrefab, TrainPrefab, ArrowPrefab);
 
-        _world = worldContextCreator.CreateWorld(levelDto);
-        worldContextCreator.CreateWorldControllers(_world, eventRegistry, controllers, prefabs);
-        _controllers = controllers.ToArray();
+        _level = worldContextCreator.CreateLevel(levelXml, this.transform, prefabs);
     }
 
     private void RemoveAllChildren()

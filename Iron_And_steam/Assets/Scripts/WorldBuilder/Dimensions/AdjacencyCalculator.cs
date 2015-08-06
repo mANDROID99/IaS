@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 namespace IaS.WorldBuilder
 {
@@ -72,22 +68,23 @@ namespace IaS.WorldBuilder
             if (splits == null)
                 return;
 
-            if(((x < meshBlock.bounds.maxX - 1) && (x > meshBlock.bounds.minX)) &&
-                ((y < meshBlock.bounds.maxY - 1) && (y > meshBlock.bounds.minY)) &&
-                ((z < meshBlock.bounds.maxX - 1) && (z > meshBlock.bounds.minX)))
+            if(((x < meshBlock.bounds.MaxX - 1) && (x > meshBlock.bounds.MinX)) &&
+                ((y < meshBlock.bounds.MaxY - 1) && (y > meshBlock.bounds.MinY)) &&
+                ((z < meshBlock.bounds.MaxX - 1) && (z > meshBlock.bounds.MinX)))
                 return;
 
 
             BlockBounds cellBounds = new BlockBounds(x, y, z, x + 1, y + 1, z + 1);
             foreach(Split split in splits)
             {
-                if (split.Constrains(true, cellBounds) == 0)
+                Split.ConstraintResult constraintResult;
+                if (split.Constrains(true, cellBounds, out constraintResult) == 0)
                 {
-                    if (split.axis.x > 0)
+                    if (split.Axis.x > 0)
                     {
                         adjacencyMatrix.SetAllBits(2, 1, 1, false, false, MeshBlock.TYPE_SPLIT);
                     }
-                    else if (split.axis.y > 0)
+                    else if (split.Axis.y > 0)
                     {
                         adjacencyMatrix.SetAllBits(1, 2, 1, false, false, MeshBlock.TYPE_SPLIT);
                     }
@@ -96,13 +93,13 @@ namespace IaS.WorldBuilder
                         adjacencyMatrix.SetAllBits(1, 1, 2, false, false, MeshBlock.TYPE_SPLIT);
                     }
                 }
-                else if (split.Constrains(false, cellBounds) == 0)
+                else if (split.Constrains(false, cellBounds, out constraintResult) == 0)
                 {
-                    if (split.axis.x > 0)
+                    if (split.Axis.x > 0)
                     {
                         adjacencyMatrix.SetAllBits(0, 1, 1, false, false, MeshBlock.TYPE_SPLIT);
                     }
-                    else if (split.axis.y > 0)
+                    else if (split.Axis.y > 0)
                     {
                         adjacencyMatrix.SetAllBits(1, 0, 1, false, false, MeshBlock.TYPE_SPLIT);
                     }
@@ -116,27 +113,27 @@ namespace IaS.WorldBuilder
 
         private void CalculateInternalAdjacency()
         {
-            if (x > meshBlock.bounds.minX)
+            if (x > meshBlock.bounds.MinX)
             {
                 adjacencyMatrix.SetAllBits(0, 1, 1, true, true, meshBlock.type);
             }
-            if (x < meshBlock.bounds.maxX - 1)
+            if (x < meshBlock.bounds.MaxX - 1)
             {
                 adjacencyMatrix.SetAllBits(2, 1, 1, true, true, meshBlock.type);
             }
-            if (y > meshBlock.bounds.minY)
+            if (y > meshBlock.bounds.MinY)
             {
                 adjacencyMatrix.SetAllBits(1, 0, 1, true, true, meshBlock.type);
             }
-            if (y < meshBlock.bounds.maxY - 1)
+            if (y < meshBlock.bounds.MaxY - 1)
             {
                 adjacencyMatrix.SetAllBits(1, 2, 1, true, true, meshBlock.type);
             }
-            if(z > meshBlock.bounds.minZ)
+            if(z > meshBlock.bounds.MinZ)
             {
                 adjacencyMatrix.SetAllBits(1, 1, 0, true, true, meshBlock.type);
             }
-            if (z < meshBlock.bounds.maxZ - 1)
+            if (z < meshBlock.bounds.MaxZ - 1)
             {
                 adjacencyMatrix.SetAllBits(1, 1, 2, true, true, meshBlock.type);
             }
@@ -159,9 +156,9 @@ namespace IaS.WorldBuilder
                         for (int x2 = (int)x - 1; x2 <= (int)x + 1; x2 ++)
                         {
 
-                            if ((x2 >= intersector.bounds.minX) && (x2 < intersector.bounds.maxX) &&
-                               (y2 >= intersector.bounds.minY) && (y2 < intersector.bounds.maxY) &&
-                               (z2 >= intersector.bounds.minZ) && (z2 < intersector.bounds.maxZ))
+                            if ((x2 >= intersector.bounds.MinX) && (x2 < intersector.bounds.MaxX) &&
+                               (y2 >= intersector.bounds.MinY) && (y2 < intersector.bounds.MaxY) &&
+                               (z2 >= intersector.bounds.MinZ) && (z2 < intersector.bounds.MaxZ))
                             {
 
                                 if ((x2 == x) && (y2 == y) && (z2 == z))

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using IaS.WorldBuilder;
 using UnityEngine;
-using IaS.WorldBuilder;
-using IaS.Helpers;
 
 namespace IaS.GameState
 {

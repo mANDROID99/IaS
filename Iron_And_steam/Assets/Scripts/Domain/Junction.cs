@@ -1,6 +1,4 @@
-﻿using IaS.WorldBuilder.Xml;
-
-namespace IaS.Domain
+﻿namespace IaS.Domain
 {
     public class Junction
     {

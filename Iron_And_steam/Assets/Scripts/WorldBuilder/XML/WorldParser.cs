@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -52,7 +51,7 @@ namespace IaS.WorldBuilder.Xml
 
         private int _occludeOrderCount = 0;
 
-        public LevelDTO Parse(TextAsset source, TextAsset schema)
+        public LevelXML Parse(TextAsset source, TextAsset schema)
         {
             XmlReader sourceReader = XmlReader.Create(new StringReader(source.text));
             XDocument xDoc = new XDocument(XDocument.Load(sourceReader));
@@ -60,27 +59,27 @@ namespace IaS.WorldBuilder.Xml
             return ParseElementLevel(xLevel);
         }
 
-        private LevelDTO ParseElementLevel(XElement xLevel)
+        private LevelXML ParseElementLevel(XElement xLevel)
         {
-            LevelDTO levelDto = new LevelDTO();
+            LevelXML levelXml = new LevelXML("Level");
             foreach (XElement xGroup in xLevel.Element(ElementGroups).Elements(ElementGroup))
             {
-                levelDto.Groups.Add(ParseBlockGroup(xGroup));
+                levelXml.Groups.Add(ParseBlockGroup(xGroup));
             }
-            return levelDto;
+            return levelXml;
         }
 
-        private LevelGroupDTO ParseBlockGroup(XElement xGroup)
+        private LevelGroupXML ParseBlockGroup(XElement xGroup)
         {
-            string id = GetId(xGroup, "GroupDto", ref _idCountGroup);
+            string id = GetId(xGroup, "GroupXml", ref _idCountGroup);
             Vector3 groupPos = XmlAttributeHelper.ParsePositionAttrib(xGroup, AttrGroupPosition).Value;
 
             MeshBlock[] meshBlocks = ParseSubMeshes(xGroup.Element(ElementSubMeshes));
             Split[] splits = ParseSplits(xGroup.Element(ElementSplits));
-            TrackDTO[] tracksDto = ParseTracks(xGroup.Element(ElementTracks));
-            JunctionDTO[] junctionsDto = ParseJunctions(xGroup.Element(ElementJunctions), tracksDto);
+            TrackXML[] tracksXml = ParseTracks(xGroup.Element(ElementTracks));
+            JunctionDTO[] junctionsDto = ParseJunctions(xGroup.Element(ElementJunctions), tracksXml);
 
-            var blockGroup = new LevelGroupDTO(id, groupPos, meshBlocks, splits, tracksDto, junctionsDto);
+            var blockGroup = new LevelGroupXML(id, groupPos, meshBlocks, splits, tracksXml, junctionsDto);
             return blockGroup;
         }
 
@@ -94,14 +93,14 @@ namespace IaS.WorldBuilder.Xml
             return xSplits.Elements(ElementSplit).Select(xSplit => ParseSplit(xSplit)).ToArray();
         }
 
-        private TrackDTO[] ParseTracks(XElement xTracks)
+        private TrackXML[] ParseTracks(XElement xTracks)
         {
             return xTracks.Elements(ElementTrack).Select(xTrack => ParseTrack(xTrack)).ToArray();
         }
 
-        private JunctionDTO[] ParseJunctions(XElement xJunctions, TrackDTO[] trackDtoRefs)
+        private JunctionDTO[] ParseJunctions(XElement xJunctions, TrackXML[] trackXmlRefs)
         {
-            return xJunctions.Elements(ElementJunction).Select(xJunction => ParseJunction(xJunction, trackDtoRefs)).ToArray();
+            return xJunctions.Elements(ElementJunction).Select(xJunction => ParseJunction(xJunction, trackXmlRefs)).ToArray();
         }
 
 
@@ -161,43 +160,32 @@ namespace IaS.WorldBuilder.Xml
             XElement xSubSplitsL = xSplit.Element(ElementSubsplitsL);
             XElement xSubSplitsR = xSplit.Element(ElementSubsplitsR);
 
-            SubSplit[] subSplits = (ParseSubSplit(xSubSplitsL, true).Concat(ParseSubSplit(xSubSplitsR, false))).ToArray();
-            Split split = new Split(id, axis, pivot, value, subSplits);
+            Split split = new Split(id, axis, pivot, value);
             return split;
 		}
 
-        private IEnumerable<SubSplit> ParseSubSplit(XElement xSubSplit, bool clipParentLeft)
+        private TrackXML ParseTrack(XElement xTrack)
         {
-            if (xSubSplit == null)
-            {
-                return new SubSplit[0];
-            }
-
-            return xSubSplit.Elements(ElementSplit).Select(xSplit => new SubSplit(ParseSplit(xSplit), clipParentLeft));
-        }
-
-        private TrackDTO ParseTrack(XElement xTrack)
-        {
-            string id = GetId(xTrack, "TrackDTO", ref _idCountTrack);
+            string id = GetId(xTrack, "TrackXML", ref _idCountTrack);
 
             Vector3? startDir = XmlAttributeHelper.ParseDirectionAttrib(xTrack, AttrTrackStartDirection, true).ToOptional<Vector3>();
             Vector3 downDir = XmlAttributeHelper.ParseDirectionAttrib(xTrack, AttrTrackDown).Value;
 
-            TrackNodeDTO[] nodesDto = xTrack.Elements(ElementTrackNode).Select(xNode => ParseTrackNode(xNode)).ToArray();
-            return new TrackDTO(id, downDir, startDir, nodesDto);
+            TrackNodeXML[] nodesXml = xTrack.Elements(ElementTrackNode).Select(xNode => ParseTrackNode(xNode)).ToArray();
+            return new TrackXML(id, downDir, startDir, nodesXml);
         }
 
-        private TrackNodeDTO ParseTrackNode(XElement xNode)
+        private TrackNodeXML ParseTrackNode(XElement xNode)
         {
             Vector3 position = XmlAttributeHelper.ParsePositionAttrib(xNode, AttrTrackNodePosition).Value;
             string id = XmlAttributeHelper.ParseTextAttrib(xNode, AttrId, true).Value;
-            return new TrackNodeDTO(id, position);
+            return new TrackNodeXML(id, position);
         }
 
-        private JunctionDTO ParseJunction(XElement xJunction, TrackDTO[] tracksDto)
+        private JunctionDTO ParseJunction(XElement xJunction, TrackXML[] tracksXml)
         {
-            TrackDTO branchLeft = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchAlternate, tracksDto).Value;
-            TrackDTO branchRight = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchDefault, tracksDto).Value;
+            TrackXML branchLeft = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchAlternate, tracksXml).Value;
+            TrackXML branchRight = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchDefault, tracksXml).Value;
             Junction.JunctionDirection junctionDirection = XmlAttributeHelper.ParseEnumAttrib<Junction.JunctionDirection>(xJunction, AttrJunctionDirection).Value;
             return new JunctionDTO(branchLeft, branchRight, junctionDirection);
         }

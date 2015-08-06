@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using IaS.GameState;
 using IaS.WorldBuilder.Splines;
 using UnityEngine;
@@ -7,84 +8,79 @@ namespace IaS.Domain
 {
     public class SubTrackGroup
     {
-        public SubTrackNode[] nodes { get; private set; }
-        public SubTrack subTrack { get; internal set; }
-        public BezierSpline spline { get; internal set; }
+        public readonly List<SubTrackNode> Nodes;
+        public readonly BezierSpline Spline;
+        public SubTrack SubTrack { get; internal set; }
+
+        public SubTrackGroup(BezierSpline spline, List<SubTrackNode> nodes)
+        {
+            Spline = spline;
+            Nodes = nodes;
+
+            foreach (SubTrackNode node in nodes) node.Group = this;
+        }
+
         public int NumTrackNodes
         {
-            get
-            {
-                return nodes.Length;
-            }
+            get { return Nodes.Count;}
         }
 
         public Vector3 StartPos
         {
-            get { return nodes[0].position; }
+            get { return Nodes[0].Position; }
         }
 
         public Vector3 EndPos
         {
-            get { return nodes[nodes.Length - 1].position; }
+            get { return Nodes[Nodes.Count - 1].Position; }
         }
 
         public Vector3 StartBezierPos
         {
-            get { return spline.pts[0].startPos; }
+            get { return Spline.pts[0].startPos; }
         }
 
         public Vector3 EndBezierPos
         {
-            get { return spline.pts.Last().endPos; }
+            get { return Spline.pts.Last().endPos; }
         }
 
         public Vector3 StartForward
         {
-            get { return nodes[0].forward; }
+            get { return Nodes[0].Forward; }
         }
 
         public Vector3 EndForward
         {
-            get { return nodes[nodes.Length - 1].forward; }
-        }
-
-        public bool HasInstance
-        {
-            get { return subTrack.HasInstance; }
-        }
-
-        public InstanceWrapper InstanceWrapper
-        {
-            get { return subTrack.InstanceWrapper; }
-        }
-
-        public SubTrackNode this[int i]
-        {
-            get
-            {
-                return nodes[i];
-            }
+            get { return Nodes[Nodes.Count - 1].Forward; }
         }
 
         public SubTrackNode Last()
         {
-            return nodes.Last();
+            return Nodes.Last();
         }
+    }
 
-        public SubTrackGroup(BezierSpline spline, SubTrackNode[] nodes)
+    public class SubTrackNode
+    {
+        public readonly Vector3 Position;
+        public readonly Vector3 Forward;
+        public readonly Vector3 Down;
+
+        public SubTrackNode Previous { get; set; }
+        public SubTrackNode Next { get; set; }
+        public SubTrackGroup Group { get; internal set; }
+
+        public SubTrackNode(Vector3 position, Vector3 forward, Vector3 down)
         {
-            this.spline = spline;
-            this.nodes = nodes;
+            Position = position;
+            Forward = forward;
+            Down = down;
         }
 
-        internal void UpdateReferences()
+        public override string ToString()
         {
-            foreach (SubTrackNode node in nodes)
-            {
-                node.group = this;
-            }
+            return string.Format("{{pos:{0}, fwd:{1}}}", Position, Forward);
         }
-
-
     }
 }

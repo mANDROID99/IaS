@@ -16,18 +16,13 @@ namespace IaS.GameState.TrackConnections
         {
             WrappedConnection = wrappedConnection;
             Reversed = reverse;
-            _interpolator = new BezierSpline.LinearInterpolator(wrappedConnection.TrackGroup.spline, reverse);
+            _interpolator = new BezierSpline.LinearInterpolator(wrappedConnection.TrackGroup.Spline, reverse);
         }
 
         public void Step(float amt)
         {
             _interpolator.Step(amt);
             _currentPt = _interpolator.Value();
-        }
-
-        public InstanceWrapper WrappedInstance
-        {
-            get { return WrappedConnection.TrackGroup.InstanceWrapper; }
         }
 
         public bool ReachedEnd

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using IaS.GameObjects;
+﻿using IaS.GameState.WorldTree;
 using UnityEngine;
 
 namespace IaS.Controllers
@@ -13,11 +10,11 @@ namespace IaS.Controllers
         private readonly GameObject _instance;
         private readonly Material _material;
 
-        public ArrowController(float startTime, GameObject arrowPrefab, Transform particleTransform)
+        public ArrowController(float startTime, GameObject arrowPrefab, BaseTree particlesLeaf)
         {
             _startTime = startTime;
             _instance = Object.Instantiate(arrowPrefab, new Vector3(0, 7, 0), Quaternion.identity) as GameObject;
-            _instance.transform.SetParent(particleTransform, false);
+            particlesLeaf.Attach(_instance);
             _material = _instance.GetComponent<Renderer>().material;
         }
 

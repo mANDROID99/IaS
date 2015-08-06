@@ -1,12 +1,10 @@
 ﻿using IaS.WorldBuilder.Tracks;
-using IaS.WorldBuilder.Xml;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace IASTest
 {
     [TestFixture]
-    [Category("TrackDTO JunctionsDto")]
+    [Category("TrackXML JunctionsDto")]
     class TestTrackJunctionProcessor
     {
 

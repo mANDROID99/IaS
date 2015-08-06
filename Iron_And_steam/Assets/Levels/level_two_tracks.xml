@@ -7,8 +7,8 @@
 
       <splits>
         <split axis="y" val="3" pivot="3, 3, 3" id="split_y"/>
-        <split axis="x" val="3" pivot="3, 3, 3" id="split_y"/>
-        <split axis="z" val="3" pivot="3, 3, 3" id="split_y"/>
+        <split axis="x" val="3" pivot="3, 3, 3" id="split_x"/>
+        <split axis="z" val="3" pivot="3, 3, 3" id="split_z"/>
       </splits>
 
       <tracks>

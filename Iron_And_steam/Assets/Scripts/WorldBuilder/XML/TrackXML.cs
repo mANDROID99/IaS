@@ -1,22 +1,20 @@
-﻿using System.Linq;
-using IaS.Domain;
-using IaS.WorldBuilder.XML;
+﻿using IaS.WorldBuilder.XML;
 using UnityEngine;
 
 namespace IaS.WorldBuilder.Xml
 {
-    public class TrackDTO : IXmlReferenceable
+    public class TrackXML : IXmlReferenceable
     {
         public readonly string Id;
-        public readonly TrackNodeDTO[] NodesDto;
+        public readonly TrackNodeXML[] NodesXml;
         public readonly Vector3 Down;
         public readonly Vector3? StartDir;
 
-        public TrackDTO(string id, Vector3 down, Vector3? startDir, TrackNodeDTO[] nodesDto)
+        public TrackXML(string id, Vector3 down, Vector3? startDir, TrackNodeXML[] nodesXml)
         {
             Id = id;
             Down = down;
-            NodesDto = nodesDto;
+            NodesXml = nodesXml;
             StartDir = startDir;
         }
 
@@ -25,7 +23,7 @@ namespace IaS.WorldBuilder.Xml
         {
             get
             {
-                TrackNodeDTO lastNode = NodesDto[NodesDto.Length - 1];
+                TrackNodeXML lastNode = NodesXml[NodesXml.Length - 1];
                 return (lastNode.Position - lastNode.Previous.Position).normalized;
             }
         }
@@ -34,7 +32,7 @@ namespace IaS.WorldBuilder.Xml
         {
             get
             {
-                TrackNodeDTO firstNode = NodesDto[0];
+                TrackNodeXML firstNode = NodesXml[0];
                 return (firstNode.Next.Position - firstNode.Position);
             }
         }

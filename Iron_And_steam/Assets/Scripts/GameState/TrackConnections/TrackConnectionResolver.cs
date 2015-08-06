@@ -15,20 +15,17 @@ namespace IaS.GameState
         private readonly Dictionary<InstanceWrapper, SubTrackGroup> _instancesMap = new Dictionary<InstanceWrapper, SubTrackGroup>(); 
         private readonly TrackConnection[] _connections;
 
-        public TrackConnectionResolver(EventRegistry eventRegistry, TrackContext[] tracks, Junction[] junctions)
+        public TrackConnectionResolver(EventRegistry eventRegistry, SplitTrack[] tracks, Junction[] junctions)
         {
             eventRegistry.RegisterConsumer(this);
             _connections = GenerateConnections(tracks, junctions);
         }
 
-        private TrackConnection[] GenerateConnections(TrackContext[] tracks, Junction[] junctions)
+        private TrackConnection[] GenerateConnections(SplitTrack[] tracks, Junction[] junctions)
         {
             List<TrackConnection> connections = new List<TrackConnection>();
-            foreach (SubTrackGroup group in tracks.SelectMany(t => t.SplitTrack.AllSubTrackGroups()))
+            foreach (SubTrackGroup group in tracks.SelectMany(t => t.AllSubTrackGroups()))
             {
-                
-                if (!group.HasInstance)
-                    throw new Exception("Cannot initialize track connections for a Subtrack that has not been instantiated.");
 
                 TrackConnection conn;
                 if (!AttachJunction(out conn, group, junctions))
@@ -37,7 +34,7 @@ namespace IaS.GameState
                 }
 
                 _connectionsMap.Add(group, conn);
-                _instancesMap.Add(group.InstanceWrapper, group);
+                //_instancesMap.Add(group.InstanceWrapper, group);
                 connections.Add(conn);
             }
 
@@ -74,9 +71,9 @@ namespace IaS.GameState
                 new OneToOneConnectionFilter.EndFilter(group));
         }
 
-        public InterpolateableConnection GetStartingConnection(TrackContext trackContext)
+        public InterpolateableConnection GetStartingConnection(SplitTrack track)
         {
-            SubTrackGroup firstSubTrackGroup = trackContext.SplitTrack.FirstSubTrack.FirstGroup;
+            SubTrackGroup firstSubTrackGroup = track.FirstSubTrack.FirstGroup;
             TrackConnection conn = _connections.First(c => c.TrackGroup == firstSubTrackGroup);
             return new InterpolateableConnection(conn, false);
         }

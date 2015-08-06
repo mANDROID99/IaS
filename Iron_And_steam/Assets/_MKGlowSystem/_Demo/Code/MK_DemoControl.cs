@@ -6,9 +6,8 @@
 ///////////////////////////////////////////////
 
 
-using UnityEngine;
-using System.Collections;
 using MKGlowSystem;
+using UnityEngine;
 
 public class MK_DemoControl : MonoBehaviour 
 {

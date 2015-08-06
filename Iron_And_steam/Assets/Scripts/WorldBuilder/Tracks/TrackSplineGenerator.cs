@@ -7,7 +7,7 @@ namespace IaS.WorldBuilder.Tracks
 {
     public class TrackSplineGenerator
     {
-        private static readonly float ANCHOR_DIST = 4 * (Mathf.Sqrt(2) - 1) / 3f;
+        private static readonly float AnchorDist = 4 * (Mathf.Sqrt(2) - 1) / 3f;
         private TrackBuilderConfiguration config;
 
         public TrackSplineGenerator(TrackBuilderConfiguration config)
@@ -15,41 +15,37 @@ namespace IaS.WorldBuilder.Tracks
             this.config = config;
         }
 
-        public BezierSpline[] GenerateSplines(SplitTrack track, SubTrack subTrack)
+        public BezierSpline GenerateSpline(List<SubTrackNode> nodes)
         {
-            List<BezierSpline> splines = new List<BezierSpline>();
-            for (int groupIdx = 0; groupIdx < subTrack.TrackGroups.Length; groupIdx ++ )
+            int numNodes = nodes.Count;
+            List<BezierSpline.BezierPoint> pts = new List<BezierSpline.BezierPoint>();
+
+            if (numNodes > 1)
             {
-                SubTrackGroup group = subTrack.TrackGroups[groupIdx];
-                if (group.NumTrackNodes < 2)
-                    continue;
-
-                List<BezierSpline.BezierPoint> pts = new List<BezierSpline.BezierPoint>();
-
-                Vector3 anchor1, anchor2;
-
-                for (int i = 0; i < group.NumTrackNodes - 1; i++)
+                for (int i = 0; i < numNodes - 1; i++)
                 {
-                    SubTrackNode current = group[i];
-                    SubTrackNode next = current.next;
-                    SubTrackNode previous = current.previous;
+                    SubTrackNode current = nodes[i];
+                    SubTrackNode next = current.Next;
+                    SubTrackNode previous = current.Previous;
 
-                    if(Vector3.Angle(current.forward, next.forward) > 0.1f)
+                    Vector3 anchor1;
+                    Vector3 anchor2;
+                    if (Vector3.Angle(current.Forward, next.Forward) > 0.1f)
                     {
                         // corner
-                        Vector3 pt1 = current.position + GetOffset(current.forward) + (current.down * config.curveOffset);
-                        Vector3 curveEnd = current.position + GetOffset(-next.forward) + (next.down * config.curveOffset);
+                        Vector3 pt1 = current.Position + GetOffset(current.Forward) + (current.Down * config.curveOffset);
+                        Vector3 curveEnd = current.Position + GetOffset(-next.Forward) + (next.Down * config.curveOffset);
                         float radius = GetRadius(pt1, curveEnd);
-                        anchor1 = pt1 + current.forward * (radius * ANCHOR_DIST);
-                        anchor2 = curveEnd - next.forward * (radius * ANCHOR_DIST);
+                        anchor1 = pt1 + current.Forward * (radius * AnchorDist);
+                        anchor2 = curveEnd - next.Forward * (radius * AnchorDist);
 
                         pts.Add(new BezierSpline.BezierPoint(pt1, curveEnd, anchor1, anchor2, 6));
                     }
                     else
                     {
-                        bool currentIsEndPartOfCurve = current.previous != null && (current.position == previous.position);
-                        Vector3 pt1 = current.position + GetOffset(currentIsEndPartOfCurve ? -current.forward : current.forward) + (current.down * config.curveOffset);
-                        Vector3 pt2 = next.position + GetOffset(next.forward) + (next.down * config.curveOffset);
+                        bool currentIsEndPartOfCurve = current.Previous != null && (current.Position == previous.Position);
+                        Vector3 pt1 = current.Position + GetOffset(currentIsEndPartOfCurve ? -current.Forward : current.Forward) + (current.Down * config.curveOffset);
+                        Vector3 pt2 = next.Position + GetOffset(next.Forward) + (next.Down * config.curveOffset);
 
                         if (Vector3.Distance(pt1, pt2) < 0.1f)
                             continue;
@@ -58,13 +54,9 @@ namespace IaS.WorldBuilder.Tracks
                         pts.Add(new BezierSpline.BezierPoint(pt1, pt2, anchor1, anchor2, 2));
                     }
                 }
-
-                BezierSpline spline = new BezierSpline(pts.ToArray());
-                group.spline = spline;
-                splines.Add(spline);
             }
-
-            return splines.ToArray();
+                
+            return new BezierSpline(pts.ToArray());
         }
 
         private void GetLinearAnchors(Vector3 pt1, Vector3 pt2, out Vector3 anchor1, out Vector3 anchor2)

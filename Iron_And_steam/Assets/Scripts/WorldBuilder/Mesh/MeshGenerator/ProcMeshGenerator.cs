@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace IaS.WorldBuilder.Meshes
 {
 	public interface IProcMeshGenerator

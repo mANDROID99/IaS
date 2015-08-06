@@ -51,10 +51,10 @@ namespace IaS.WorldBuilder.Tracks
 
         private Vertex[] BuildNextSection(MeshBuilder meshBuilder, Vector3 curvePt, Vector3 tangent, Quaternion quat, Vertex[] lastVerts)
         {
-            Vector3 pt1 = quat * new Vector3(TRACK_RADIUS * 0.75f, TRACK_RADIUS, 0) + curvePt;
-            Vector3 pt2 = quat * new Vector3(TRACK_RADIUS * 0.75f, -TRACK_RADIUS, 0) + curvePt;
-            Vector3 pt3 = quat * new Vector3(-TRACK_RADIUS * 0.75f, -TRACK_RADIUS, 0) + curvePt;
-            Vector3 pt4 = quat * new Vector3(-TRACK_RADIUS * 0.75f, TRACK_RADIUS, 0) + curvePt;
+            Vector3 pt1 = quat * new Vector3(TRACK_RADIUS, TRACK_RADIUS, 0) + curvePt;
+            Vector3 pt2 = quat * new Vector3(TRACK_RADIUS, -TRACK_RADIUS, 0) + curvePt;
+            Vector3 pt3 = quat * new Vector3(-TRACK_RADIUS, -TRACK_RADIUS, 0) + curvePt;
+            Vector3 pt4 = quat * new Vector3(-TRACK_RADIUS, TRACK_RADIUS, 0) + curvePt;
 
             Vertex[] verts = new Vertex[]{
                 meshBuilder.VertAutoNormal(pt1, new Vector2(), false),

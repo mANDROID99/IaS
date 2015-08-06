@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using IaS.Domain;
-using UnityEngine;
-using IaS.WorldBuilder.Xml;
-using IaS.WorldBuilder;
 using IaS.Helpers;
+using IaS.WorldBuilder.Xml;
+using UnityEngine;
 
 namespace IaS.WorldBuilder.Tracks
 {
@@ -19,51 +16,71 @@ namespace IaS.WorldBuilder.Tracks
             this.config = config;
         }
 
-        public SplitTrack SplitTrack(TrackDTO trackDto, Split[] splits)
+        public SplitTrack SplitTrack(TrackXML trackXml, BlockBounds[] splitBounds)
         {
-            List<SubTrackNode> subTrackNodes = CreateCornerDuplicatedTrackNodes(trackDto);
-            SplitTrack splitTrack = SplitSubTrackNodes(subTrackNodes, splits, trackDto);
-            return splitTrack;
-        }
+            List<SubTrackNode> subTrackNodes = CreateTrackNodes(trackXml);
+            BlockBounds firstSplitBounds;
+            BlockBounds lastSplitBounds;
+            Dictionary<BlockBounds, List<List<SubTrackNode>>> splitTrackDict = SplitSubTrackNodes(subTrackNodes, splitBounds, out firstSplitBounds, out lastSplitBounds);
+            
+            SplitTrackBuilder splitTrackBuilder = new SplitTrackBuilder(trackXml);
+            foreach (BlockBounds bounds in splitTrackDict.Keys.Where(k => splitTrackDict[k].Count > 0))
+            {
+                var nodesLists = splitTrackDict[bounds];
 
+                SubTrackBuilder subTrackBuilder = splitTrackBuilder.SubTracks.FirstOrDefault(st => st.SplitBounds.Equals(bounds));
+
+                if (subTrackBuilder == null)
+                    splitTrackBuilder.WithSubTrack((subTrackBuilder = new SubTrackBuilder(bounds)));
+
+                if (bounds == firstSplitBounds) splitTrackBuilder.WithFirstSubTrack(subTrackBuilder);
+                if (bounds == lastSplitBounds) splitTrackBuilder.WithLastSubTrack(subTrackBuilder);
+
+                foreach (List<SubTrackNode> nodes in nodesLists)
+                {
+                    subTrackBuilder.WithTrackGroup(new SubTrackGroupBuilder().WithNodes(nodes));
+                }
+                subTrackBuilder.WithTrackGroupAutoFirstLast();
+            }
+
+            return splitTrackBuilder.Build();
+        }
 
         private Vector3 GetOffset(Vector3 forward)
         {
             return (new Vector3(0.5f, 0.5f, 0.5f) - forward / 2f);
         }
 
-        private SplitTrack SplitSubTrackNodes(List<SubTrackNode> trackNodes, Split[] splits, TrackDTO trackDtoRef)
+        private Dictionary<BlockBounds, List<List<SubTrackNode>>> SplitSubTrackNodes(List<SubTrackNode> trackNodes, BlockBounds[] splitBounds, out BlockBounds firstSplitBounds, out BlockBounds lastSplitBounds)
         {
-            BlockBounds[] splitBounds = SplitContainingBounds(trackNodes, splits);
-            Dictionary<BlockBounds, List<List<SubTrackNode>>> splitTrack = splitBounds.ToDictionary(bounds => bounds, bounds => new List<List<SubTrackNode>>());
+            List<BlockBounds> queue = new List<BlockBounds>();
+            Dictionary<BlockBounds, List<List<SubTrackNode>>> splitTrackDict = splitBounds.ToDictionary(b => b, b => new List<List<SubTrackNode>>());
 
-            BlockBounds firstBlockBounds = null;
-            BlockBounds lastBlockBounds = null;
-            BlockBounds currentSubBounds = null;
+            BlockBounds currentSplitBounds = null;
             List<SubTrackNode> currentSubTrackNodes = null;
 
             for (int i = 0; i < trackNodes.Count; i++ )
             {
                 SubTrackNode nextNode = trackNodes[i];
 
-                if ((currentSubBounds == null) || (!currentSubBounds.Contains(nextNode.position)))
+                if ((currentSplitBounds == null) || (!currentSplitBounds.Contains(nextNode.Position)))
                 {
                     List<SubTrackNode> nextSubTrackNodes = new List<SubTrackNode>();
-                    BlockBounds nextSubBounds = splitBounds.FirstOrDefault(b => b.Contains(nextNode.position));
+                    BlockBounds nextSubBounds = splitBounds.First(b => b.Contains(nextNode.Position));
 
-                    if(currentSubBounds != null)
+                    if(currentSplitBounds != null)
                     {
-                        if(trackNodes[i - 1].position != nextNode.position)
+                        if(trackNodes[i - 1].Position != nextNode.Position)
                         {
                             SubTrackNode previousNode = trackNodes[i - 1];
-                            Vector3 actualPrevPos = previousNode.position + GetOffset(nextNode.forward);
+                            Vector3 actualPrevPos = previousNode.Position + GetOffset(nextNode.Forward);
                             Vector3 actualIntersectPos = nextSubBounds.ToAxisAlignedBounds().ClosestPoint(actualPrevPos);
-                            Vector3 intersectPos = actualIntersectPos - new Vector3(0.5f, 0.5f, 0.5f) + nextNode.forward / 2f;
+                            Vector3 intersectPos = actualIntersectPos - new Vector3(0.5f, 0.5f, 0.5f) + nextNode.Forward / 2f;
 
-                            if ((intersectPos != previousNode.position) || (intersectPos != nextNode.position))
+                            if ((intersectPos != previousNode.Position) || (intersectPos != nextNode.Position))
                             {
-                                bool intersectsPrev = intersectPos == previousNode.position;
-                                bool intersectsNext = intersectPos == nextNode.position;
+                                bool intersectsPrev = intersectPos == previousNode.Position;
+                                bool intersectsNext = intersectPos == nextNode.Position;
 
                                 if (intersectsPrev && !intersectsNext)
                                 {
@@ -75,7 +92,7 @@ namespace IaS.WorldBuilder.Tracks
                                     UpdateLinks(previousNode, nextNode);
                                 }else if (!intersectsNext && !intersectsPrev)
                                 {
-                                    SubTrackNode intersectNode = new SubTrackNode(intersectPos, previousNode.forward, previousNode.down);
+                                    SubTrackNode intersectNode = new SubTrackNode(intersectPos, previousNode.Forward, previousNode.Down);
                                     UpdateLinks(intersectNode, nextNode);
                                     UpdateLinks(previousNode, intersectNode);
                                     currentSubTrackNodes.Add(intersectNode);
@@ -83,14 +100,16 @@ namespace IaS.WorldBuilder.Tracks
                                 }
                             }
                         }
-                        splitTrack[currentSubBounds].Add(currentSubTrackNodes);
+
+                        if (currentSubTrackNodes.Count > 1)
+                        {
+                            queue.Add(currentSplitBounds);
+                            splitTrackDict[currentSplitBounds].Add(currentSubTrackNodes);
+                        }
                     }
 
                     currentSubTrackNodes = nextSubTrackNodes;
-                    currentSubBounds = nextSubBounds;
-
-                    firstBlockBounds = firstBlockBounds ?? currentSubBounds;
-                    lastBlockBounds = currentSubBounds;
+                    currentSplitBounds = nextSubBounds;
                 }
 
                 currentSubTrackNodes.Add(nextNode);
@@ -98,41 +117,45 @@ namespace IaS.WorldBuilder.Tracks
 
             if (currentSubTrackNodes.Count > 1)
             {
-                splitTrack[currentSubBounds].Add(currentSubTrackNodes);
+                queue.Add(currentSplitBounds);
+                splitTrackDict[currentSplitBounds].Add(currentSubTrackNodes);
             }
-            return ConvertDictionaryToSplitTrack(splitTrack, trackDtoRef, firstBlockBounds, lastBlockBounds);
+
+            firstSplitBounds = queue.FirstOrDefault();
+            lastSplitBounds = queue.LastOrDefault();
+            return splitTrackDict;
         }
 
         private void UpdateLinks(SubTrackNode previous, SubTrackNode next)
         {
             if(previous != null)
-                previous.next = next;
+                previous.Next = next;
             if(next != null)
-                next.previous = previous;
+                next.Previous = previous;
         }
 
-        private List<SubTrackNode> CreateCornerDuplicatedTrackNodes(TrackDTO trackDto)
+        private List<SubTrackNode> CreateTrackNodes(TrackXML trackXml)
         {
             SubTrackNode previousTrackNode = null;
-            Vector3 down = trackDto.Down;
-            Vector3? lastForward = trackDto.StartDir;
+            Vector3 down = trackXml.Down;
+            Vector3? lastForward = trackXml.StartDir;
 
-            TrackNodeDTO[] nodesDto = trackDto.NodesDto;
-            List<SubTrackNode> subTrackNodes = new List<SubTrackNode>();
+            TrackNodeXML[] nodesXml = trackXml.NodesXml;
+            var subTrackNodes = new List<SubTrackNode>();
 
-            if(nodesDto.Length < 2) return subTrackNodes;
+            if(nodesXml.Length < 2) return subTrackNodes;
 
-            for (int i = 0; i < nodesDto.Length; i++)
+            for (int i = 0; i < nodesXml.Length; i++)
             {
-                Vector3 position = nodesDto[i].Position;
-                Vector3? previousPos = i > 0 ? nodesDto[i - 1].Position : (Vector3?)null;
-                Vector3? nextPos = i < nodesDto.Length - 1 ? nodesDto[i + 1].Position : (Vector3?)null;
+                Vector3 position = nodesXml[i].Position;
+                Vector3? previousPos = i > 0 ? nodesXml[i - 1].Position : (Vector3?)null;
+                Vector3? nextPos = i < nodesXml.Length - 1 ? nodesXml[i + 1].Position : (Vector3?)null;
 
                 Vector3? nextForward = nextPos.HasValue ? (nextPos.Value - position).normalized : (Vector3?)null;
                 Vector3 forward;
                 if (i == 0)
                 {
-                    forward = trackDto.StartDir ?? (nextPos.Value - position).normalized;
+                    forward = trackXml.StartDir ?? (nextPos.Value - position).normalized;
                 }
                 else
                 {
@@ -142,13 +165,11 @@ namespace IaS.WorldBuilder.Tracks
                 down = GetNextDownDirection(forward, lastForward, down);
                 lastForward = forward;
 
-                SubTrackNode currentNode = new SubTrackNode(position, forward, down);
+                var currentNode = new SubTrackNode(position, forward, down);
                 UpdateLinks(previousTrackNode, currentNode);
 
                 previousTrackNode = currentNode;
                 subTrackNodes.Add(currentNode);
-
-
 
                 if ((nextForward.HasValue) && (Vector3.Angle(forward, nextForward.Value) > 0.1f))
                 {
@@ -156,7 +177,7 @@ namespace IaS.WorldBuilder.Tracks
                     down = GetNextDownDirection(nextForward.Value, lastForward, down);
                     lastForward = nextForward;
 
-                    SubTrackNode cornerNode = new SubTrackNode(position, nextForward.Value, down);
+                    var cornerNode = new SubTrackNode(position, nextForward.Value, down);
                     UpdateLinks(currentNode, cornerNode);
 
                     previousTrackNode = cornerNode;
@@ -176,53 +197,5 @@ namespace IaS.WorldBuilder.Tracks
             }
             return down;
         }
-
-        private SplitTrack ConvertDictionaryToSplitTrack(Dictionary<BlockBounds, List<List<SubTrackNode>>> dict, TrackDTO trackDtoRef, BlockBounds firstSubTrackBounds, BlockBounds lastSubTrackBounds)
-        {
-            SubTrack firstSubTrack = null;
-            SubTrack lastSubTrack = null;
-            SubTrack[] subTracks = dict.Keys
-                .Where(subBounds => dict[subBounds].Count > 0)
-                .Select(subBounds => {
-                    SubTrackGroup[] trackGroups = dict[subBounds].Select(group => new SubTrackGroup(null, group.ToArray())).ToArray();
-                    SubTrackGroup firstGroup = trackGroups[0];
-                    SubTrackGroup lastGroup = trackGroups.Last();
-                    SubTrack subTrack = new SubTrack(subBounds, trackGroups, firstGroup, lastGroup);
-
-                    if (subBounds == firstSubTrackBounds)
-                    {
-                        firstSubTrack = subTrack;
-                    }
-                    if (subBounds == lastSubTrackBounds)
-                    {
-                        lastSubTrack = subTrack;
-                    }
-
-                    return subTrack;
-                }).ToArray();
-
-            return new SplitTrack(trackDtoRef, subTracks, firstSubTrack, lastSubTrack);
-        }
-
-
-        private BlockBounds[] SplitContainingBounds(List<SubTrackNode> nodes, Split[] splits)
-        {
-            BlockBounds containingBounds = GetContainingBounds(nodes);
-            SplitTree splitTree = new SplitTree(containingBounds);
-            splitTree.Split(splits);
-            return splitTree.GatherSplitBounds();
-        }
-
-        private BlockBounds GetContainingBounds(List<SubTrackNode> nodes)
-        {
-            float minX = nodes.Min(node => node.position.x);
-            float minY = nodes.Min(node => node.position.y);
-            float minZ = nodes.Min(node => node.position.z);
-            float maxX = nodes.Max(node => node.position.x);
-            float maxY = nodes.Max(node => node.position.y);
-            float maxZ = nodes.Max(node => node.position.z);
-            return new BlockBounds(minX - 1, minY - 1, minZ - 1, maxX + 1, maxY + 1, maxZ + 1);
-        }
-
     }
 }

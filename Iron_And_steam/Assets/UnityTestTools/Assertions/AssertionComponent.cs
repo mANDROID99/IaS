@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
@@ -45,7 +45,7 @@ namespace UnityTest
             #if UNITY_EDITOR
             if (!string.IsNullOrEmpty(m_CreatedInFilePath))
             {
-                return UnityEditor.AssetDatabase.LoadAssetAtPath(m_CreatedInFilePath, typeof(Object));
+                return AssetDatabase.LoadAssetAtPath(m_CreatedInFilePath, typeof(Object));
             }
             #endif
             return this;

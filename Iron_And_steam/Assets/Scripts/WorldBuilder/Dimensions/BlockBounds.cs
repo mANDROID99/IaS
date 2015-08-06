@@ -8,49 +8,51 @@ namespace IaS.WorldBuilder
     [Serializable]
     public class BlockBounds
     {
-		public const float SPLIT_GAP = 0.05f;
+        public static readonly float MaxWorldSize = 100000;
+        public static readonly BlockBounds Unbounded = new BlockBounds(-MaxWorldSize, -MaxWorldSize, -MaxWorldSize, MaxWorldSize, MaxWorldSize, MaxWorldSize);
+        public const float SPLIT_GAP = 0.05f;
 
-        public float minX;
-        public float minY;
-        public float minZ;
-        public float maxX;
-        public float maxY;
-        public float maxZ;
+        public float MinX;
+        public float MinY;
+        public float MinZ;
+        public float MaxX;
+        public float MaxY;
+        public float MaxZ;
 
         public Vector3 CenterPos { get { return Position + Size / 2f; } }
-        public Vector3 Position { get { return new Vector3(minX, minY, minZ); } }
-        public Vector3 Size { get { return new Vector3(maxX - minX, maxY - minY, maxZ - minZ); } }
+        public Vector3 Position { get { return new Vector3(MinX, MinY, MinZ); } }
+        public Vector3 Size { get { return new Vector3(MaxX - MinX, MaxY - MinY, MaxZ - MinZ); } }
 
         public BlockBounds(float minX, float minY, float minZ, float maxX, float maxY, float maxZ)
         {
-            this.minX = minX;
-            this.minY = minY;
-            this.minZ = minZ;
-            this.maxX = maxX;
-            this.maxY = maxY;
-            this.maxZ = maxZ;
+            MinX = minX;
+            MinY = minY;
+            MinZ = minZ;
+            MaxX = maxX;
+            MaxY = maxY;
+            MaxZ = maxZ;
         }
 
         public BlockBounds(Vector3 position, Vector3 size)
         {
-            minX = position.x;
-            minY = position.y;
-            minZ = position.z;
+            MinX = position.x;
+            MinY = position.y;
+            MinZ = position.z;
 
-            maxX = minX + size.x;
-            maxY = minY + size.y;
-            maxZ = minZ + size.z;
+            MaxX = MinX + size.x;
+            MaxY = MinY + size.y;
+            MaxZ = MinZ + size.z;
         }
 
         public BlockBounds UnionWith(BlockBounds bounds)
         {
-            minX = Math.Min(bounds.minX, minX);
-            minY = Math.Min(bounds.minY, minY);
-            minZ = Math.Min(bounds.minZ, minZ);
+            MinX = Math.Min(bounds.MinX, MinX);
+            MinY = Math.Min(bounds.MinY, MinY);
+            MinZ = Math.Min(bounds.MinZ, MinZ);
 
-            maxX = Math.Max(bounds.maxX, maxX);
-            maxY = Math.Max(bounds.maxY, maxY);
-            maxZ = Math.Max(bounds.maxZ, maxZ);
+            MaxX = Math.Max(bounds.MaxX, MaxX);
+            MaxY = Math.Max(bounds.MaxY, MaxY);
+            MaxZ = Math.Max(bounds.MaxZ, MaxZ);
             return this;
         }
 
@@ -59,15 +61,15 @@ namespace IaS.WorldBuilder
 			if (originalBounds == null) {
 				originalBounds = this;
 			}
-            Vector3 r1 = MathHelper.RotateAroundPivot(new Vector3(originalBounds.minX, originalBounds.minY, originalBounds.minZ), pivot, rotation);
-            Vector3 r2 = MathHelper.RotateAroundPivot(new Vector3(originalBounds.maxX, originalBounds.maxY, originalBounds.maxZ), pivot, rotation);
+            Vector3 r1 = MathHelper.RotateAroundPivot(new Vector3(originalBounds.MinX, originalBounds.MinY, originalBounds.MinZ), pivot, rotation);
+            Vector3 r2 = MathHelper.RotateAroundPivot(new Vector3(originalBounds.MaxX, originalBounds.MaxY, originalBounds.MaxZ), pivot, rotation);
 
-            this.minX = MathHelper.RoundToDp(Mathf.Min(r1.x, r2.x), 4);
-			this.minY = MathHelper.RoundToDp(Mathf.Min(r1.y, r2.y), 4);
-			this.minZ = MathHelper.RoundToDp(Mathf.Min(r1.z, r2.z), 4);
-			this.maxX = MathHelper.RoundToDp(Mathf.Max(r1.x, r2.x), 4);
-			this.maxY = MathHelper.RoundToDp(Mathf.Max(r1.y, r2.y), 4);	
-			this.maxZ = MathHelper.RoundToDp(Mathf.Max(r1.z, r2.z), 4);
+            MinX = MathHelper.RoundToDp(Mathf.Min(r1.x, r2.x), 4);
+			MinY = MathHelper.RoundToDp(Mathf.Min(r1.y, r2.y), 4);
+			MinZ = MathHelper.RoundToDp(Mathf.Min(r1.z, r2.z), 4);
+			MaxX = MathHelper.RoundToDp(Mathf.Max(r1.x, r2.x), 4);
+			MaxY = MathHelper.RoundToDp(Mathf.Max(r1.y, r2.y), 4);	
+			MaxZ = MathHelper.RoundToDp(Mathf.Max(r1.z, r2.z), 4);
 			return this;
         }
 
@@ -76,20 +78,20 @@ namespace IaS.WorldBuilder
 			foreach (Split split in splits) 
 			{
 				bool lhs = split.DistanceFromSplit(this.Position) < 0;
-				if(split.axis.x > 0)
+				if(split.Axis.x > 0)
 				{
-					minX = lhs ? minX : Mathf.Max(split.value + SPLIT_GAP, minX);
-					maxX = !lhs ? maxX : Mathf.Min(split.value - SPLIT_GAP, maxX);
+					MinX = lhs ? MinX : Mathf.Max(split.Value + SPLIT_GAP, MinX);
+					MaxX = !lhs ? MaxX : Mathf.Min(split.Value - SPLIT_GAP, MaxX);
 				}
-				else if(split.axis.y > 0)
+				else if(split.Axis.y > 0)
 				{
-					minY = lhs ? minY : Mathf.Max(split.value + SPLIT_GAP, minY);
-					maxY = !lhs ? maxY : Mathf.Min(split.value - SPLIT_GAP, maxY);
+					MinY = lhs ? MinY : Mathf.Max(split.Value + SPLIT_GAP, MinY);
+					MaxY = !lhs ? MaxY : Mathf.Min(split.Value - SPLIT_GAP, MaxY);
 				}
-				else if(split.axis.z > 0)
+				else if(split.Axis.z > 0)
 				{
-					minZ = lhs ? minZ : Mathf.Max(split.value + SPLIT_GAP, minZ);
-					maxZ = !lhs ? maxZ : Mathf.Min(split.value - SPLIT_GAP, maxZ);
+					MinZ = lhs ? MinZ : Mathf.Max(split.Value + SPLIT_GAP, MinZ);
+					MaxZ = !lhs ? MaxZ : Mathf.Min(split.Value - SPLIT_GAP, MaxZ);
 				}
 			}
 			return this;
@@ -97,9 +99,9 @@ namespace IaS.WorldBuilder
 
 		public Vector3 ClipVec3(Vector3 vec3)
 		{
-			vec3.x = Mathf.Min (this.maxX, Mathf.Max (vec3.x, this.minX));
-			vec3.y = Mathf.Min (this.maxY, Mathf.Max (vec3.y, this.minY));
-			vec3.z = Mathf.Min (this.maxZ, Mathf.Max (vec3.z, this.minZ));
+			vec3.x = Mathf.Min (this.MaxX, Mathf.Max (vec3.x, this.MinX));
+			vec3.y = Mathf.Min (this.MaxY, Mathf.Max (vec3.y, this.MinY));
+			vec3.z = Mathf.Min (this.MaxZ, Mathf.Max (vec3.z, this.MinZ));
 			return vec3;
 		}
         
@@ -110,7 +112,12 @@ namespace IaS.WorldBuilder
 
         public BlockBounds Copy()
         {
-            return new BlockBounds(minX, minY, minZ, maxX, maxY, maxZ);
+            return new BlockBounds(MinX, MinY, MinZ, MaxX, MaxY, MaxZ);
+        }
+
+        public bool AproxEqual(BlockBounds bounds)
+        {
+            return MathHelper.VectorsEqualWError(Position, bounds.Position) && MathHelper.VectorsEqualWError(Size, bounds.Size);
         }
 
         public override string ToString()
@@ -118,26 +125,25 @@ namespace IaS.WorldBuilder
             return string.Format("[pos: {0}, size: {1}]", Position, Size);
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj.GetType() != typeof(BlockBounds))
-            {
-                return base.Equals(obj);
-            }
-            BlockBounds testBB = (BlockBounds) obj;
-            return MathHelper.VectorsEqualWError(Position, testBB.Position) && MathHelper.VectorsEqualWError(Size, testBB.Size);
-        }
+        
 
         public bool Contains(int x, int y, int z)
         {
-            return x >= minX && x < maxX && 
-                y >= minY && y < maxY && 
-                z >= minZ && z < maxZ;
+            return x >= MinX && x < MaxX && 
+                y >= MinY && y < MaxY && 
+                z >= MinZ && z < MaxZ;
         }
 
         public bool Contains(Vector3 pos)
         {
             return Contains(Mathf.RoundToInt(pos.x), Mathf.RoundToInt(pos.y), Mathf.RoundToInt(pos.z));
+        }
+
+        public bool Contains(BlockBounds bounds)
+        {
+            return bounds.MinX >= MinX && bounds.MaxX <= MaxX &&
+                   bounds.MinY >= MinY && bounds.MaxY <= MaxY &&
+                   bounds.MinZ >= MinZ && bounds.MaxZ <= MaxZ;
         }
     }
 }

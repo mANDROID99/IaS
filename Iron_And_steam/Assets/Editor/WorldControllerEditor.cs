@@ -11,7 +11,7 @@ public class WorldControllerEditor : Editor {
 		DrawDefaultInspector ();
 		
 		WorldController worldController = (WorldController)target;
-		if (GUILayout.Button ("load world")) {
+		if (GUILayout.Button ("load Level")) {
 			worldController.LoadWorld();
 		}
 	}

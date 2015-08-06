@@ -1,34 +1,30 @@
-﻿using UnityEngine;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Controllers;
-using IaS.WorldBuilder;
 using IaS.GameState;
+using IaS.GameState.WorldTree;
 using IaS.Helpers;
+using IaS.Scripts.Domain;
+using IaS.WorldBuilder;
+using UnityEngine;
 
 namespace IaS.GameObjects{
 
     public class BlockRotaterController : Controller {
 
         private readonly HalfSplitRotation[] _splitHalfRotations;
-        private List<InstanceWrapper> _allInstances = new List<InstanceWrapper>();
         private readonly EventRegistry _eventRegistry;
+        private readonly GroupBranch _groupBranch;
         private bool _readyToRot = true;
-
-
-        public BlockRotaterController(EventRegistry eventRegistry, Split[] splits)
+        
+        public BlockRotaterController(EventRegistry eventRegistry, Split[] splits, GroupBranch groupBranch)
         {
             _eventRegistry = eventRegistry;
+            _groupBranch = groupBranch;
             _splitHalfRotations = splits.SelectMany(split => new[]{
                 new HalfSplitRotation(split, true),
                 new HalfSplitRotation(split, false)}).ToArray();
-        }
-
-        internal void AddInstanceToRotate(InstanceWrapper instanceWrapper)
-        {
-           _allInstances.Add(instanceWrapper);
         }
 
         IEnumerator Rotate90Degrees(int direction, HalfSplitRotation splitRotation)
@@ -38,20 +34,23 @@ namespace IaS.GameObjects{
             do
             {
                 deltaTime = Mathf.Clamp(Time.time - startTime, 0, 1);
-                foreach (InstanceWrapper rotated in splitRotation.instances)
+                foreach (SplitBoundsBranch branch in splitRotation.Branches)
                 {
-                    Quaternion lerpRotation = Quaternion.Lerp(rotated.startRotation, rotated.endRotation, Mathf.SmoothStep(0, 1, deltaTime));
-                    Transformation transformation = new RotateAroundPivotTransform(splitRotation.split.pivot, lerpRotation);
+                    BranchRotation rotation = branch.Data.BranchRotation;
 
-                    Vector3 position = transformation.Transform(rotated.bounds.Position);
-                    rotated.gameObject.transform.localRotation = lerpRotation;
-                    rotated.gameObject.transform.localPosition = position;
-                    _eventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.Update));
+                    Quaternion lerpRotation = Quaternion.Lerp(rotation.StartRotation, rotation.EndRotation, Mathf.SmoothStep(0, 1, deltaTime));
+                    Transformation transformation = new RotateAroundPivotTransform(splitRotation.Split.Pivot, lerpRotation);
 
-                    if(deltaTime == 1)
-                    {
-                        _eventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.AfterRotation));
-                    }
+                    branch.Node.transform.localRotation = lerpRotation;
+
+                    Vector3 position = transformation.Transform(new Vector3());
+                    branch.Node.transform.localPosition = position;
+                    //_eventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.Update));
+
+//                    if (deltaTime == 1)
+//                    {
+//                        _eventRegistry.Notify(new BlockRotationEvent(rotated, transformation, BlockRotationEvent.EventType.AfterRotation));
+//                    }
                 }
 
                 yield return null;
@@ -61,32 +60,38 @@ namespace IaS.GameObjects{
         
         private bool CanRotate(HalfSplitRotation halfSplit)
         {
-            halfSplit.resetMeshBlocks();
-            foreach (InstanceWrapper instance in _allInstances)
+            halfSplit.ResetRotatedBranches();
+            return _groupBranch.SplitBounds.All(bounds =>
             {
-                float constrainResult = halfSplit.split.Constrains(halfSplit.lhs, instance.rotatedBounds);
-                if (constrainResult == Split.CONSTRAIN_BLOCKED)
+                SplitBoundsBranch branch = _groupBranch.GetSplitBoundsBranch(bounds);
+                Split.ConstraintResult constraintResult;
+                float value = halfSplit.Split.Constrains(true, branch.Data.BranchRotation.RotatedBounds, out constraintResult);
+
+                if (constraintResult == Split.ConstraintResult.Blocked)
                 {
                     return false;
-                }else if (constrainResult >= 0)
-                {
-                    halfSplit.instances.Add(instance);
                 }
-            }
-            return true;
+
+                if (value >= 0)
+                {
+                    halfSplit.Branches.Add(branch);
+                }
+                return true;
+            });
         }
 
-        private void UpdateInstanceRotation(int direction, HalfSplitRotation splitRotation)
+        private void UpdateBranchRotation(int direction, HalfSplitRotation splitRotation)
         {
-            Quaternion rotateAmt = Quaternion.Euler(splitRotation.split.axis * 90 * direction);
-            foreach (InstanceWrapper rotated in splitRotation.instances)
+            Quaternion rotateAmt = Quaternion.Euler(splitRotation.Split.Axis * 90 * direction);
+            foreach (SplitBoundsBranch rotated in splitRotation.Branches)
             {
-                rotated.startRotation = rotated.endRotation;
-                rotated.endRotation = rotateAmt * rotated.endRotation;
-                rotated.rotatedBounds.SetToRotationFrom(rotated.endRotation, splitRotation.split.pivot, rotated.bounds);
+                BranchRotation rotation = rotated.Data.BranchRotation;
+                rotation.StartRotation = rotation.EndRotation;
+                rotation.EndRotation = rotateAmt * rotation.EndRotation;
 
-                Transformation transform = new RotateAroundPivotTransform(splitRotation.split.pivot, rotated.endRotation);
-                _eventRegistry.Notify(new BlockRotationEvent(rotated, transform, BlockRotationEvent.EventType.BeforeRotation));
+                rotation.RotatedBounds.SetToRotationFrom(rotation.EndRotation, splitRotation.Split.Pivot, rotated.Data.OriginalBounds);
+//                Transformation transform = new RotateAroundPivotTransform(splitRotation.Split.Pivot, rotation.EndRotation);
+//                _eventRegistry.Notify(new BlockRotationEvent(rotated, transform, BlockRotationEvent.EventType.BeforeRotation));
             }
         }
 
@@ -109,14 +114,14 @@ namespace IaS.GameObjects{
                     foreach (HalfSplitRotation splitRotation in _splitHalfRotations)
                     {
                         int w = 
-                            rotX != 0 && splitRotation.split.axis.Equals(Vector3.right) ? rotX :
-                            rotY != 0 && splitRotation.split.axis.Equals(Vector3.up) ? rotY :
-                            rotZ != 0 && splitRotation.split.axis.Equals(Vector3.forward) ? rotZ : 0;
+                            rotX != 0 && splitRotation.Split.Axis.Equals(Vector3.right) ? rotX :
+                            rotY != 0 && splitRotation.Split.Axis.Equals(Vector3.up) ? rotY :
+                            rotZ != 0 && splitRotation.Split.Axis.Equals(Vector3.forward) ? rotZ : 0;
 
-                        if ((w != 0) && (splitRotation.lhs) && CanRotate(splitRotation))
+                        if ((w != 0) && (splitRotation.Lhs) && CanRotate(splitRotation))
                         {
                             _readyToRot = false;
-                            UpdateInstanceRotation(w, splitRotation);
+                            UpdateBranchRotation(w, splitRotation);
                             mono.StartCoroutine(Rotate90Degrees(w, splitRotation));
 						    break;
                         }
@@ -127,21 +132,21 @@ namespace IaS.GameObjects{
 
         private class HalfSplitRotation
         {
-            internal Split split;
-            internal int rotation;
-            internal bool lhs;
-            internal List<InstanceWrapper> instances = new List<InstanceWrapper>();
+            internal readonly Split Split;
+            internal int Rotation;
+            internal readonly bool Lhs;
+            internal List<SplitBoundsBranch> Branches = new List<SplitBoundsBranch>();
 
             internal HalfSplitRotation(Split split, bool isLhs)
             {
-                this.split = split;
-                this.rotation = 0;
-                this.lhs = isLhs;
+                Split = split;
+                Rotation = 0;
+                Lhs = isLhs;
             }
 
-            internal void resetMeshBlocks()
+            internal void ResetRotatedBranches()
             {
-                instances = new List<InstanceWrapper>();
+                Branches = new List<SplitBoundsBranch>();
             }
         }
     }

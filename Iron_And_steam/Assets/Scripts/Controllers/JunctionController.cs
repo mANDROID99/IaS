@@ -4,6 +4,7 @@ using Assets.Scripts.Controllers;
 using IaS.Domain;
 using IaS.GameState;
 using IaS.GameState.Creators;
+using IaS.GameState.WorldTree;
 using UnityEngine;
 
 namespace IaS.Controllers
@@ -15,17 +16,17 @@ namespace IaS.Controllers
         private readonly Junction _junction;
         private readonly TrackConnectionResolver _connectionResolver;
         private readonly GameObject _arrowPrefab;
-        private readonly Transform _particleTransform;
+        private readonly BaseTree _particlesLeaf;
         private readonly Queue<ArrowController> _arrows = new Queue<ArrowController>();  
 
         private float _arrowSpawnTimer = -ArrowSpawnInterval;
 
-        public JunctionController(CreationState creationState, TrackConnectionResolver connectionResolver, Junction junction)
+        public JunctionController(GroupBranch branch, Prefabs prefabs, TrackConnectionResolver connectionResolver, Junction junction)
         {
             _junction = junction;
             _connectionResolver = connectionResolver;
-            _arrowPrefab = creationState.ArrowPrefab;
-            _particleTransform = creationState.ParticlesTransform;
+            _arrowPrefab = prefabs.ArrowPrefab;
+            _particlesLeaf = branch.ParticlesLeaf;
         }
 
         public void Update(MonoBehaviour mono)
@@ -56,7 +57,7 @@ namespace IaS.Controllers
             float time = Time.time;
             if (time - _arrowSpawnTimer < ArrowSpawnInterval) return;
             
-            _arrows.Enqueue(new ArrowController(time, _arrowPrefab, _particleTransform));
+            _arrows.Enqueue(new ArrowController(time, _arrowPrefab, _particlesLeaf));
             _arrowSpawnTimer += ArrowSpawnInterval;
         }
     }

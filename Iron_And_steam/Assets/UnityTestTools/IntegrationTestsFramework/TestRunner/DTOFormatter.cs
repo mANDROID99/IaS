@@ -1,6 +1,7 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
+using System.Text;
 
 namespace UnityTest
 {
@@ -41,7 +42,7 @@ namespace UnityTest
             
             public void Transfer(ref string val) 
             {
-                var bytes = System.Text.Encoding.BigEndianUnicode.GetBytes(val);
+                var bytes = Encoding.BigEndianUnicode.GetBytes(val);
                 int length = bytes.Length;
                 Transfer(ref length);
                 _stream.Write(bytes, 0, bytes.Length);
@@ -76,7 +77,7 @@ namespace UnityTest
                 Transfer (ref length);
                 var bytes = new byte[length];
                 _stream.Read(bytes, 0, length);
-                val = System.Text.Encoding.BigEndianUnicode.GetString(bytes);
+                val = Encoding.BigEndianUnicode.GetString(bytes);
             }
         }
         
@@ -115,14 +116,14 @@ namespace UnityTest
             transfer.Transfer(ref str.stackTrace);
         }
     
-        public void Serialize (System.IO.Stream stream, ResultDTO dto)
+        public void Serialize (Stream stream, ResultDTO dto)
         {
             Transfer(dto, new Writer(stream));
         }
         
-        public object Deserialize (System.IO.Stream stream)
+        public object Deserialize (Stream stream)
         {
-            var result = (ResultDTO)System.Runtime.Serialization.FormatterServices.GetSafeUninitializedObject(typeof(ResultDTO));
+            var result = (ResultDTO)FormatterServices.GetSafeUninitializedObject(typeof(ResultDTO));
             Transfer (result, new Reader(stream));
             return result;
         }

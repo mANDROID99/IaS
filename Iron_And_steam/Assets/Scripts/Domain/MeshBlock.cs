@@ -22,7 +22,7 @@ namespace IaS.WorldBuilder
         public const string TYPE_STR_SLOPE = "slope";
 
         public Quaternion rotationQuat { get; set; }
-		public LevelGroupDTO GroupDto {get; private set; }
+		public LevelGroupXML GroupXml {get; private set; }
         public string id { get; private set; }
         public int type { get; private set; }
 		public MeshSource meshSource { get; private set; }
@@ -35,7 +35,7 @@ namespace IaS.WorldBuilder
         public MeshBlock(string id, MeshSource gameObjectBuilder, int type, BlockBounds blockBounds, BlockRotation blockRotation, int occludeOrder)
         {
             this.id = id;
-			this.GroupDto = GroupDto;
+			this.GroupXml = GroupXml;
 			this.meshSource = gameObjectBuilder;
             this.type = type;
             this.rotation = blockRotation;
@@ -47,9 +47,9 @@ namespace IaS.WorldBuilder
 
         public bool Intersects(MeshBlock test)
         {
-            return Intersects1D(bounds.minX, bounds.minX, bounds.maxX, bounds.maxX) &&
-                Intersects1D(bounds.minY, bounds.minY, bounds.maxY, bounds.maxY) &&
-                Intersects1D(bounds.minZ, bounds.minZ, bounds.maxZ, bounds.maxZ);
+            return Intersects1D(bounds.MinX, bounds.MinX, bounds.MaxX, bounds.MaxX) &&
+                Intersects1D(bounds.MinY, bounds.MinY, bounds.MaxY, bounds.MaxY) &&
+                Intersects1D(bounds.MinZ, bounds.MinZ, bounds.MaxZ, bounds.MaxZ);
         }
 
         private bool Intersects1D(float min1, float min2, float max1, float max2)
