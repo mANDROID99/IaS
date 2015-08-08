@@ -5,6 +5,7 @@ using IaS.Domain;
 using IaS.GameObjects;
 using IaS.GameState.TrackConnections;
 using IaS.Helpers;
+using IaS.WorldBuilder;
 
 namespace IaS.GameState
 {
@@ -12,7 +13,7 @@ namespace IaS.GameState
     {
 
         private readonly Dictionary<SubTrackGroup, TrackConnection> _connectionsMap = new Dictionary<SubTrackGroup, TrackConnection>();
-        private readonly Dictionary<InstanceWrapper, SubTrackGroup> _instancesMap = new Dictionary<InstanceWrapper, SubTrackGroup>(); 
+        private readonly Dictionary<BlockBounds, List<SubTrackGroup>> _blockBoundsMap = new Dictionary<BlockBounds, List<SubTrackGroup>>(); 
         private readonly TrackConnection[] _connections;
 
         public TrackConnectionResolver(EventRegistry eventRegistry, SplitTrack[] tracks, Junction[] junctions)
@@ -23,19 +24,28 @@ namespace IaS.GameState
 
         private TrackConnection[] GenerateConnections(SplitTrack[] tracks, Junction[] junctions)
         {
-            List<TrackConnection> connections = new List<TrackConnection>();
-            foreach (SubTrackGroup group in tracks.SelectMany(t => t.AllSubTrackGroups()))
-            {
+            var connections = new List<TrackConnection>();
 
-                TrackConnection conn;
-                if (!AttachJunction(out conn, group, junctions))
+            foreach (SubTrack subTrack in tracks.SelectMany(t => t.SubTracks))
+            {
+                List<SubTrackGroup> stGroups;
+                if (!_blockBoundsMap.TryGetValue(subTrack.SplitBounds, out stGroups))
                 {
-                    conn = AttachOneToOneConnection(group);
+                    _blockBoundsMap.Add(subTrack.SplitBounds, (stGroups = new List<SubTrackGroup>()));
                 }
 
-                _connectionsMap.Add(group, conn);
-                //_instancesMap.Add(group.InstanceWrapper, group);
-                connections.Add(conn);
+                foreach (SubTrackGroup stGroup in subTrack.TrackGroups)
+                {
+                    stGroups.Add(stGroup);
+                    TrackConnection conn;
+                    if (!AttachJunction(out conn, stGroup, junctions))
+                    {
+                        conn = AttachOneToOneConnection(stGroup);
+                    }
+
+                    _connectionsMap.Add(stGroup, conn);
+                    connections.Add(conn);
+                }
             }
 
             return connections.ToArray();
@@ -71,70 +81,74 @@ namespace IaS.GameState
                 new OneToOneConnectionFilter.EndFilter(group));
         }
 
-        public InterpolateableConnection GetStartingConnection(SplitTrack track)
+        public TrackConnection GetFirst(SubTrackGroup firstSubTrackGroup)
         {
-            SubTrackGroup firstSubTrackGroup = track.FirstSubTrack.FirstGroup;
-            TrackConnection conn = _connections.First(c => c.TrackGroup == firstSubTrackGroup);
-            return new InterpolateableConnection(conn, false);
+            return _connections.First(c => c.TrackGroup == firstSubTrackGroup);
         }
 
-        public InterpolateableConnection GetNext(InterpolateableConnection last, out Transformation transform)
+        public TrackConnection GetNext(TrackConnection last, bool lastReversed, out bool nextReversed)
         {
-            TrackConnection lastConnection = last.WrappedConnection;
             foreach (TrackConnection conn in _connections)
             {
-                if(conn == lastConnection) continue;
+                if (conn == last) continue;
 
                 IStartConnectionFilter connStart = conn.StartFilter;
                 IEndConnectionFilter connEnd = conn.EndFilter;
-                IStartConnectionFilter lastStart = lastConnection.StartFilter;
-                IEndConnectionFilter lastEnd = lastConnection.EndFilter;
-                
+                IStartConnectionFilter lastStart = last.StartFilter;
+                IEndConnectionFilter lastEnd = last.EndFilter;
 
-                transform = conn.Transformation;
+                bool? newReverse = null;
 
-                if (!last.Reversed)
+                if (!lastReversed)
                 {
                     if (connStart.AllowConnection(lastEnd))
                     {
-                        return new InterpolateableConnection(conn, false);
+                        newReverse = false;
                     }
 
                     if (connEnd.AllowReversed(lastEnd))
                     {
-                        return new InterpolateableConnection(conn, true);
+                        newReverse = true;
                     }
                 }
                 else
                 {
                     if (connEnd.AllowConnection(lastStart))
                     {
-                        return new InterpolateableConnection(conn, true);
+                        newReverse = true;
                     }
 
                     if (connStart.AllowReversed(lastStart))
                     {
-                        return new InterpolateableConnection(conn, false);
+                        newReverse = false;
                     }
+                }
+
+                if (newReverse.HasValue)
+                {
+                    nextReversed = newReverse.Value;
+                    return conn;
                 }
             }
 
-            transform = null;
+            nextReversed = lastReversed;
             return null;
         }
 
         public void OnEvent(BlockRotationEvent evt)
         {
-            SubTrackGroup group;
-            if (!_instancesMap.TryGetValue(evt.rotatedInstance, out group))
+            List<SubTrackGroup> groups;
+            if (!_blockBoundsMap.TryGetValue(evt.RotatedBounds, out groups))
             {
                 return;
             }
 
-            TrackConnection connection = _connectionsMap[group];
-            connection.Transformation = evt.transformation;
-            connection.StartFilter.Rotate(evt.transformation);
-            connection.EndFilter.Rotate(evt.transformation);
+            foreach (TrackConnection conn in groups.Select(g => _connectionsMap[g]))
+            {
+                conn.Transformation = evt.Transformation;
+                conn.StartFilter.Rotate(evt.Transformation);
+                conn.EndFilter.Rotate(evt.Transformation);
+            }
         }
 
         public class TrackConnection
@@ -149,7 +163,7 @@ namespace IaS.GameState
                 TrackGroup = trackGroup;
                 StartFilter = startFilter;
                 EndFilter = endFilter;
-                Transformation = IdentityTransform.IDENTITY;
+                Transformation = Transformation.None;
             }
         }
 

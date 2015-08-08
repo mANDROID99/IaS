@@ -2,7 +2,7 @@
 
 namespace IaS.WorldBuilder.Xml
 {
-    public class JunctionDTO
+    public class JunctionXML
     {
         
 
@@ -10,7 +10,7 @@ namespace IaS.WorldBuilder.Xml
         public readonly TrackXML BranchAlternate;
         public readonly Junction.JunctionDirection Direction;
 
-        public JunctionDTO(TrackXML branchDefault, TrackXML branchAlternate, Junction.JunctionDirection direction)
+        public JunctionXML(TrackXML branchDefault, TrackXML branchAlternate, Junction.JunctionDirection direction)
         {
             BranchDefault = branchDefault;
             BranchAlternate = branchAlternate;

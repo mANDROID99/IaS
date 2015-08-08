@@ -15,7 +15,7 @@ namespace IaS.GameState.TrackConnections
             public StartFilter(SubTrackGroup trackGroup)
             {
                 TrackGroup = trackGroup;
-                Rotate(IdentityTransform.IDENTITY);
+                Rotate(Transformation.None);
             }
 
             public SubTrackGroup GetSubTrackGroup()
@@ -59,7 +59,7 @@ namespace IaS.GameState.TrackConnections
             public EndFilter(SubTrackGroup trackGroup)
             {
                 TrackGroup = trackGroup;
-                Rotate(IdentityTransform.IDENTITY);
+                Rotate(Transformation.None);
             }
 
             public SubTrackGroup GetSubTrackGroup()

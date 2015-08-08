@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Controllers;
 using IaS.GameState;
+using IaS.GameState.Events;
 using IaS.GameState.WorldTree;
 using IaS.Helpers;
 using IaS.Scripts.Domain;
@@ -55,6 +56,8 @@ namespace IaS.GameObjects{
 
                 yield return null;
             } while (deltaTime < 1);
+
+            _eventRegistry.Notify(new GameEvent(GameEvent.Type.RESUMED));
             _readyToRot = true;
         }
         
@@ -85,13 +88,13 @@ namespace IaS.GameObjects{
             Quaternion rotateAmt = Quaternion.Euler(splitRotation.Split.Axis * 90 * direction);
             foreach (SplitBoundsBranch rotated in splitRotation.Branches)
             {
-                BranchRotation rotation = rotated.Data.BranchRotation;
+                BranchRotation rotation = rotated.BranchRotation;
                 rotation.StartRotation = rotation.EndRotation;
                 rotation.EndRotation = rotateAmt * rotation.EndRotation;
 
-                rotation.RotatedBounds.SetToRotationFrom(rotation.EndRotation, splitRotation.Split.Pivot, rotated.Data.OriginalBounds);
-//                Transformation transform = new RotateAroundPivotTransform(splitRotation.Split.Pivot, rotation.EndRotation);
-//                _eventRegistry.Notify(new BlockRotationEvent(rotated, transform, BlockRotationEvent.EventType.BeforeRotation));
+                rotation.RotatedBounds.SetToRotationFrom(rotation.EndRotation, splitRotation.Split.Pivot, rotated.OriginalBounds);
+                Transformation transform = new RotateAroundPivotTransform(splitRotation.Split.Pivot, rotation.EndRotation);
+                _eventRegistry.Notify(new BlockRotationEvent(rotated.OriginalBounds, transform, BlockRotationEvent.EventType.BeforeRotation));
             }
         }
 
@@ -121,6 +124,7 @@ namespace IaS.GameObjects{
                         if ((w != 0) && (splitRotation.Lhs) && CanRotate(splitRotation))
                         {
                             _readyToRot = false;
+                            _eventRegistry.Notify(new GameEvent(GameEvent.Type.PAUSED));
                             UpdateBranchRotation(w, splitRotation);
                             mono.StartCoroutine(Rotate90Degrees(w, splitRotation));
 						    break;
@@ -158,15 +162,15 @@ namespace IaS.GameObjects{
             Update, BeforeRotation, AfterRotation
         }
 
-        public InstanceWrapper rotatedInstance;
-        public Transformation transformation;
-        public EventType type;
+        public readonly BlockBounds RotatedBounds;
+        public readonly Transformation Transformation;
+        public readonly EventType Type;
 
-        public BlockRotationEvent(InstanceWrapper rotatedInstance, Transformation transformation, EventType type)
+        public BlockRotationEvent(BlockBounds rotatedBounds, Transformation transformation, EventType type)
         {
-            this.rotatedInstance = rotatedInstance;
-            this.transformation = transformation;
-            this.type = type;
+            RotatedBounds = rotatedBounds;
+            Transformation = transformation;
+            Type = type;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace IaS.GameState.TrackConnections
 
             private bool IsNextBranch()
             {
-                if (_junction.NextBranch == Junction.BranchType.BranchDefault)
+                if (_junction.NextBranchType == Junction.BranchType.BranchDefault)
                 {
                     return TrackGroup == _junction.BranchDefault;
                 }
@@ -47,7 +47,7 @@ namespace IaS.GameState.TrackConnections
 
             private bool IsPreviousBranch()
             {
-                if (_junction.NextBranch == Junction.BranchType.BranchDefault)
+                if (_junction.NextBranchType == Junction.BranchType.BranchDefault)
                 {
                     return TrackGroup == _junction.BranchDefault;
                 }

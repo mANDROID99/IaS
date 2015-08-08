@@ -15,6 +15,10 @@ namespace IaS.GameState.WorldTree
         public readonly List<BlockBounds> SplitBounds = new List<BlockBounds>(); 
         private readonly Dictionary<BlockBounds, SplitBoundsBranch> _splitBoundsBranches = new Dictionary<BlockBounds, SplitBoundsBranch>();
 
+        public SplitTrack[] Tracks { get { return Data.Tracks; } }
+        public Split[] Splits { get { return Data.Splits; } }
+        public Junction[] Junctions { get { return Data.Junctions; } }
+
         public struct GroupData
         {
             public readonly SplitTrack[] Tracks;
@@ -28,6 +32,8 @@ namespace IaS.GameState.WorldTree
                 Junctions = junctions;
             }
         }
+
+
 
         public GroupBranch(string groupId, Vector3 position, GroupData data, LevelTree level) : base(groupId, position, level)
         {

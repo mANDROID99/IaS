@@ -42,9 +42,9 @@ namespace IaS.GameState.WorldTree
             Node.transform.localPosition = _position;
         }
 
-        public void Attach(GameObject leaf)
+        public void Attach(GameObject leaf, bool worldPositionStays=false)
         {
-            leaf.transform.SetParent(Node.transform, false);
+            leaf.transform.SetParent(Node.transform, worldPositionStays);
         }
 
     }

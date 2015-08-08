@@ -2,48 +2,33 @@
 
 namespace IaS.Helpers
 {
-    public interface Transformation
+    public abstract class Transformation
     {
-        Vector3 Transform(Vector3 pt);
-        Vector3 TransformVector(Vector3 vec);
-    }
+        public static Transformation None = new RotateAroundPivotTransform(new Vector3(), Quaternion.identity);
 
-    public class IdentityTransform : Transformation
-    {
-        public static readonly Transformation IDENTITY = new IdentityTransform();
-
-        private IdentityTransform() { }
-
-        public Vector3 Transform(Vector3 pt)
-        {
-            return pt;
-        }
-
-        public Vector3 TransformVector(Vector3 vec)
-        {
-            return vec;
-        }
+        public abstract Vector3 Transform(Vector3 pt);
+        public abstract Vector3 TransformVector(Vector3 vec);
     }
 
     public class RotateAroundPivotTransform : Transformation
     {
-        private Vector3 pivot;
-        public Quaternion quat { get; private set; }
+        private readonly Vector3 _pivot;
+        private readonly Quaternion _quat;
 
         public RotateAroundPivotTransform(Vector3 pivot, Quaternion quat)
         {
-            this.pivot = pivot;
-            this.quat = quat;
+            this._pivot = pivot;
+            this._quat = quat;
         }
 
-        public Vector3 Transform(Vector3 pt)
+        public override Vector3 Transform(Vector3 pt)
         {
-            return MathHelper.RotateAroundPivot(pt, pivot, quat);
+            return MathHelper.RotateAroundPivot(pt, _pivot, _quat);
         }
 
-        public Vector3 TransformVector(Vector3 vec)
+        public override Vector3 TransformVector(Vector3 vec)
         {
-            return quat * vec;
+            return _quat * vec;
         }
     }
 }

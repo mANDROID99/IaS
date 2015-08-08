@@ -11,7 +11,11 @@ namespace IaS.GameState.WorldTree
         public readonly string SplitId;
         public readonly BaseTree TracksLeaf;
         public readonly BaseTree BlocksLeaf;
+        public readonly BaseTree OthersLeaf;
         public readonly GroupBranch Group;
+
+        public BranchRotation BranchRotation { get { return Data.BranchRotation; } }
+        public BlockBounds OriginalBounds { get { return Data.OriginalBounds; } }
 
         public struct SplitData
         {
@@ -32,6 +36,7 @@ namespace IaS.GameState.WorldTree
             SplitId = splitId;
             TracksLeaf = new BaseTree("Tracks", new Vector3(), this);
             BlocksLeaf = new BaseTree("Blocks", new Vector3(), this);
+            OthersLeaf = new BaseTree("Others", new Vector3(), this);
             group.AddSplitBoundsBranch(data.OriginalBounds, this);
         }
     }

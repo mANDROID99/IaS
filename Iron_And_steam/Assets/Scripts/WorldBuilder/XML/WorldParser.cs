@@ -77,9 +77,9 @@ namespace IaS.WorldBuilder.Xml
             MeshBlock[] meshBlocks = ParseSubMeshes(xGroup.Element(ElementSubMeshes));
             Split[] splits = ParseSplits(xGroup.Element(ElementSplits));
             TrackXML[] tracksXml = ParseTracks(xGroup.Element(ElementTracks));
-            JunctionDTO[] junctionsDto = ParseJunctions(xGroup.Element(ElementJunctions), tracksXml);
+            JunctionXML[] junctionsXml = ParseJunctions(xGroup.Element(ElementJunctions), tracksXml);
 
-            var blockGroup = new LevelGroupXML(id, groupPos, meshBlocks, splits, tracksXml, junctionsDto);
+            var blockGroup = new LevelGroupXML(id, groupPos, meshBlocks, splits, tracksXml, junctionsXml);
             return blockGroup;
         }
 
@@ -98,7 +98,7 @@ namespace IaS.WorldBuilder.Xml
             return xTracks.Elements(ElementTrack).Select(xTrack => ParseTrack(xTrack)).ToArray();
         }
 
-        private JunctionDTO[] ParseJunctions(XElement xJunctions, TrackXML[] trackXmlRefs)
+        private JunctionXML[] ParseJunctions(XElement xJunctions, TrackXML[] trackXmlRefs)
         {
             return xJunctions.Elements(ElementJunction).Select(xJunction => ParseJunction(xJunction, trackXmlRefs)).ToArray();
         }
@@ -182,12 +182,12 @@ namespace IaS.WorldBuilder.Xml
             return new TrackNodeXML(id, position);
         }
 
-        private JunctionDTO ParseJunction(XElement xJunction, TrackXML[] tracksXml)
+        private JunctionXML ParseJunction(XElement xJunction, TrackXML[] tracksXml)
         {
             TrackXML branchLeft = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchAlternate, tracksXml).Value;
             TrackXML branchRight = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchDefault, tracksXml).Value;
             Junction.JunctionDirection junctionDirection = XmlAttributeHelper.ParseEnumAttrib<Junction.JunctionDirection>(xJunction, AttrJunctionDirection).Value;
-            return new JunctionDTO(branchLeft, branchRight, junctionDirection);
+            return new JunctionXML(branchLeft, branchRight, junctionDirection);
         }
 
         private string GetId(XElement element, string elementType, ref int count)

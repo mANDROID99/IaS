@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Controllers;
+using Assets.Scripts.GameState.TrackConnections;
 using IaS.Domain;
 using IaS.GameState;
 using IaS.GameState.Creators;
@@ -11,29 +12,30 @@ namespace IaS.Controllers
 {
     class JunctionController : Controller
     {
-        private const float ArrowSpawnInterval = 0.75f;
+        private const float ArrowSpawnInterval = 0.2f;
         
-        private readonly Junction _junction;
+        private readonly Junction[] _junctions;
         private readonly TrackConnectionResolver _connectionResolver;
         private readonly GameObject _arrowPrefab;
-        private readonly BaseTree _particlesLeaf;
+        private readonly GroupBranch _groupBranch;
         private readonly Queue<ArrowController> _arrows = new Queue<ArrowController>();  
 
         private float _arrowSpawnTimer = -ArrowSpawnInterval;
 
-        public JunctionController(GroupBranch branch, Prefabs prefabs, TrackConnectionResolver connectionResolver, Junction junction)
+        public JunctionController(GroupBranch groupBranch, GameObject arrowPrefab, TrackConnectionResolver connectionResolver, Junction[] junctions)
         {
-            _junction = junction;
+            _junctions = junctions;
             _connectionResolver = connectionResolver;
-            _arrowPrefab = prefabs.ArrowPrefab;
-            _particlesLeaf = branch.ParticlesLeaf;
+            _arrowPrefab = arrowPrefab;
+            _groupBranch = groupBranch;
         }
 
         public void Update(MonoBehaviour mono)
         {
             if (Input.GetKeyUp(KeyCode.Z))
             {
-                _junction.SwitchDirection();
+                foreach (Junction junction in _junctions)
+                    junction.SwitchDirection();
             }
 
             SpawnArrows();
@@ -56,9 +58,13 @@ namespace IaS.Controllers
         {
             float time = Time.time;
             if (time - _arrowSpawnTimer < ArrowSpawnInterval) return;
-            
-            _arrows.Enqueue(new ArrowController(time, _arrowPrefab, _particlesLeaf));
-            _arrowSpawnTimer += ArrowSpawnInterval;
+
+            foreach (Junction junction in _junctions)
+            {
+                TrackRunner trackRunner = new TrackRunner(_connectionResolver, junction.NextBranch, false);
+                _arrows.Enqueue(new ArrowController(time, _arrowPrefab, trackRunner, _groupBranch));
+                _arrowSpawnTimer += ArrowSpawnInterval;
+            }
         }
     }
 }

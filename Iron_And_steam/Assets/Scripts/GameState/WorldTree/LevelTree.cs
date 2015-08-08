@@ -11,6 +11,9 @@ namespace IaS.GameState.WorldTree
         public readonly LevelData Data;
         private readonly Dictionary<string, GroupBranch> _groupBranches = new Dictionary<string, GroupBranch>();
 
+        public EventRegistry EventRegistry { get { return Data.EventRegistry; } }
+        public Prefabs Prefabs { get { return Data.Prefabs; } }
+
         public class LevelData 
         {
             public readonly List<Controller> Controllers = new List<Controller>();
@@ -21,7 +24,12 @@ namespace IaS.GameState.WorldTree
             {
                 Prefabs = prefabs;
             }
-        }      
+        }
+
+        public void RegisterController(Controller ctrller)
+        {
+            Data.Controllers.Add(ctrller);
+        }  
 
         public LevelTree(string levelName, Transform parentTransform, LevelData data) : base(levelName, new Vector3(), parentTransform)
         {
