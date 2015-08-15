@@ -26,9 +26,9 @@ namespace IaS.GameState.WorldTree
             }
         }
 
-        public void RegisterController(Controller ctrller)
+        public void RegisterController(params Controller[] controllers)
         {
-            Data.Controllers.Add(ctrller);
+            Data.Controllers.AddRange(controllers);
         }  
 
         public LevelTree(string levelName, Transform parentTransform, LevelData data) : base(levelName, new Vector3(), parentTransform)

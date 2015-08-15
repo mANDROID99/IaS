@@ -1,11 +1,13 @@
 using Assets.Scripts.Controllers;
 using IaS.GameState;
 using IaS.GameState.Creators;
+using IaS.GameState.Events;
 using IaS.GameState.WorldTree;
 using IaS.WorldBuilder.Xml;
 using UnityEngine;
 
-public class WorldController : MonoBehaviour {
+public class WorldController : MonoBehaviour, EventConsumer<GameEvent>
+{
 
 	[SerializeField]
     public TextAsset LevelXmlAsset;
@@ -19,19 +21,48 @@ public class WorldController : MonoBehaviour {
     public GameObject TrainPrefab;
     [SerializeField]
     public GameObject ArrowPrefab;
+    [SerializeField]
+    public GameObject GoalPrefab;
+    [SerializeField]
+    public GameObject PointerPrefab;
 
     private LevelTree _level;
+    private bool _paused = false;
+    private float _timePauseBegin;
+    private float _timePausedOffset = 0;
 
     void Start()
     {
         LoadWorld();
     }
 
-	// Update is called once per frame
-	void Update () {
+    public void OnEvent(GameEvent evt)
+    {
+        switch (evt.type)
+        {
+            case GameEvent.Type.PAUSED:
+                _timePauseBegin = Time.time;
+                _paused = true;
+                break;
+            case GameEvent.Type.RESUMED:
+                _timePausedOffset += Time.time - _timePauseBegin;
+                _paused = false;
+                break;
+        }
+
+    }
+
+    // Update is called once per frame
+    void Update ()
+    {
+        if (_paused) return;
+
+        float time = Time.time - _timePausedOffset;
+        GlobalGameState globalGameState = new GlobalGameState(time);
+
 	    foreach (Controller controller in _level.Data.Controllers)
 	    {
-	        controller.Update(this);
+	        controller.Update(this, globalGameState);
 	    }
 	}
 
@@ -44,9 +75,10 @@ public class WorldController : MonoBehaviour {
         levelXml = worldParser.Parse(LevelXmlAsset, LevelXmlSchemaAsset);
 
         var worldContextCreator = new LevelCreator();
-        var prefabs = new Prefabs(TrackPrefab, BlockPrefab, TrainPrefab, ArrowPrefab);
+        var prefabs = new Prefabs(TrackPrefab, BlockPrefab, TrainPrefab, ArrowPrefab, GoalPrefab, PointerPrefab);
 
         _level = worldContextCreator.CreateLevel(levelXml, this.transform, prefabs);
+        _level.EventRegistry.RegisterConsumer(this);
     }
 
     private void RemoveAllChildren()
@@ -57,6 +89,7 @@ public class WorldController : MonoBehaviour {
             DestroyImmediate(childGo);
         }
     }
+
 
     
 }

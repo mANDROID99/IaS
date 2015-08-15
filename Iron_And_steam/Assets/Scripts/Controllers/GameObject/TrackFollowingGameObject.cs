@@ -10,16 +10,15 @@ namespace IaS.Controllers.GO
         public readonly GameObject GameObject;
         private readonly TrackRunner _trackRunner;
         private readonly GroupBranch _groupBranch;
-        
-        private Quaternion _splineRotation = Quaternion.identity;
-        private Vector3 _lastSplineForward;
+        private readonly Quaternion _prefabRotation;
 
-        public TrackFollowingGameObject(GroupBranch groupBranch, GameObject gameObject, TrackRunner trackRunner, Vector3 forward)
-        {
-            _lastSplineForward = forward;
+        public TrackFollowingGameObject(GroupBranch groupBranch, GameObject gameObject, TrackRunner trackRunner, Vector3 prefabForward)
+        {;
             _groupBranch = groupBranch;
             GameObject = gameObject;
             _trackRunner = trackRunner;
+
+            _prefabRotation = Quaternion.FromToRotation(prefabForward, Vector3.forward);
             AttachToCurrentGroup();
             SetCurrentRotationAndPosition();
         }
@@ -33,11 +32,8 @@ namespace IaS.Controllers.GO
 
         private void SetCurrentRotationAndPosition()
         {
-            Vector3 splineForward = _trackRunner.CurrentForward;
-            _splineRotation = Quaternion.FromToRotation(_lastSplineForward, splineForward) * _splineRotation;
-            _lastSplineForward = splineForward;
-
-            GameObject.transform.localRotation = _splineRotation;
+            Quaternion rotation = Quaternion.LookRotation(_trackRunner.CurrentForward, _trackRunner.CurrentUp) * _prefabRotation;
+            GameObject.transform.localRotation = rotation;
             GameObject.transform.localPosition = _trackRunner.CurrentPos;
         }
 

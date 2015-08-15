@@ -12,6 +12,9 @@ namespace Assets.Scripts.GameState.TrackConnections
         public readonly TrackConnectionResolver ConnectionResolver;
         public bool ReachedEnd { get; private set;}
         public bool NextConnection { get; private set; }
+        public Vector3 CurrentForward { get; private set; }
+        public Vector3 CurrentUp { get; private set; }
+        public Vector3 CurrentPos { get; private set; }
 
         private TrackConnectionResolver.TrackConnection _trackConnection;
         private bool _reversed;
@@ -24,6 +27,8 @@ namespace Assets.Scripts.GameState.TrackConnections
             Setup(initialTrackGroup, initialReverse);
         }
 
+        
+
         private void Setup(SubTrackGroup initialTrackGroup, bool initialReverse)
         {
             NextConnection = true;
@@ -32,6 +37,7 @@ namespace Assets.Scripts.GameState.TrackConnections
             _interpolator = new BezierSpline.LinearInterpolator(initialTrackGroup.Spline, initialReverse);
             _interpolator.Step(0);
             _currentPt = _interpolator.Value();
+            SetStartingValues();
         }
 
         private void NextInterpolation()
@@ -48,8 +54,30 @@ namespace Assets.Scripts.GameState.TrackConnections
             }
 
             NextConnection = true;
+            SetStartingValues();
+
             _interpolator = new BezierSpline.LinearInterpolator(_trackConnection.TrackGroup.Spline, _reversed);
             _interpolator.Step(0);
+        }
+
+        private void SetStartingValues()
+        {
+            SubTrackNode startNode = _trackConnection.TrackGroup.FirstNode(_reversed);
+            CurrentForward = !_reversed ? startNode.Forward : -startNode.Forward;
+            CurrentUp = -startNode.Down;
+            CurrentPos = startNode.Position;
+        }
+
+        private void UpdateValues()
+        {
+            if (_currentPt.HasValue)
+            {
+                Vector3 nextForward = _currentPt.Value.firstDerivative.normalized;
+                Quaternion rot = Quaternion.FromToRotation(CurrentForward, nextForward);
+                CurrentForward = rot * CurrentForward;
+                CurrentUp = rot * CurrentUp;
+                CurrentPos = _currentPt.Value.pt;
+            }
         }
 
         public void Step(float amt)
@@ -71,26 +99,8 @@ namespace Assets.Scripts.GameState.TrackConnections
                     break;
                 }
             }
-        }
 
-        public Vector3 CurrentPos
-        {
-            get
-            {
-                if (!_currentPt.HasValue)
-                    throw new Exception("Invalid operation. Reached end of the track or something went wrong.");
-                return _currentPt.Value.pt;
-            }
-        }
-
-        public Vector3 CurrentForward
-        {
-            get
-            {
-                if (!_currentPt.HasValue)
-                    throw new Exception("Invalid operation. Reached end of the track or something went wrong.");
-                return _currentPt.Value.firstDerivative.normalized;
-            }
+            UpdateValues();
         }
 
         public SubTrackGroup CurrentSubTrackGroup

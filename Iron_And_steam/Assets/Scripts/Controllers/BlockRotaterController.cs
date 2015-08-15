@@ -98,7 +98,7 @@ namespace IaS.GameObjects{
             }
         }
 
-        public void Update(MonoBehaviour mono)
+        public void Update(MonoBehaviour mono, GlobalGameState gameState)
         {
             int rotX = 0;
             int rotY = 0;

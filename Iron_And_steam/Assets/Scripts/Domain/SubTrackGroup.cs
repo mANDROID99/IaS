@@ -59,6 +59,11 @@ namespace IaS.Domain
         {
             return Nodes.Last();
         }
+
+        public SubTrackNode FirstNode(bool reverse)
+        {
+            return !reverse ? Nodes[0] : Nodes.Last();
+        }
     }
 
     public class SubTrackNode

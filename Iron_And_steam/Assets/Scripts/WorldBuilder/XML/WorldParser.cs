@@ -184,10 +184,11 @@ namespace IaS.WorldBuilder.Xml
 
         private JunctionXML ParseJunction(XElement xJunction, TrackXML[] tracksXml)
         {
-            TrackXML branchLeft = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchAlternate, tracksXml).Value;
-            TrackXML branchRight = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchDefault, tracksXml).Value;
+            TrackXML branchDefault = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchDefault, tracksXml).Value;
+            TrackXML branchAlternate = XmlAttributeHelper.ParseReference(xJunction, AttrJunctionBranchAlternate, tracksXml).Value;
+            
             Junction.JunctionDirection junctionDirection = XmlAttributeHelper.ParseEnumAttrib<Junction.JunctionDirection>(xJunction, AttrJunctionDirection).Value;
-            return new JunctionXML(branchLeft, branchRight, junctionDirection);
+            return new JunctionXML(branchDefault, branchAlternate, junctionDirection);
         }
 
         private string GetId(XElement element, string elementType, ref int count)
