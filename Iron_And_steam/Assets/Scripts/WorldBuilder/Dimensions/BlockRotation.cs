@@ -7,7 +7,7 @@ namespace IaS.WorldBuilder
 {
     public class BlockRotation
     {
-        public const string ElementBlockRotation = "rotation";
+        public const string ElementBlockRotation = "rot";
         private const string AttrRotDirection = "dir";
         private const string AttrRotAmount = "r";
         public const string DIRECTION_DEFAULT = "u";
