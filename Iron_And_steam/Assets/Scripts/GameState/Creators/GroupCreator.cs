@@ -17,25 +17,27 @@ namespace IaS.GameState
         private readonly BlocksCreator _blocksCreator = new BlocksCreator();
         private readonly TracksCreator _tracksCreator = new TracksCreator();
 
-        public void CreateGroups(LevelTree levelTree, List<LevelGroupXML> groups)
+        public void CreateGroups(LevelTree levelTree, TrackConnectionResolver connectionResolver, LevelGroupXML[] groups)
         {
             foreach (LevelGroupXML groupXML in groups)
             {
-               CreateGroup(levelTree, groupXML);
+               CreateGroup(levelTree, connectionResolver, groupXML);
             }
         }
 
-        private void CreateGroup(LevelTree levelTree, LevelGroupXML groupXML)
+        private void CreateGroup(LevelTree levelTree, TrackConnectionResolver connectionResolver, LevelGroupXML groupXML)
         {
             BlockBounds[] splitRegions = GetSplitRegions(groupXML.Splits);
             var splitter = new TrackSubTrackSplitter(TrackBuilderConfiguration.DefaultConfig());
-            SplitTrack[] splitTracks = groupXML.TracksXml.Select(t => splitter.SplitTrack(t, splitRegions)).ToArray();
-            Junction[] junctions = groupXML.JunctionsXml.Select(j => Junction.FromXml(j, splitTracks)).ToArray();
-
-            var groupData = new GroupBranch.GroupData(splitTracks, groupXML.Splits, junctions);
-            GroupBranch groupBranch = new GroupBranch(groupXML.Id, groupXML.Position, groupData, levelTree);
+            SplitTrack[] splitTracks = groupXML.Tracks.Select(t => splitter.SplitTrack(t, splitRegions)).ToArray();
+            Junction[] junctions = groupXML.Junctions.Select(j => Junction.FromXml(j, splitTracks)).ToArray();
 
             
+            var groupData = new GroupBranch.GroupData(splitTracks, groupXML.Splits, junctions);
+            GroupBranch groupBranch = new GroupBranch(groupXML.Id, new Vector3(), groupData, levelTree);
+
+            connectionResolver.AddSplitTracks(splitTracks, junctions, groupBranch);
+
             int boundsCount = 0;
             foreach (BlockBounds splitBounds in splitRegions)
             {
@@ -53,9 +55,6 @@ namespace IaS.GameState
             var blockRotater = new BlockRotaterController(levelTree.Data.EventRegistry, groupXML.Splits, groupBranch);
             levelTree.RegisterController(blockRotater);
 
-            
-            TrackConnectionResolver connectionResolver = CreateTrackConnectionResolver(groupBranch, splitTracks, junctions);
-            levelTree.RegisterController(CreateTrainController(groupBranch, connectionResolver));
             levelTree.RegisterController(CreateJunctionControllers(groupBranch, connectionResolver, junctions));
         }
 
@@ -67,18 +66,11 @@ namespace IaS.GameState
                 .Cast<Controller>().ToArray();
         }
 
-        private TrainController CreateTrainController(GroupBranch groupBranch, TrackConnectionResolver trackConnectionResolver)
-        {
-            EventRegistry eventRegistry = groupBranch.Level.EventRegistry;
-            GameObject trainPrefab = groupBranch.Level.Prefabs.TrainPrefab;
-            return new TrainController(groupBranch, trainPrefab, eventRegistry, trackConnectionResolver, 0);   
-        }
-
-        private TrackConnectionResolver CreateTrackConnectionResolver(GroupBranch groupBranch, SplitTrack[] trackSplits, Junction[] junctions)
+        /*private TrackConnectionResolver CreateTrackConnectionResolver(GroupBranch groupBranch, SplitTrack[] tracks, Junction[] junctions)
         {
             var eventRegistry = groupBranch.Level.EventRegistry;
-           return new TrackConnectionResolver(eventRegistry, trackSplits, junctions);
-        }
+            return new TrackConnectionResolver(eventRegistry, tracks, junctions);
+        }*/
 
         private BlockBounds[] GetSplitRegions(Split[] splits)
         {

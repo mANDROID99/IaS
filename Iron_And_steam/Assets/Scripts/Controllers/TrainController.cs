@@ -15,14 +15,13 @@ namespace IaS.GameObjects
 
         private bool _started = false;
 
-        public TrainController(GroupBranch group, GameObject trainPrefab, EventRegistry eventRegistry, TrackConnectionResolver trackConnectionResolver, int trackIndex)
+        public TrainController(LevelTree level, SplitTrack startTrack, GameObject trainPrefab, TrackConnectionResolver connectionResolver)
         {
-            SplitTrack track = group.Tracks[trackIndex];
-            SubTrackGroup stGroup = track.FirstSubTrack.FirstGroup;
-            _trackRunner = new TrackRunner(trackConnectionResolver, stGroup, false);
+            SubTrackGroup stGroup = startTrack.FirstSubTrack.FirstGroup;
+            _trackRunner = new TrackRunner(connectionResolver, stGroup, false);
 
             GameObject go = Object.Instantiate(trainPrefab);
-            _trackFollowingGO = new TrackFollowingGameObject(group, go, _trackRunner, Vector3.forward);
+            _trackFollowingGO = new TrackFollowingGameObject(go, _trackRunner, Vector3.forward);
         }
 
         public void Update(MonoBehaviour mono, GlobalGameState gameState)

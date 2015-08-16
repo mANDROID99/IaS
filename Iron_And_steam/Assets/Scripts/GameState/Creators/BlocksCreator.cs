@@ -19,7 +19,7 @@ namespace IaS.GameState
             var adjacencyCalculator = new AdjacencyCalculator();
             foreach (MeshBlock block in splitBlocks)
             {
-                BlockBounds region = splitRegions.First(splitRegion => splitRegion.Contains(block.bounds));
+                BlockBounds region = splitRegions.First(splitRegion => splitRegion.Contains(block.Bounds));
                 SplitBoundsBranch splitBoundsBranch = groupBranch.GetSplitBoundsBranch(region);
 
                 AttachGameObject(block, splitBlocks, splits, splitBoundsBranch.BlocksLeaf, prefabs.BlockPrefab, adjacencyCalculator);
@@ -30,7 +30,7 @@ namespace IaS.GameState
         {
             return meshBlocks.SelectMany(block =>
             {
-                var splitTree = new SplitTree(block.bounds);
+                var splitTree = new SplitTree(block.Bounds);
                 splitTree.Split(splits);
 
                 return splitTree.GatherSplitBounds()
@@ -43,25 +43,25 @@ namespace IaS.GameState
             var meshBuilder = new MeshBuilder();
             adjacencyCalculator.SetupNext(occlusions, splits, block);
 
-            for (var x = (int)block.bounds.MinX; x < block.bounds.MaxX; x++)
+            for (var x = (int)block.Bounds.MinX; x < block.Bounds.MaxX; x++)
             {
-                for (var y = (int)block.bounds.MinY; y < block.bounds.MaxY; y++)
+                for (var y = (int)block.Bounds.MinY; y < block.Bounds.MaxY; y++)
                 {
-                    for (var z = (int)block.bounds.MinZ; z < block.bounds.MaxZ; z++)
+                    for (var z = (int)block.Bounds.MinZ; z < block.Bounds.MaxZ; z++)
                     {
                         AdjacencyMatrix adjacencyMatrix = adjacencyCalculator.CalculateAdjacency(x, y, z);
                         if (!adjacencyMatrix.IsVisible()) continue;
 
                         var clipBounds = new BlockBounds(x, y, z, x + 1, y + 1, z + 1);
                         clipBounds.ClipToBounds(splits);
-                        block.meshSource.Build(new Vector3(x, y, z) - block.bounds.Position, adjacencyMatrix, block, meshBuilder, clipBounds);
+                        block.MeshSource.Build(new Vector3(x, y, z) - block.Bounds.Position, adjacencyMatrix, block, meshBuilder, clipBounds);
                     }
                 }
             }
 
             GameObject blockGameObject = Object.Instantiate(prefab);
-            blockGameObject.name = block.id;
-            blockGameObject.transform.localPosition = block.bounds.Position;
+            blockGameObject.name = block.Id;
+            blockGameObject.transform.localPosition = block.Bounds.Position;
             branch.Attach(blockGameObject);
 
             Mesh mesh = meshBuilder.DoneCreateMesh();

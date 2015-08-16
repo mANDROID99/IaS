@@ -1,6 +1,7 @@
 ﻿using System;
 using IaS.Domain;
 using IaS.GameState;
+using IaS.GameState.WorldTree;
 using IaS.Helpers;
 using IaS.WorldBuilder.Splines;
 using UnityEngine;
@@ -111,6 +112,11 @@ namespace Assets.Scripts.GameState.TrackConnections
                     throw new Exception("Invalid operation. Reached end of the track or something went wrong.");
                 return _trackConnection.TrackGroup;
             }
+        }
+
+        public GroupBranch CurrentGroupBranch
+        {
+            get { return CurrentSubTrackGroup.SubTrack.SplitTrack.GroupBranch; }
         }
     }
 }

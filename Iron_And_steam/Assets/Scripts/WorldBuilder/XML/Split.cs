@@ -1,9 +1,24 @@
+using System.Collections.Generic;
+using System.Xml.Linq;
+using IaS.WorldBuilder.XML;
 using UnityEngine;
 
 namespace IaS.WorldBuilder
 {
     public class Split
     {
+        public const string ElementSplit = "split";
+        private const string AttrSplitId = "id";
+        private const string AttrSplitAxis = "axis";
+        private const string AttrSplitValue = "val";
+        private const string AttrSplitPivot = "pivot";
+        private const string AttrSplitRestrict = "restrict";
+
+        public enum RestrictionType
+        {
+            Above, Below, Both
+        }
+
         public enum ConstraintResult
         {
             Unconstrained, Blocked, Constrained
@@ -13,15 +28,26 @@ namespace IaS.WorldBuilder
         public readonly Vector3 Pivot;
         public readonly float Value;
         public readonly string Id;
+        public readonly RestrictionType Restriction;
 
-        public Split(string id, Vector3 axis, Vector3 pivot, float value)
+        public static Split FromElement(XElement element, Dictionary<string, int> counts)
+        {
+            string id = XmlValueResult<string>.FromAttribute(element, AttrSplitId).AsIdValue("split", counts);
+            Vector3 axis = XmlValueResult<string>.FromAttribute(element, AttrSplitAxis).AsAxis().MandatoryValue();
+            float value = XmlValueResult<string>.FromAttribute(element, AttrSplitValue).AsFloat().MandatoryValue();
+            Vector3 pivot = XmlValueResult<string>.FromAttribute(element, AttrSplitPivot).AsVector3().MandatoryValue();
+            RestrictionType restriction = XmlValueResult<string>.FromAttribute(element, AttrSplitRestrict).AsEnum<RestrictionType>().OptionalValue(RestrictionType.Both);
+            return new Split(id, axis, pivot, value, restriction);
+        }
+
+        public Split(string id, Vector3 axis, Vector3 pivot, float value,RestrictionType restriction)
         {
             Axis = axis;
             Pivot = pivot;
             Value = value;
             Id = id;
+            Restriction = restriction;
         }
-
 
         public float DistanceFromSplit(Vector3 min)
         {
@@ -83,11 +109,6 @@ namespace IaS.WorldBuilder
         private float GetDistFromSplit(bool lhs, float split, float min, float max)
         {
             return lhs ? split - max : min - split;
-        }
-
-        public Split Copy()
-        {
-            return new Split(Id, Axis, Pivot, Value);
         }
     }
 }

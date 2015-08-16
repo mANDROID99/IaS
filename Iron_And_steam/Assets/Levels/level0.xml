@@ -1,13 +1,64 @@
-<LevelXML>
-  <GroupXmls>
-    <GroupXml p="0,0,0">
-      <mesh>
-        <sub m="block" p="0,0,0" s="1,1,1"/>
-        <sub m="edge" p="-1,0,0" s="1,1,1">
-          <rot dir="l" r="-90"/>
-        </sub>
-      </mesh>
-    </GroupXml>
-  </GroupXmls>
-</LevelXML>
+<level id="level 0">
 
+  <start>@track_start</start>
+  <end>@track_end</end>
+
+  <groups>
+    <group id="group_1">
+      <submeshes>
+        <sub m="block" p="0,0,0" s="4,4,4"/>
+        <sub m="edge" p="0,3,0" s="1,1,1">
+          <rot dir="u" r="0"/>
+        </sub>
+      </submeshes>
+
+      <splits>
+        <split axis="y" val="3" pivot="2, 2, 2" id="split_y"/>
+        <split axis="x" val="4" pivot="2, 2, 2" id="split_x"/>
+        <split axis="z" val="3" pivot="2, 2, 2" id="split_z"/>
+      </splits>
+
+      <tracks>
+        <track startdir="up" down="right" id="track_start">
+          <node p="-1,0,2"/>
+          <node p="-1,3,2"/>
+        </track>
+        
+        <track startdir="up" down="forward">
+          <node p="1,3,-1"/>
+          <node p="1,4,-1"/>
+          <node p="1,4,3"/>
+          <node p="4,4,3"/>
+        </track>
+      </tracks>
+
+      <junctions>
+        
+      </junctions>
+    </group>
+
+    <group id="group_2" attach="@split_y:1">
+      <submeshes>
+        <sub m="block" p="4,3,3" s="2,2,1"/>
+        <sub m="slope" p="4,4,3" s="1,1,1">
+          <rot dir="u" r="90"/>
+        </sub>
+        <sub m="block" p="6,0,3" s="1,5,1"/>
+      </submeshes>
+
+      <tracks>
+        <track startdir="right" down="down" id="track_end">
+          <node p="4,4,3"/>
+          <node p="4,5,3"/>
+          <node p="7,5,3"/>
+          <node p="7,3,3"/>
+        </track>
+      </tracks>
+
+      <splits>
+        <split axis="y" val="3" pivot="6.5, 2, 3.5" restrict="Below" id="split_y"/>
+      </splits>
+    </group>
+    
+  </groups>
+</level>

@@ -45,7 +45,7 @@ namespace IaS.WorldBuilder
             this.x = x;
             this.y = y;
             this.z = z;
-            this.adjacencyMatrix.Reset(meshBlock.rotation.quaternion);
+            this.adjacencyMatrix.Reset(meshBlock.Rotation.quaternion);
             this.CalculateInternalAdjacency();
             this.CalculateAdjacenciesWithIntersectors();
             this.CalculateSplitAdjacency();
@@ -58,7 +58,7 @@ namespace IaS.WorldBuilder
             this.x = x;
             this.y = y;
             this.z = z;
-            this.adjacencyMatrix.Reset(meshBlock.rotation.quaternion);
+            this.adjacencyMatrix.Reset(meshBlock.Rotation.quaternion);
             this.CalculateInternalAdjacency();
             return adjacencyMatrix;
         }
@@ -68,9 +68,9 @@ namespace IaS.WorldBuilder
             if (splits == null)
                 return;
 
-            if(((x < meshBlock.bounds.MaxX - 1) && (x > meshBlock.bounds.MinX)) &&
-                ((y < meshBlock.bounds.MaxY - 1) && (y > meshBlock.bounds.MinY)) &&
-                ((z < meshBlock.bounds.MaxX - 1) && (z > meshBlock.bounds.MinX)))
+            if(((x < meshBlock.Bounds.MaxX - 1) && (x > meshBlock.Bounds.MinX)) &&
+                ((y < meshBlock.Bounds.MaxY - 1) && (y > meshBlock.Bounds.MinY)) &&
+                ((z < meshBlock.Bounds.MaxX - 1) && (z > meshBlock.Bounds.MinX)))
                 return;
 
 
@@ -82,30 +82,30 @@ namespace IaS.WorldBuilder
                 {
                     if (split.Axis.x > 0)
                     {
-                        adjacencyMatrix.SetAllBits(2, 1, 1, false, false, MeshBlock.TYPE_SPLIT);
+                        adjacencyMatrix.SetAllBits(2, 1, 1, false, false, MeshBlock.TypeSplit);
                     }
                     else if (split.Axis.y > 0)
                     {
-                        adjacencyMatrix.SetAllBits(1, 2, 1, false, false, MeshBlock.TYPE_SPLIT);
+                        adjacencyMatrix.SetAllBits(1, 2, 1, false, false, MeshBlock.TypeSplit);
                     }
                     else
                     {
-                        adjacencyMatrix.SetAllBits(1, 1, 2, false, false, MeshBlock.TYPE_SPLIT);
+                        adjacencyMatrix.SetAllBits(1, 1, 2, false, false, MeshBlock.TypeSplit);
                     }
                 }
                 else if (split.Constrains(false, cellBounds, out constraintResult) == 0)
                 {
                     if (split.Axis.x > 0)
                     {
-                        adjacencyMatrix.SetAllBits(0, 1, 1, false, false, MeshBlock.TYPE_SPLIT);
+                        adjacencyMatrix.SetAllBits(0, 1, 1, false, false, MeshBlock.TypeSplit);
                     }
                     else if (split.Axis.y > 0)
                     {
-                        adjacencyMatrix.SetAllBits(1, 0, 1, false, false, MeshBlock.TYPE_SPLIT);
+                        adjacencyMatrix.SetAllBits(1, 0, 1, false, false, MeshBlock.TypeSplit);
                     }
                     else
                     {
-                        adjacencyMatrix.SetAllBits(1, 1, 0, false, false, MeshBlock.TYPE_SPLIT);
+                        adjacencyMatrix.SetAllBits(1, 1, 0, false, false, MeshBlock.TypeSplit);
                     }
                 }
             }
@@ -113,29 +113,29 @@ namespace IaS.WorldBuilder
 
         private void CalculateInternalAdjacency()
         {
-            if (x > meshBlock.bounds.MinX)
+            if (x > meshBlock.Bounds.MinX)
             {
-                adjacencyMatrix.SetAllBits(0, 1, 1, true, true, meshBlock.type);
+                adjacencyMatrix.SetAllBits(0, 1, 1, true, true, meshBlock.Type);
             }
-            if (x < meshBlock.bounds.MaxX - 1)
+            if (x < meshBlock.Bounds.MaxX - 1)
             {
-                adjacencyMatrix.SetAllBits(2, 1, 1, true, true, meshBlock.type);
+                adjacencyMatrix.SetAllBits(2, 1, 1, true, true, meshBlock.Type);
             }
-            if (y > meshBlock.bounds.MinY)
+            if (y > meshBlock.Bounds.MinY)
             {
-                adjacencyMatrix.SetAllBits(1, 0, 1, true, true, meshBlock.type);
+                adjacencyMatrix.SetAllBits(1, 0, 1, true, true, meshBlock.Type);
             }
-            if (y < meshBlock.bounds.MaxY - 1)
+            if (y < meshBlock.Bounds.MaxY - 1)
             {
-                adjacencyMatrix.SetAllBits(1, 2, 1, true, true, meshBlock.type);
+                adjacencyMatrix.SetAllBits(1, 2, 1, true, true, meshBlock.Type);
             }
-            if(z > meshBlock.bounds.MinZ)
+            if(z > meshBlock.Bounds.MinZ)
             {
-                adjacencyMatrix.SetAllBits(1, 1, 0, true, true, meshBlock.type);
+                adjacencyMatrix.SetAllBits(1, 1, 0, true, true, meshBlock.Type);
             }
-            if (z < meshBlock.bounds.MaxZ - 1)
+            if (z < meshBlock.Bounds.MaxZ - 1)
             {
-                adjacencyMatrix.SetAllBits(1, 1, 2, true, true, meshBlock.type);
+                adjacencyMatrix.SetAllBits(1, 1, 2, true, true, meshBlock.Type);
             }
         }
 
@@ -143,9 +143,9 @@ namespace IaS.WorldBuilder
         {
             foreach (MeshBlock intersector in intersectors)
             {
-                if ((intersector.bounds.Contains(x, y, z)) && (intersector.occludeOrder > meshBlock.occludeOrder))
+                if ((intersector.Bounds.Contains(x, y, z)) && (intersector.OccludeOrder > meshBlock.OccludeOrder))
                 {
-                    adjacencyMatrix.SetAllBits(1, 1, 1, true, false, intersector.type);
+                    adjacencyMatrix.SetAllBits(1, 1, 1, true, false, intersector.Type);
                     break;
                 }
 
@@ -156,22 +156,22 @@ namespace IaS.WorldBuilder
                         for (int x2 = (int)x - 1; x2 <= (int)x + 1; x2 ++)
                         {
 
-                            if ((x2 >= intersector.bounds.MinX) && (x2 < intersector.bounds.MaxX) &&
-                               (y2 >= intersector.bounds.MinY) && (y2 < intersector.bounds.MaxY) &&
-                               (z2 >= intersector.bounds.MinZ) && (z2 < intersector.bounds.MaxZ))
+                            if ((x2 >= intersector.Bounds.MinX) && (x2 < intersector.Bounds.MaxX) &&
+                               (y2 >= intersector.Bounds.MinY) && (y2 < intersector.Bounds.MaxY) &&
+                               (z2 >= intersector.Bounds.MinZ) && (z2 < intersector.Bounds.MaxZ))
                             {
 
                                 if ((x2 == x) && (y2 == y) && (z2 == z))
                                     continue;
 
                                 int[] dir = adjacencyMatrix.rotationMatrix.TransformInverse(x2 - x + 1, y2 - y + 1, z2 - z + 1);
-                                int shapeToOcclude = meshBlock.meshSource.GetShapeToOcclude(dir);
+                                int shapeToOcclude = meshBlock.MeshSource.GetShapeToOcclude(dir);
 
                                 AdjacencyMatrix intersectorAdjMatrix = intersectorAdjacencyCalculator.CalculateInternalAdjacency(intersector, x2, y2, z2);
                                 dir = intersectorAdjMatrix.rotationMatrix.TransformInverse(x - x2 + 1, y - y2 + 1, z - z2 + 1);
-                                bool shapeIsOccluded = intersector.meshSource.OccludesShape(dir, shapeToOcclude);
+                                bool shapeIsOccluded = intersector.MeshSource.OccludesShape(dir, shapeToOcclude);
 
-                                adjacencyMatrix.SetAllBits(x2 - x + 1, y2 - y + 1, z2 - z + 1, shapeIsOccluded, false, intersector.type);
+                                adjacencyMatrix.SetAllBits(x2 - x + 1, y2 - y + 1, z2 - z + 1, shapeIsOccluded, false, intersector.Type);
                             }
                         }
                     }

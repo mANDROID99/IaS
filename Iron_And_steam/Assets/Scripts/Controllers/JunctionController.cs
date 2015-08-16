@@ -88,7 +88,7 @@ namespace IaS.Controllers
             if (time - _arrowSpawnTimer < ArrowSpawnInterval) return;
 
             TrackRunner trackRunner = new TrackRunner(_connectionResolver, _junction.NextBranch, false);
-            _arrows.Enqueue(new ArrowController(time, _arrowPrefab, trackRunner, _groupBranch));
+            _arrows.Enqueue(new ArrowController(time, _arrowPrefab, trackRunner));
             _arrowSpawnTimer += ArrowSpawnInterval;
         }
     }

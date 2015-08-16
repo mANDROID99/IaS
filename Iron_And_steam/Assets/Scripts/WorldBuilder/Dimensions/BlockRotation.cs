@@ -1,10 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Xml.Linq;
+using IaS.WorldBuilder.XML;
 using UnityEngine;
 
 namespace IaS.WorldBuilder
 {
     public class BlockRotation
     {
+        public const string ElementBlockRotation = "rotation";
+        private const string AttrRotDirection = "dir";
+        private const string AttrRotAmount = "r";
         public const string DIRECTION_DEFAULT = "u";
 
         private static Dictionary<string, Vector3> faceRotationMapping = new Dictionary<string, Vector3>() { 
@@ -17,6 +22,15 @@ namespace IaS.WorldBuilder
         };
 
         public Quaternion quaternion { get; private set; }
+
+        public static BlockRotation FromElement(XElement element)
+        {
+            if(element == null) return new BlockRotation();
+
+            string direction = XmlValueResult<string>.FromAttribute(element, AttrRotDirection).AsText().MandatoryValue();
+            float amount = XmlValueResult<string>.FromAttribute(element, AttrRotAmount).AsFloat().MandatoryValue();
+            return new BlockRotation(direction, amount);
+        }
 
         public BlockRotation()
         {
@@ -33,5 +47,7 @@ namespace IaS.WorldBuilder
             Vector3 faceRot = faceRotationMapping[direction];
             return Quaternion.Euler(faceRot) * Quaternion.Euler(0, value, 0);
         }
+
+        
     }
 }

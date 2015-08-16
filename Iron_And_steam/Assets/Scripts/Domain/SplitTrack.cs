@@ -1,13 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using IaS.GameState.WorldTree;
 using IaS.WorldBuilder.Xml;
 
 namespace IaS.Domain
 {
     public class SplitTrack
     {
-        public SubTrack[] SubTracks { get; private set; }
-        public TrackXML TrackXml { get; private set; }
+        public GroupBranch GroupBranch { get; private set; }
+        public readonly SubTrack[] SubTracks;
+        public readonly TrackXML TrackXml;
 
         public readonly SubTrack FirstSubTrack;
         public readonly SubTrack LastSubTrack;
@@ -23,6 +25,17 @@ namespace IaS.Domain
             TrackXml = trackXml;
             FirstSubTrack = firstSubTrack;
             LastSubTrack = lastSubTrack;
+
+            foreach (SubTrack subTrack in subTracks)
+            {
+                subTrack.OnAttachToSplitTrack(this);
+            }
+        }
+
+
+        public void OnAttachedToGroupBranch(GroupBranch groupBranch)
+        {
+            GroupBranch = groupBranch;
         }
 
         public IEnumerable<SubTrackGroup> AllSubTrackGroups()

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Controllers;
+using IaS.Domain;
 using IaS.GameState.Creators;
 using UnityEngine;
 
@@ -26,6 +28,7 @@ namespace IaS.GameState.WorldTree
             }
         }
 
+
         public void RegisterController(params Controller[] controllers)
         {
             Data.Controllers.AddRange(controllers);
@@ -46,6 +49,12 @@ namespace IaS.GameState.WorldTree
         {
             return _groupBranches[groupId];
         }
+
+        public IEnumerable<SplitTrack> AllSplitTracks()
+        {
+           return _groupBranches.Values.SelectMany(group => group.Tracks);
+        } 
+
     }
 
     

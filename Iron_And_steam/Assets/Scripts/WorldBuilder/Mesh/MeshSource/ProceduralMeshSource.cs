@@ -38,7 +38,7 @@ namespace IaS.WorldBuilder
         };
 
         private static readonly Dictionary<int, Part[]> DIC_PROCEDURAL_MESHES = new Dictionary<int, Part[]>(){
-            {MeshBlock.TYPE_CUBOID, 
+            {MeshBlock.TypeCuboid, 
                 new[]{
                     new Part(typeof(BlockSideMeshGenerator), PartType.BlockFront, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_FORWARD),
 				    new Part(typeof(BlockSideMeshGenerator), PartType.BlockBack, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_BACK),
@@ -48,7 +48,7 @@ namespace IaS.WorldBuilder
 				    new Part(typeof(BlockSideMeshGenerator), PartType.BlockBottom, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_DOWN),
                 }
             },
-            {MeshBlock.TYPE_EDGE, 
+            {MeshBlock.TypeEdge, 
                 new[]{
                     new Part(typeof(BlockOuterEdgeMeshGenerator), PartType.OuterEdgeFront, SHAPE_NO_OCCLUSION, null),
 				    new Part(typeof(BlockOuterEdgeMeshGenerator), PartType.OuterEdgeRight, SHAPE_EDGE_SIDE, AdjacencyMatrix.DIRECTION_RIGHT),
@@ -57,12 +57,12 @@ namespace IaS.WorldBuilder
 				    new Part(typeof(BlockSideMeshGenerator), PartType.BlockBack, SHAPE_QUAD, AdjacencyMatrix.DIRECTION_BACK)
                 }
             },
-            {MeshBlock.TYPE_CORNER, 
+            {MeshBlock.TypeCorner, 
                 new[]{
                     new Part(typeof(BlockCornerMeshGenerator), PartType.OuterCorner, SHAPE_NO_OCCLUSION, null)
                 }
             },
-            {MeshBlock.TYPE_SLOPE, 
+            {MeshBlock.TypeSlope, 
                 new[]{
                     new Part(typeof(BlockInnerEdgeMeshGenerator), PartType.InnerEdgeFront, SHAPE_NO_OCCLUSION, null),
                     new Part(typeof(BlockInnerEdgeMeshGenerator), PartType.InnerEdgeLeft, SHAPE_INNER_EDGE_SIDE, AdjacencyMatrix.DIRECTION_LEFT),
@@ -110,10 +110,10 @@ namespace IaS.WorldBuilder
 
         public void Build(Vector3 pos, AdjacencyMatrix adjacencyMatrix, MeshBlock block, MeshBuilder meshBuilder, BlockBounds clipBounds)
         {
-			Quaternion rot = block.rotation.quaternion;
+			Quaternion rot = block.Rotation.quaternion;
 			Matrix4x4 transform = Matrix4x4.TRS(pos + new Vector3(0.5f, 0.5f, 0.5f), rot, new Vector3(1, 1, 1));
-			BlockBounds localClipBounds = new BlockBounds (clipBounds.Position - block.bounds.Position - pos, clipBounds.Size);
-			localClipBounds.SetToRotationFrom (Quaternion.Inverse(block.rotation.quaternion), new Vector3(0.5f, 0.5f, 0.5f));
+			BlockBounds localClipBounds = new BlockBounds (clipBounds.Position - block.Bounds.Position - pos, clipBounds.Size);
+			localClipBounds.SetToRotationFrom (Quaternion.Inverse(block.Rotation.quaternion), new Vector3(0.5f, 0.5f, 0.5f));
 			meshBuilder.BeforeNext (transform, new Vector3(-0.5f, -0.5f, -0.5f), localClipBounds);
 
             foreach (Part part in _blockParts)

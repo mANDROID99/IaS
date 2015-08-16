@@ -68,7 +68,7 @@ namespace IaS.GameObjects{
             {
                 SplitBoundsBranch branch = _groupBranch.GetSplitBoundsBranch(bounds);
                 Split.ConstraintResult constraintResult;
-                float value = halfSplit.Split.Constrains(true, branch.Data.BranchRotation.RotatedBounds, out constraintResult);
+                float value = halfSplit.Split.Constrains(halfSplit.Lhs, branch.Data.BranchRotation.RotatedBounds, out constraintResult);
 
                 if (constraintResult == Split.ConstraintResult.Blocked)
                 {
@@ -111,6 +111,7 @@ namespace IaS.GameObjects{
                 rotY = Input.GetKey(KeyCode.D) ? -1 : rotY;
                 rotZ = Input.GetKey(KeyCode.E) ? -1 : rotZ;
                 rotZ = Input.GetKey(KeyCode.Q) ? 1 : rotZ;
+                bool alternate = Input.GetKey(KeyCode.LeftShift);
 
                 if ((rotX != 0) || (rotY != 0) || (rotZ != 0))
                 {
@@ -121,7 +122,7 @@ namespace IaS.GameObjects{
                             rotY != 0 && splitRotation.Split.Axis.Equals(Vector3.up) ? rotY :
                             rotZ != 0 && splitRotation.Split.Axis.Equals(Vector3.forward) ? rotZ : 0;
 
-                        if ((w != 0) && (splitRotation.Lhs) && CanRotate(splitRotation))
+                        if ((w != 0) && (splitRotation.Lhs != alternate) && CanRotate(splitRotation))
                         {
                             _readyToRot = false;
                             _eventRegistry.Notify(new GameEvent(GameEvent.Type.PAUSED));
@@ -141,11 +142,11 @@ namespace IaS.GameObjects{
             internal readonly bool Lhs;
             internal List<SplitBoundsBranch> Branches = new List<SplitBoundsBranch>();
 
-            internal HalfSplitRotation(Split split, bool isLhs)
+            internal HalfSplitRotation(Split split, bool lhs)
             {
                 Split = split;
                 Rotation = 0;
-                Lhs = isLhs;
+                Lhs = lhs;
             }
 
             internal void ResetRotatedBranches()

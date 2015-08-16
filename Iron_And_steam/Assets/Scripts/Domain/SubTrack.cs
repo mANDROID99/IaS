@@ -4,6 +4,7 @@ namespace IaS.Domain
 {
     public class SubTrack
     {
+        public SplitTrack SplitTrack { get; private set; }
         public readonly BlockBounds SplitBounds;
         public readonly SubTrackGroup[] TrackGroups;
         public readonly SubTrackGroup FirstGroup;
@@ -21,7 +22,16 @@ namespace IaS.Domain
             SplitBounds = split;
             TrackGroups = trackGroups;
 
-            foreach (SubTrackGroup trackGroup in trackGroups) trackGroup.SubTrack = this;
+            foreach (SubTrackGroup trackGroup in trackGroups)
+            {
+                trackGroup.OnAttachToSubTrack(this);
+            }
+        }
+
+        public void OnAttachToSplitTrack(SplitTrack splitTrack)
+        {
+
+            SplitTrack = splitTrack;
         }
     }
 

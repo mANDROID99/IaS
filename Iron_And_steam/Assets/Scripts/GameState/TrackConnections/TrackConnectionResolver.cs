@@ -4,6 +4,7 @@ using System.Linq;
 using IaS.Domain;
 using IaS.GameObjects;
 using IaS.GameState.TrackConnections;
+using IaS.GameState.WorldTree;
 using IaS.Helpers;
 using IaS.WorldBuilder;
 
@@ -14,19 +15,18 @@ namespace IaS.GameState
 
         private readonly Dictionary<SubTrackGroup, TrackConnection> _connectionsMap = new Dictionary<SubTrackGroup, TrackConnection>();
         private readonly Dictionary<BlockBounds, List<SubTrackGroup>> _blockBoundsMap = new Dictionary<BlockBounds, List<SubTrackGroup>>(); 
-        private readonly TrackConnection[] _connections;
+        private readonly List<TrackConnection> _connections = new List<TrackConnection>();
 
-        public TrackConnectionResolver(EventRegistry eventRegistry, SplitTrack[] tracks, Junction[] junctions)
+
+
+        public TrackConnectionResolver(EventRegistry eventRegistry)
         {
             eventRegistry.RegisterConsumer(this);
-            _connections = GenerateConnections(tracks, junctions);
         }
 
-        private TrackConnection[] GenerateConnections(SplitTrack[] tracks, Junction[] junctions)
+        public void AddSplitTracks(SplitTrack[] splitTracks, Junction[] junctions, GroupBranch groupBranch)
         {
-            var connections = new List<TrackConnection>();
-
-            foreach (SubTrack subTrack in tracks.SelectMany(t => t.SubTracks))
+            foreach (SubTrack subTrack in splitTracks.SelectMany(t => t.SubTracks))
             {
                 List<SubTrackGroup> stGroups;
                 if (!_blockBoundsMap.TryGetValue(subTrack.SplitBounds, out stGroups))
@@ -44,11 +44,9 @@ namespace IaS.GameState
                     }
 
                     _connectionsMap.Add(stGroup, conn);
-                    connections.Add(conn);
+                    _connections.Add(conn);
                 }
             }
-
-            return connections.ToArray();
         }
 
         private bool AttachJunction(out TrackConnection trackConnection, SubTrackGroup group, Junction[] junctions)
@@ -166,7 +164,5 @@ namespace IaS.GameState
                 Transformation = Transformation.None;
             }
         }
-
-        
     }
 }

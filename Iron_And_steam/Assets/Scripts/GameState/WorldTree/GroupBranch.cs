@@ -33,8 +33,6 @@ namespace IaS.GameState.WorldTree
             }
         }
 
-
-
         public GroupBranch(string groupId, Vector3 position, GroupData data, LevelTree level) : base(groupId, position, level)
         {
             Level = level;
@@ -43,6 +41,11 @@ namespace IaS.GameState.WorldTree
             ParticlesLeaf = new BaseTree("Particles", new Vector3(), this);
             DoodadsLeaf = new BaseTree("Doodads", new Vector3(), this);
             level.AddGroupBranch(groupId, this);
+
+            foreach (SplitTrack track in Data.Tracks)
+            {
+                track.OnAttachedToGroupBranch(this);
+            }
         }
 
         public void AddSplitBoundsBranch(BlockBounds splitBounds, SplitBoundsBranch splitBoundsBranch)

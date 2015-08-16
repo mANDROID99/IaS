@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Xml;
+using System.Xml.Linq;
 using Assets.Scripts.Controllers;
 using IaS.GameState;
 using IaS.GameState.Creators;
@@ -70,15 +74,21 @@ public class WorldController : MonoBehaviour, EventConsumer<GameEvent>
     {
         RemoveAllChildren();
 
-        var worldParser = new WorldParser();
-        LevelXML levelXml;
-        levelXml = worldParser.Parse(LevelXmlAsset, LevelXmlSchemaAsset);
+        LevelXML levelXml = LoadWorldFromXmlFile();
 
         var worldContextCreator = new LevelCreator();
         var prefabs = new Prefabs(TrackPrefab, BlockPrefab, TrainPrefab, ArrowPrefab, GoalPrefab, PointerPrefab);
 
         _level = worldContextCreator.CreateLevel(levelXml, this.transform, prefabs);
         _level.EventRegistry.RegisterConsumer(this);
+    }
+
+    private LevelXML LoadWorldFromXmlFile()
+    {
+        XmlReader sourceReader = XmlReader.Create(new StringReader(LevelXmlAsset.text));
+        XDocument xDoc = new XDocument(XDocument.Load(sourceReader));
+        XElement xLevel = xDoc.Element(LevelXML.ElementLevel);
+        return LevelXML.FromElement(xLevel);
     }
 
     private void RemoveAllChildren()

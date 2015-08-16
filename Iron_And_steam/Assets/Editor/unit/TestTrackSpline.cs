@@ -29,7 +29,7 @@ namespace IASTest
         [Test]
         public void twoYAlignedNodes_producesYLineBetween()
         {
-            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new TrackNodeXML[]{
+            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new []{
                 new TrackNodeXML(null, new Vector3(0, 0, 0)),
                 new TrackNodeXML(null, new Vector3(0, 3, 0))
             });
@@ -42,7 +42,7 @@ namespace IASTest
         [Test]
         public void twoXAlignedNodes_producesXLineBetween()
         {
-            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new TrackNodeXML[]{
+            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new []{
                 new TrackNodeXML(null, new Vector3(0, 0, 0)),
                 new TrackNodeXML(null, new Vector3(3, 0, 0))
             });
@@ -55,7 +55,7 @@ namespace IASTest
         [Test]
         public void twoZAlignedNodes_producesZLineBetween()
         {
-            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new TrackNodeXML[]{
+            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new []{
                 new TrackNodeXML(null, new Vector3(0, 0, 0)),
                 new TrackNodeXML(null, new Vector3(0, 0, 3))
             });
@@ -68,7 +68,7 @@ namespace IASTest
         [Test]
         public void lineUpThenCurveRight_producesCorrectSpline()
         {
-            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new TrackNodeXML[]{
+            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new []{
                 new TrackNodeXML(null, new Vector3(0, 0, 0)),
                 new TrackNodeXML(null, new Vector3(0, 3, 0)),
                 new TrackNodeXML(null, new Vector3(3, 3, 0))
@@ -84,7 +84,7 @@ namespace IASTest
         [Test]
         public void lineRightThenCurveBack_producesCorrectSpline()
         {
-            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new TrackNodeXML[]{
+            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new []{
                 new TrackNodeXML(null, new Vector3(0, 0, 0)),
                 new TrackNodeXML(null, new Vector3(3, 0, 0)),
                 new TrackNodeXML(null, new Vector3(3, 0, 3))
@@ -100,7 +100,7 @@ namespace IASTest
         [Test]
         public void twoConsecutiveCurves_producesCorrectSpline()
         {
-            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new TrackNodeXML[]{
+            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new []{
                 new TrackNodeXML(null, new Vector3(0, 0, 0)),
                 new TrackNodeXML(null, new Vector3(0, 2, 0)),
                 new TrackNodeXML(null, new Vector3(1, 2, 0)),
@@ -117,7 +117,7 @@ namespace IASTest
         [Test]
         public void withOffset_and_twoYAlignedNodesFacingForward_movesTrackForward()
         {
-            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new TrackNodeXML[]{
+            TrackXML trackXml = new TrackXML("id", Vector3.forward, null, new []{
                 new TrackNodeXML(null, new Vector3(0, 0, 0)),
                 new TrackNodeXML(null, new Vector3(0, 3, 0))
             });
@@ -130,7 +130,7 @@ namespace IASTest
        [Test]
         public void withOffset_and_twoXAlignedNodesFacingUpward_movesTrackUpward()
         {
-            TrackXML trackXml = new TrackXML("id", Vector3.up, null, new TrackNodeXML[]{
+            TrackXML trackXml = new TrackXML("id", Vector3.up, null, new []{
                 new TrackNodeXML(null, new Vector3(0, 0, 0)),
                 new TrackNodeXML(null, new Vector3(3, 0, 0))
             });
@@ -144,7 +144,7 @@ namespace IASTest
         [Test]
         public void withOffset_and_singleCurveRightFacingLeft_movesTrackCorrectly()
         {
-            TrackXML trackXml = new TrackXML("id", Vector3.left, null, new TrackNodeXML[]{
+            TrackXML trackXml = new TrackXML("id", Vector3.left, null, new []{
                 new TrackNodeXML(null, new Vector3(0, 0, 0)),
                 new TrackNodeXML(null, new Vector3(0, 2, 0)),
                 new TrackNodeXML(null, new Vector3(2, 2, 0))

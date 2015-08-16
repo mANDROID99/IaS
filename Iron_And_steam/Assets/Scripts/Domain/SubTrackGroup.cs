@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using IaS.GameState;
 using IaS.WorldBuilder.Splines;
 using UnityEngine;
 
@@ -10,13 +9,12 @@ namespace IaS.Domain
     {
         public readonly List<SubTrackNode> Nodes;
         public readonly BezierSpline Spline;
-        public SubTrack SubTrack { get; internal set; }
+        public SubTrack SubTrack { get; private set; }
 
         public SubTrackGroup(BezierSpline spline, List<SubTrackNode> nodes)
         {
             Spline = spline;
             Nodes = nodes;
-
             foreach (SubTrackNode node in nodes) node.Group = this;
         }
 
@@ -63,6 +61,11 @@ namespace IaS.Domain
         public SubTrackNode FirstNode(bool reverse)
         {
             return !reverse ? Nodes[0] : Nodes.Last();
+        }
+
+        public void OnAttachToSubTrack(SubTrack subTrack)
+        {
+            SubTrack = subTrack;
         }
     }
 

@@ -140,7 +140,7 @@ namespace IaS.WorldBuilder.Tracks
             Vector3 down = trackXml.Down;
             Vector3? lastForward = trackXml.StartDir;
 
-            TrackNodeXML[] nodesXml = trackXml.NodesXml;
+            TrackNodeXML[] nodesXml = trackXml.Nodes;
             var subTrackNodes = new List<SubTrackNode>();
 
             if(nodesXml.Length < 2) return subTrackNodes;

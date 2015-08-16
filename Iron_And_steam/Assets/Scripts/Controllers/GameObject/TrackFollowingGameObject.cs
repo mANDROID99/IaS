@@ -9,12 +9,10 @@ namespace IaS.Controllers.GO
     {
         public readonly GameObject GameObject;
         private readonly TrackRunner _trackRunner;
-        private readonly GroupBranch _groupBranch;
         private readonly Quaternion _prefabRotation;
 
-        public TrackFollowingGameObject(GroupBranch groupBranch, GameObject gameObject, TrackRunner trackRunner, Vector3 prefabForward)
-        {;
-            _groupBranch = groupBranch;
+        public TrackFollowingGameObject(GameObject gameObject, TrackRunner trackRunner, Vector3 prefabForward)
+        {
             GameObject = gameObject;
             _trackRunner = trackRunner;
 
@@ -26,7 +24,7 @@ namespace IaS.Controllers.GO
         private void AttachToCurrentGroup()
         {
             SubTrack subTrack = _trackRunner.CurrentSubTrackGroup.SubTrack;
-            BaseTree branch = _groupBranch.GetSplitBoundsBranch(subTrack.SplitBounds).OthersLeaf;
+            BaseTree branch = _trackRunner.CurrentGroupBranch.GetSplitBoundsBranch(subTrack.SplitBounds).OthersLeaf;
             branch.Attach(GameObject, true);
         }
 
