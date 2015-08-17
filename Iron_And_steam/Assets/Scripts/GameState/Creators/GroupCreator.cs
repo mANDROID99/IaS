@@ -32,8 +32,7 @@ namespace IaS.GameState
             SplitTrack[] splitTracks = groupXML.Tracks.Select(t => splitter.SplitTrack(t, splitRegions)).ToArray();
             Junction[] junctions = groupXML.Junctions.Select(j => Junction.FromXml(j, splitTracks)).ToArray();
 
-            
-            var groupData = new GroupBranch.GroupData(splitTracks, groupXML.Splits, junctions);
+            var groupData = new GroupBranch.GroupData(splitTracks, groupXML.Splits, junctions, groupXML.SplitAttachment);
             GroupBranch groupBranch = new GroupBranch(groupXML.Id, new Vector3(), groupData, levelTree);
 
             connectionResolver.AddSplitTracks(splitTracks, junctions, groupBranch);

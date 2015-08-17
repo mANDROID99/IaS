@@ -1,10 +1,8 @@
 ﻿
 namespace IaS.WorldBuilder.XML.mappers
 {
-    interface IXmlValueMapper<T>
+    interface IXmlValueMapper<out T>
     {
-
         T Map(string from);
-
     }
 }

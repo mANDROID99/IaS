@@ -24,12 +24,14 @@ namespace IaS.GameState.WorldTree
             public readonly SplitTrack[] Tracks;
             public readonly Split[] Splits;
             public readonly Junction[] Junctions;
+            public readonly SplitAttachment SplitAttachment;
 
-            public GroupData(SplitTrack[] tracks, Split[] splits, Junction[] junctions)
+            public GroupData(SplitTrack[] tracks, Split[] splits, Junction[] junctions, SplitAttachment splitAttachment)
             {
                 Tracks = tracks;
                 Splits = splits;
                 Junctions = junctions;
+                SplitAttachment = splitAttachment;
             }
         }
 

@@ -115,6 +115,19 @@ namespace IaS.WorldBuilder
         {
             return Id;
         }
+
+        public IEnumerable<bool> GetActiveSides()
+        {
+            switch (Restriction)
+            {
+                case RestrictionType.Below:
+                    return new[] { true };
+                case RestrictionType.Above:
+                    return new[] { false };
+                default:
+                    return new[] {true, false};
+            }
+        }
     }
 }
 

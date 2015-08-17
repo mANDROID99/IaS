@@ -23,9 +23,8 @@ namespace IaS.GameObjects{
         {
             _eventRegistry = eventRegistry;
             _groupBranch = groupBranch;
-            _splitHalfRotations = splits.SelectMany(split => new[]{
-                new HalfSplitRotation(split, true),
-                new HalfSplitRotation(split, false)}).ToArray();
+
+            _splitHalfRotations = splits.SelectMany(split => split.GetActiveSides().Select(side => new HalfSplitRotation(split, side))).ToArray();
         }
 
         IEnumerator Rotate90Degrees(int direction, HalfSplitRotation splitRotation)
