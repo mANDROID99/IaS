@@ -20,10 +20,10 @@ namespace IaS.WorldBuilder.Xml
 
         public static JunctionXML FromElement(XElement element, TrackXML[] tracks, Dictionary<string, int> counts)
         {
-            string id = XmlValueResult<string>.FromAttribute(element, AttrJunctionId).AsIdValue("junction", counts);
-            TrackXML branchDefault = XmlValueResult<string>.FromAttribute(element, AttrJunctionBranchDefault).AsReference(tracks).MandatoryValue();
-            TrackXML branchAlternate = XmlValueResult<string>.FromAttribute(element, AttrJunctionBranchAlternate).AsReference(tracks).MandatoryValue();
-            Junction.JunctionDirection direction = XmlValueResult<string>.FromAttribute(element, AttrJunctionDirection).AsEnum<Junction.JunctionDirection>().OptionalValue(Junction.JunctionDirection.OneToMany);
+            string id = XmlValueMapper.FromAttribute(element, AttrJunctionId).AsIdValue("junction", counts);
+            TrackXML branchDefault = XmlValueMapper.FromAttribute(element, AttrJunctionBranchDefault).AsReference(tracks).MandatoryValue();
+            TrackXML branchAlternate = XmlValueMapper.FromAttribute(element, AttrJunctionBranchAlternate).AsReference(tracks).MandatoryValue();
+            Junction.JunctionDirection direction = XmlValueMapper.FromAttribute(element, AttrJunctionDirection).AsEnum<Junction.JunctionDirection>().OptionalValue(Junction.JunctionDirection.OneToMany);
             return new JunctionXML(id, branchDefault, branchAlternate, direction);
         }
 

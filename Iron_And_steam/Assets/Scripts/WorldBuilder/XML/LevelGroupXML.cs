@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using IaS.Domain;
+using IaS.Helpers;
 using IaS.WorldBuilder.XML;
 using UnityEngine;
 
@@ -14,19 +16,21 @@ namespace IaS.WorldBuilder.Xml
         private const string ElementJunctions = "junctions";
         private const string ElementSubMeshes = "submeshes";
         private const string AttrGroupId = "id";
+        private const string AttrAttach = "attach";
 
-
-        public MeshBlock[] Meshes { get; private set; }
-		public Split[] Splits { get; private set; }
-        public TrackXML[] Tracks { get; private set; }
-        public JunctionXML[] Junctions { get; private set; }
+        public readonly SplitAttachment SplitAttachment;
+        public readonly MeshBlock[] Meshes;
+        public readonly Split[] Splits;
+        public readonly TrackXML[] Tracks;
+        public readonly JunctionXML[] Junctions;
 
         public string Id { get; private set; }
 
         public static LevelGroupXML FromElement(XElement element, Dictionary<string, int> counts)
         {
             int occludeOrderCount = -1;
-            string id = XmlValueResult<string>.FromAttribute(element, AttrGroupId).AsIdValue("group", counts);
+            string id = XmlValueMapper.FromAttribute(element, AttrGroupId).AsIdValue("group", counts);
+
 
             TrackXML[] tracks = element.Element(ElementTracks).Elements(TrackXML.ElementTrack).Select(xTrack => TrackXML.FromElement(xTrack, counts)).ToArray();
 
@@ -45,16 +49,20 @@ namespace IaS.WorldBuilder.Xml
                 ? xMeshes.Elements(MeshBlock.ElementSubMesh).Select(xMesh => MeshBlock.FromElement(xMesh, counts, ref occludeOrderCount)).ToArray()
                 : new MeshBlock[0];
 
-            return new LevelGroupXML(id, meshes, splits, tracks, junctions);
+
+            SplitAttachment attachment = XmlValueMapper.FromAttribute(element, AttrAttach).AsSplitAttachment(splits).OptionalValue(null);
+
+            return new LevelGroupXML(id, meshes, splits, tracks, junctions, attachment);
         }
 
-        public LevelGroupXML(string id, MeshBlock[] meshes, Split[] splits, TrackXML[] tracks, JunctionXML[] junctions)
+        public LevelGroupXML(string id, MeshBlock[] meshes, Split[] splits, TrackXML[] tracks, JunctionXML[] junctions, SplitAttachment splitAttachment)
         {
             Id = id;
             Meshes = meshes;
             Splits = splits;
             Tracks = tracks;
             Junctions = junctions;
+            SplitAttachment = splitAttachment;
         }
     }
 }

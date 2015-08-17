@@ -42,10 +42,10 @@ namespace IaS.WorldBuilder
 
         public static MeshBlock FromElement(XElement element, Dictionary<string, int> counts, ref int occludeOrderCount)
         {
-            string id = XmlValueResult<string>.FromAttribute(element, AttrMeshBlockId).AsIdValue("block", counts);
-            Vector3 position = XmlValueResult<string>.FromAttribute(element, AttrMeshblockPosition).AsVector3().MandatoryValue();
-            Vector3 size = XmlValueResult<string>.FromAttribute(element, AttrMeshblockSize).AsVector3().MandatoryValue();
-            string typeStr = XmlValueResult<string>.FromAttribute(element, AttrMeshblockType).AsMultiChoice(TypeStrCuboid, TypeStrEdge, TypeStrCorner, TypeStrSlope).MandatoryValue();
+            string id = XmlValueMapper.FromAttribute(element, AttrMeshBlockId).AsIdValue("block", counts);
+            Vector3 position = XmlValueMapper.FromAttribute(element, AttrMeshblockPosition).AsVector3().MandatoryValue();
+            Vector3 size = XmlValueMapper.FromAttribute(element, AttrMeshblockSize).AsVector3().MandatoryValue();
+            string typeStr = XmlValueMapper.FromAttribute(element, AttrMeshblockType).AsMultiChoice(TypeStrCuboid, TypeStrEdge, TypeStrCorner, TypeStrSlope).MandatoryValue();
             int type = TypeStringToType(typeStr);
             BlockRotation rotation = BlockRotation.FromElement(element.Element(BlockRotation.ElementBlockRotation));
 

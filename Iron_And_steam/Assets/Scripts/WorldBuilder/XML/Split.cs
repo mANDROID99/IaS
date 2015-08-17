@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace IaS.WorldBuilder
 {
-    public class Split
+    public class Split : IXmlReferenceable
     {
         public const string ElementSplit = "split";
         private const string AttrSplitId = "id";
@@ -32,11 +32,11 @@ namespace IaS.WorldBuilder
 
         public static Split FromElement(XElement element, Dictionary<string, int> counts)
         {
-            string id = XmlValueResult<string>.FromAttribute(element, AttrSplitId).AsIdValue("split", counts);
-            Vector3 axis = XmlValueResult<string>.FromAttribute(element, AttrSplitAxis).AsAxis().MandatoryValue();
-            float value = XmlValueResult<string>.FromAttribute(element, AttrSplitValue).AsFloat().MandatoryValue();
-            Vector3 pivot = XmlValueResult<string>.FromAttribute(element, AttrSplitPivot).AsVector3().MandatoryValue();
-            RestrictionType restriction = XmlValueResult<string>.FromAttribute(element, AttrSplitRestrict).AsEnum<RestrictionType>().OptionalValue(RestrictionType.Both);
+            string id = XmlValueMapper.FromAttribute(element, AttrSplitId).AsIdValue("split", counts);
+            Vector3 axis = XmlValueMapper.FromAttribute(element, AttrSplitAxis).AsAxis().MandatoryValue();
+            float value = XmlValueMapper.FromAttribute(element, AttrSplitValue).AsFloat().MandatoryValue();
+            Vector3 pivot = XmlValueMapper.FromAttribute(element, AttrSplitPivot).AsVector3().MandatoryValue();
+            RestrictionType restriction = XmlValueMapper.FromAttribute(element, AttrSplitRestrict).AsEnum<RestrictionType>().OptionalValue(RestrictionType.Both);
             return new Split(id, axis, pivot, value, restriction);
         }
 
@@ -109,6 +109,11 @@ namespace IaS.WorldBuilder
         private float GetDistFromSplit(bool lhs, float split, float min, float max)
         {
             return lhs ? split - max : min - split;
+        }
+
+        public string GetId()
+        {
+            return Id;
         }
     }
 }

@@ -27,8 +27,8 @@ namespace IaS.WorldBuilder
         {
             if(element == null) return new BlockRotation();
 
-            string direction = XmlValueResult<string>.FromAttribute(element, AttrRotDirection).AsText().MandatoryValue();
-            float amount = XmlValueResult<string>.FromAttribute(element, AttrRotAmount).AsFloat().MandatoryValue();
+            string direction = XmlValueMapper.FromAttribute(element, AttrRotDirection).AsText().MandatoryValue();
+            float amount = XmlValueMapper.FromAttribute(element, AttrRotAmount).AsFloat().MandatoryValue();
             return new BlockRotation(direction, amount);
         }
 

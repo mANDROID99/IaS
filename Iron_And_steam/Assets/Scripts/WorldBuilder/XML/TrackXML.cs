@@ -20,9 +20,9 @@ namespace IaS.WorldBuilder.Xml
 
         public static TrackXML FromElement(XElement element, Dictionary<string, int> counts)
         {
-            string id = XmlValueResult<string>.FromAttribute(element, AttrTrackId).AsIdValue("track", counts);
-            Vector3 down = XmlValueResult<string>.FromAttribute(element, AttrTrackDown).AsDirection().MandatoryValue();
-            Vector3? startDir = XmlValueResult<string>.FromAttribute(element, AttrTrackStartDirection).AsDirection().OptionalStruct<Vector3>();
+            string id = XmlValueMapper.FromAttribute(element, AttrTrackId).AsIdValue("track", counts);
+            Vector3 down = XmlValueMapper.FromAttribute(element, AttrTrackDown).AsDirection().MandatoryValue();
+            Vector3? startDir = XmlValueMapper.FromAttribute(element, AttrTrackStartDirection).AsDirection().OptionalStruct<Vector3>();
             TrackNodeXML[] nodes = element.Elements(TrackNodeXML.ElementTrackNode).Select(xNode => TrackNodeXML.FromElement(xNode, counts)).ToArray();
             return new TrackXML(id, down, startDir, nodes);
         }

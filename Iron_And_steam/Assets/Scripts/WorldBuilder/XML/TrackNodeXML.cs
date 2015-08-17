@@ -18,8 +18,8 @@ namespace IaS.WorldBuilder.Xml
 
         public static TrackNodeXML FromElement(XElement element, Dictionary<string, int> counts)
         {
-            string id = XmlValueResult<string>.FromAttribute(element, AttrTrackNodeId).AsIdValue("t_node", counts);
-            Vector3 position = XmlValueResult<string>.FromAttribute(element, AttrTrackNodePosition).AsVector3().MandatoryValue();
+            string id = XmlValueMapper.FromAttribute(element, AttrTrackNodeId).AsIdValue("t_node", counts);
+            Vector3 position = XmlValueMapper.FromAttribute(element, AttrTrackNodePosition).AsVector3().MandatoryValue();
             return new TrackNodeXML(id, position);
         }
 

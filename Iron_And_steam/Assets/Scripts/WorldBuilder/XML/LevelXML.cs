@@ -25,9 +25,9 @@ namespace IaS.WorldBuilder.Xml
 
             Dictionary<string, int> counts = new Dictionary<string, int>();
             LevelGroupXML[] groups = element.Element(ElementGroups).Elements(LevelGroupXML.ElementGroup).Select(xGroup => LevelGroupXML.FromElement(xGroup, counts)).ToArray();
-            TrackXML startTrack = XmlValueResult<string>.FromElementValue(element, ElementStartTrack).AsReference(allTracks(groups)).MandatoryValue();
-            TrackXML endTrack = XmlValueResult<string>.FromElementValue(element, ElementEndTrack).AsReference(allTracks(groups)).MandatoryValue();
-            string id = XmlValueResult<string>.FromAttribute(element, AttributeLevelId).MandatoryValue();
+            TrackXML startTrack = XmlValueMapper.FromElementValue(element, ElementStartTrack).AsReference(allTracks(groups)).MandatoryValue();
+            TrackXML endTrack = XmlValueMapper.FromElementValue(element, ElementEndTrack).AsReference(allTracks(groups)).MandatoryValue();
+            string id = XmlValueMapper.FromAttribute(element, AttributeLevelId).MandatoryValue();
             return new LevelXML(id, groups, startTrack, endTrack);
         }
 

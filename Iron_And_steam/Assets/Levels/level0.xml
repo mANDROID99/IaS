@@ -51,7 +51,12 @@
           <node p="4,4,3"/>
           <node p="4,5,3"/>
           <node p="7,5,3"/>
-          <node p="7,3,3"/>
+          <node p="7,2,3"/>
+        </track>
+
+        <track startdir="down" down="forward">
+          <node p="6,2,2"/>
+          <node p="6,0,2"/>
         </track>
       </tracks>
 
