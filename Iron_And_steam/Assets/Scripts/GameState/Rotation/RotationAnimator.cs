@@ -12,12 +12,12 @@ namespace Assets.Scripts.GameState.Rotation
         public readonly SplitSide SplitSide;
         public int Delta;
 
-        public RotationAnimator(SplitSide splitSide, RotateableBranch rotateable, Quaternion rotationDelta)
+        public RotationAnimator(SplitSide splitSide, Quaternion from, Quaternion to, RotateableBranch rotateable)
         {
             SplitSide = splitSide;
             Rotateable = rotateable;
-            From = rotateable.RotationState.RotatedBounds.Rotation;
-            To = rotationDelta * From;
+            From = from;
+            To = to;
             Delta = 0;
         }
 

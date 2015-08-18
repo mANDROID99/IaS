@@ -56,24 +56,26 @@ namespace IaS.GameState.Rotation
 
             float directionMult = direction == Direction.Clockwise ? 1 : -1;
             Quaternion rotationDelta = Quaternion.Euler(splitSide.Axis * 90 * directionMult);
-            UpdateRotations(splitSide, branchesToRotate, rotationDelta);
-            return branchesToRotate.Select(r => new RotationAnimator(splitSide, r, rotationDelta)).ToArray();
+            return CreateRotationAnimations(splitSide, branchesToRotate, rotationDelta);
         }
 
-        private void UpdateRotations(SplitSide split, List<RotateableBranch> rotateables, Quaternion rotationDelta)
+        private RotationAnimator[] CreateRotationAnimations(SplitSide split, List<RotateableBranch> rotateables, Quaternion rotationDelta)
         {
+            List<RotationAnimator> animators = new List<RotationAnimator>();
             foreach (RotateableBranch rotateable in rotateables)
             {
                 BlockBounds originalBounds = rotateable.OriginalBounds;
                 BlockBounds rotatedBounds = rotateable.RotationState.RotatedBounds;
                 Quaternion startRot = rotatedBounds.Rotation;
-                Quaternion endRot = rotationDelta * startRot;
-
-                rotatedBounds.SetToRotationFrom(endRot, split.Pivot, originalBounds);
+                Quaternion endRot = startRot * rotationDelta;
 
                 Transformation transform = new RotateAroundPivotTransform(split.Pivot, endRot);
                 _eventRegistry.Notify(new BlockRotationEvent(originalBounds, transform, BlockRotationEvent.EventType.BeforeRotation));
+
+                rotatedBounds.SetToRotationFrom(endRot, split.Pivot, originalBounds);
+                animators.Add(new RotationAnimator(split, startRot, endRot, rotateable));
             }
+            return animators.ToArray();
         }
     }
 

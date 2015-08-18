@@ -59,7 +59,7 @@ namespace IaS.GameObjects{
                             _readyToRot = false;
                             _eventRegistry.Notify(new GameEvent(GameEvent.Type.PAUSED));
                             mono.StartCoroutine(Rotate90Degrees(splitRotation, animators));
-                            break;
+                            //break;
                         }
                     }
                 }

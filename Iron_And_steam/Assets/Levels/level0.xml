@@ -37,7 +37,7 @@
       </junctions>
     </group>
 
-    <group id="group_2" attach="@split_y:1">
+    <group id="group_2" attach="@split_z:1">
       <submeshes>
         <sub m="block" p="4,3,3" s="2,2,1"/>
         <sub m="slope" p="4,4,3" s="1,1,1">
