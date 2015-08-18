@@ -1,16 +1,14 @@
-﻿using IaS.WorldBuilder;
-
-namespace IaS.Domain
+﻿namespace IaS.Domain
 {
     public class SplitAttachment
     {
 
-        public readonly Split Split;
+        public readonly string AttachedGroupId;
         public readonly bool Lhs;
 
-        public SplitAttachment(Split split, bool lhs)
+        public SplitAttachment(string attachedGroupId, bool lhs)
         {
-            Split = split;
+            AttachedGroupId = attachedGroupId;
             Lhs = lhs;
         }
     }

@@ -30,7 +30,7 @@ namespace IaS.WorldBuilder
         public const string TypeStrSlope = "slope";
 
         public Quaternion RotationQuat { get; set; }
-		public LevelGroupXML GroupXml {get; private set; }
+		public GroupXML GroupXml {get; private set; }
         public string Id { get; private set; }
         public int Type { get; private set; }
 		public MeshSource MeshSource { get; private set; }

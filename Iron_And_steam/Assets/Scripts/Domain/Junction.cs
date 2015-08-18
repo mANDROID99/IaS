@@ -1,6 +1,5 @@
-﻿using System;
-using System.Linq;
-using IaS.GameState.WorldTree;
+﻿using System.Linq;
+using IaS.Domain.WorldTree;
 using IaS.WorldBuilder.Xml;
 using UnityEngine;
 
@@ -68,7 +67,7 @@ namespace IaS.Domain
 
         public BaseTree GetSplitBoundsBranch(GroupBranch groupBranch)
         {
-            return groupBranch.GetSplitBoundsBranch(BranchDefault.SubTrack.SplitBounds);
+            return groupBranch.GetRotateableBranch(BranchDefault.SubTrack.SplitBounds);
         }
 
         private Vector3 DirectionFromTrackGroup(SubTrackGroup trackGroup)

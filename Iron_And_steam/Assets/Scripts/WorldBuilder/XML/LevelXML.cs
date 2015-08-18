@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using IaS.WorldBuilder.XML;
+using IaS.WorldBuilder.XML.mappers;
+using UnityEditor.Callbacks;
 
 namespace IaS.WorldBuilder.Xml
 {
@@ -15,7 +17,7 @@ namespace IaS.WorldBuilder.Xml
         private const string AttributeLevelId = "id";
 
         public readonly string LevelId;
-        public readonly LevelGroupXML[] Groups;
+        public readonly GroupXML[] Groups;
         public readonly TrackXML StartTrack;
         public readonly TrackXML EndTrack;
 
@@ -24,19 +26,34 @@ namespace IaS.WorldBuilder.Xml
             if (element == null) throw new Exception(string.Format("Element {0} was not found", ElementLevel));
 
             Dictionary<string, int> counts = new Dictionary<string, int>();
-            LevelGroupXML[] groups = element.Element(ElementGroups).Elements(LevelGroupXML.ElementGroup).Select(xGroup => LevelGroupXML.FromElement(xGroup, counts)).ToArray();
+            GroupXML[] groups = element.Element(ElementGroups).Elements(GroupXML.ElementGroup).Select(xGroup => GroupXML.FromElement(xGroup, counts)).ToArray();
             TrackXML startTrack = XmlValueMapper.FromElementValue(element, ElementStartTrack).AsReference(allTracks(groups)).MandatoryValue();
             TrackXML endTrack = XmlValueMapper.FromElementValue(element, ElementEndTrack).AsReference(allTracks(groups)).MandatoryValue();
             string id = XmlValueMapper.FromAttribute(element, AttributeLevelId).MandatoryValue();
+
+            PostProcess(groups);
             return new LevelXML(id, groups, startTrack, endTrack);
         }
 
-        private static IEnumerable<TrackXML> allTracks(LevelGroupXML[] groups)
+        private static void PostProcess(GroupXML[] groups)
+        {
+            foreach (GroupXML group in groups)
+            {
+                if (group.SplitAttachmentStr != null)
+                {
+                    SplitAttachMapper.Create(group.Id, group.SplitAttachmentStr, groups.SelectMany(g => g.Splits));
+                }
+            }
+            
+        }
+
+
+        private static IEnumerable<TrackXML> allTracks(GroupXML[] groups)
         {
             return groups.SelectMany(g => g.Tracks);
         } 
 
-        public LevelXML(string levelId, LevelGroupXML[] groups, TrackXML startTrack, TrackXML endTrack)
+        public LevelXML(string levelId, GroupXML[] groups, TrackXML startTrack, TrackXML endTrack)
         {
             LevelId = levelId;
             StartTrack = startTrack;

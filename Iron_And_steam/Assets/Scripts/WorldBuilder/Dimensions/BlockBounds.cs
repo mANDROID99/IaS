@@ -22,6 +22,12 @@ namespace IaS.WorldBuilder
         public Vector3 CenterPos { get { return Position + Size / 2f; } }
         public Vector3 Position { get { return new Vector3(MinX, MinY, MinZ); } }
         public Vector3 Size { get { return new Vector3(MaxX - MinX, MaxY - MinY, MaxZ - MinZ); } }
+        public Quaternion? _rotation = null;
+
+        public Quaternion Rotation
+        {
+            get { return _rotation ?? Quaternion.identity; }
+        }
 
         public BlockBounds(float minX, float minY, float minZ, float maxX, float maxY, float maxZ)
         {
@@ -61,6 +67,7 @@ namespace IaS.WorldBuilder
 			if (originalBounds == null) {
 				originalBounds = this;
 			}
+            _rotation = rotation;
             Vector3 r1 = MathHelper.RotateAroundPivot(new Vector3(originalBounds.MinX, originalBounds.MinY, originalBounds.MinZ), pivot, rotation);
             Vector3 r2 = MathHelper.RotateAroundPivot(new Vector3(originalBounds.MaxX, originalBounds.MaxY, originalBounds.MaxZ), pivot, rotation);
 

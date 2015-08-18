@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using IaS.GameState.WorldTree;
+using IaS.Domain.WorldTree;
 using IaS.WorldBuilder.Xml;
 
 namespace IaS.Domain

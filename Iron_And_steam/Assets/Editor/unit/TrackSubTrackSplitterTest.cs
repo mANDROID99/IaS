@@ -18,6 +18,11 @@ namespace IASTest
     {
         private TrackSubTrackSplitter splitter;
 
+        private static Split CreateSplit(Vector3 axis, float value)
+        {
+            return new Split("id", "group_id", null, axis, new Vector3(), value, Split.RestrictionType.Both);
+        }
+
         [SetUp]
         public void Init()
         {
@@ -39,7 +44,7 @@ namespace IASTest
                 new TrackNodeXML(null, new Vector3(0, 4, 0))
             });
 
-            Split[] splits = {new Split("split_1", Vector3.up, new Vector3(), 2, Split.RestrictionType.Both)};
+            Split[] splits = { CreateSplit(Vector3.up, 2)};
             IList<SubTrack> subTracks = splitter.SplitTrack(trackXml, splitToBlockBounds(splits)).SubTracks;
 
             AssertSubtrackContainsNodes(subTracks[0], 0, new Vector3[] { new Vector3(0, 0, 0), new Vector3(0, 2, 0) });
@@ -54,7 +59,7 @@ namespace IASTest
                 new TrackNodeXML(null, new Vector3(4, 0, 0))
             });
 
-            Split[] splits = { new Split("split_1", Vector3.right, new Vector3(), 2, Split.RestrictionType.Both) };
+            Split[] splits = { CreateSplit(Vector3.right, 2) };
             IList<SubTrack> subTracks = splitter.SplitTrack(trackXml, splitToBlockBounds(splits)).SubTracks;
 
             AssertSubtrackContainsNodes(subTracks[0], 0, new Vector3[] { new Vector3(0, 0, 0), new Vector3(2, 0, 0) });
@@ -68,7 +73,7 @@ namespace IASTest
                 new TrackNodeXML(null, new Vector3(0, 0, 0)),
                 new TrackNodeXML(null, new Vector3(0, 4, 0))
             });
-            IList<SubTrack> subTracks = splitter.SplitTrack(trackXml, splitToBlockBounds(new[] { new Split("split_id", Vector3.up, new Vector3(), 5, Split.RestrictionType.Both) })).SubTracks;
+            IList<SubTrack> subTracks = splitter.SplitTrack(trackXml, splitToBlockBounds(new[] { CreateSplit(Vector3.up, 5) })).SubTracks;
 
             Assert.That(subTracks.Count, Is.EqualTo(1));
             AssertSubtrackContainsNodes(subTracks[0], 0, new Vector3[] { new Vector3(0, 0, 0), new Vector3(0, 4, 0) });
@@ -83,9 +88,9 @@ namespace IASTest
                 new TrackNodeXML(null, new Vector3(3, 3, 0))
             });
 
-            IList<SubTrack> subTracks = splitter.SplitTrack(trackXml, splitToBlockBounds(new Split[] { 
-                new Split("split_id", Vector3.up, new Vector3(), 2, Split.RestrictionType.Both), 
-                new Split("split_id", Vector3.right, new Vector3(), 2, Split.RestrictionType.Both) })).SubTracks;
+            IList<SubTrack> subTracks = splitter.SplitTrack(trackXml, splitToBlockBounds(new Split[] {
+                CreateSplit(Vector3.up, 2),
+                CreateSplit(Vector3.right, 2) })).SubTracks;
 
             Assert.That(subTracks.Count, Is.EqualTo(3));
             AssertSubtrackContainsNodes(subTracks[0], 0, new Vector3[] { new Vector3(0, 0, 0), new Vector3(0, 2, 0) });
@@ -104,7 +109,7 @@ namespace IASTest
             });
 
             IList<SubTrack> subTracks = splitter.SplitTrack(trackXml, splitToBlockBounds(new Split[]{
-                new Split("split_id", Vector3.right, new Vector3(), 2, Split.RestrictionType.Both)
+                CreateSplit(Vector3.right, 2)
             })).SubTracks;
 
             Assert.That(subTracks.Count, Is.EqualTo(2));
@@ -122,7 +127,7 @@ namespace IASTest
             });
 
             IList<SubTrack> subTracks = splitter.SplitTrack(trackXml, splitToBlockBounds(new Split[]{
-                new Split("", Vector3.up, new Vector3(), 2, Split.RestrictionType.Both)
+                CreateSplit(Vector3.up, 2)
             })).SubTracks;
 
             Assert.That(FirstPart(subTracks).NumTrackNodes, Is.EqualTo(2));
@@ -165,7 +170,7 @@ namespace IASTest
                 new TrackNodeXML(null, new Vector3(4, 4, 0))
             });
 
-            IList<SubTrack> subTracks = splitter.SplitTrack(trackXml, splitToBlockBounds(new Split[]{ new Split("", Vector3.up, new Vector3(), 3, Split.RestrictionType.Both) })).SubTracks;
+            IList<SubTrack> subTracks = splitter.SplitTrack(trackXml, splitToBlockBounds(new Split[]{ CreateSplit(Vector3.up, 3) })).SubTracks;
 
             Assert.That(FirstPart(subTracks).Nodes[0].Forward, Is.EqualTo(Vector3.up));
             Assert.That(FirstPart(subTracks).Nodes[1].Forward, Is.EqualTo(Vector3.up));
@@ -204,7 +209,7 @@ namespace IASTest
             });
 
             IList<SubTrack> subTracks = splitter.SplitTrack(trackXml, splitToBlockBounds(new []{
-                new Split("", Vector3.up, new Vector3(), 3, Split.RestrictionType.Both)
+               CreateSplit(Vector3.up, 3)
             })).SubTracks;
 
             Assert.That(subTracks.Count, Is.EqualTo(1));

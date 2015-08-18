@@ -24,7 +24,7 @@
           <node p="-1,3,2"/>
         </track>
         
-        <track startdir="up" down="forward">
+        <track startdir="up" down="forward" id="track_end">
           <node p="1,3,-1"/>
           <node p="1,4,-1"/>
           <node p="1,4,3"/>
@@ -61,7 +61,7 @@
       </tracks>
 
       <splits>
-        <split axis="y" val="3" pivot="6.5, 2, 3.5" restrict="Below" id="split_y"/>
+        <split axis="y" val="3" pivot="6.5, 2, 3.5" restrict="Below" id="split_y2"/>
       </splits>
     </group>
     

@@ -11,7 +11,12 @@ namespace IASTest
     [Category("Splitter Tests")]
     internal class SplitterTests
     {
-        
+
+        private static Split CreateSplit(Vector3 axis, float value)
+        {
+            return new Split("id", "group_id", null, axis, new Vector3(), value, Split.RestrictionType.Both);
+        }
+
         static BlockBounds[] meshBlockSamples =  { new BlockBounds(0, 0, 0, 5, 5, 5), new BlockBounds(-1, 1, 1, 0, 2, 2), new BlockBounds(1, 5, 1, 3, 7, 3) };
 
         private static IEnumerable<TestCaseData> splitSamples
@@ -22,7 +27,7 @@ namespace IASTest
                 {
                     bounds = { meshBlockSamples[0] },
                     splits = { new SplitData{
-                        split = new Split("", Vector3.right, new Vector3(), 2, Split.RestrictionType.Both),
+                        split = CreateSplit(Vector3.right, 2),
                         expectedLeftBounds = { new BlockBounds(0, 0, 0, 2, 5, 5) },
                         expectedRightBounds = { new BlockBounds(2, 0, 0, 5, 5, 5) }
                     }}
@@ -32,7 +37,7 @@ namespace IASTest
                 {
                     bounds = { meshBlockSamples[0] },
                     splits = { new SplitData{
-                        split = new Split("", Vector3.up, new Vector3(), 2, Split.RestrictionType.Both),
+                        split = CreateSplit(Vector3.up, 2),
                         expectedLeftBounds = { new BlockBounds(0, 0, 0, 5, 2, 5) },
                         expectedRightBounds = { new BlockBounds(0, 2, 0, 5, 5, 5) }
                     }}
@@ -42,7 +47,7 @@ namespace IASTest
                 {
                     bounds = { meshBlockSamples[0] },
                     splits = { new SplitData{
-                        split = new Split("", Vector3.forward, new Vector3(), 2, Split.RestrictionType.Both),
+                        split = CreateSplit(Vector3.forward, 2),
                         expectedLeftBounds = { new BlockBounds(0, 0, 0, 5, 5, 2) },
                         expectedRightBounds = { new BlockBounds(0, 0, 2, 5, 5, 5) }
                     }}
@@ -52,7 +57,7 @@ namespace IASTest
                 {
                     bounds = { meshBlockSamples[0], meshBlockSamples[1] },
                     splits = { new SplitData{
-                        split = new Split("", Vector3.right, new Vector3(), 1, Split.RestrictionType.Both),
+                        split = CreateSplit(Vector3.right, 1),
                         expectedLeftBounds = { new BlockBounds(0, 0, 0, 1, 5, 5), new BlockBounds(-1, 1, 1, 0, 2, 2) },
                         expectedRightBounds = { new BlockBounds(1, 0, 0, 5, 5, 5) }
                     }}
@@ -62,7 +67,7 @@ namespace IASTest
                 {
                     bounds = { meshBlockSamples[0], meshBlockSamples[2] },
                     splits = { new SplitData{
-                        split = new Split("", Vector3.up, new Vector3(), 6, Split.RestrictionType.Both),
+                        split = CreateSplit(Vector3.up, 6),
                         expectedLeftBounds =  { new BlockBounds(0, 0, 0, 5, 5, 5), new BlockBounds(1, 5, 1, 3, 6, 3) },
                         expectedRightBounds = { new BlockBounds(1, 6, 1, 3, 7, 3) }
                     }}
@@ -73,12 +78,12 @@ namespace IASTest
                     bounds = { meshBlockSamples[0] },
                     splits = { 
                         new SplitData{
-                            split = new Split("", Vector3.right, new Vector3(), 1, Split.RestrictionType.Both),
+                            split = CreateSplit(Vector3.right, 1),
                             expectedLeftBounds =  { new BlockBounds(0, 0, 0, 1, 1, 5), new BlockBounds(0, 1, 0, 1, 5, 5), },
                             expectedRightBounds = { new BlockBounds(1, 0, 0, 5, 1, 5), new BlockBounds(1, 1, 0, 5, 5, 5) }
                         },
                         new SplitData{
-                            split = new Split("", Vector3.up, new Vector3(), 1, Split.RestrictionType.Both),
+                            split = CreateSplit(Vector3.up, 1),
                             expectedLeftBounds =  { new BlockBounds(0, 0, 0, 1, 1, 5), new BlockBounds(1, 0, 0, 5, 1, 5), },
                             expectedRightBounds = { new BlockBounds(0, 1, 0, 1, 5, 5), new BlockBounds(1, 1, 0, 5, 5, 5) }
                         }
@@ -102,9 +107,9 @@ namespace IASTest
             foreach(SplitData splitData in testCase.splits)
             {
                 Split split = splitData.split;
-                Split.ConstraintResult constraintResult;
-                BlockBounds[] lhs = splitBounds.Where(bounds => split.Constrains(true, bounds, out constraintResult) >= 0).ToArray();
-                BlockBounds[] rhs = splitBounds.Where(bounds => split.Constrains(false, bounds, out constraintResult) >= 0).ToArray();
+                float dist;
+                BlockBounds[] lhs = splitBounds.Where(bounds => split.Constrains(true, bounds, out dist) == Split.ConstraintResult.Included).ToArray();
+                BlockBounds[] rhs = splitBounds.Where(bounds => split.Constrains(false, bounds, out dist) == Split.ConstraintResult.Included).ToArray();
 
                 AssertBlocksMatchBlockBounds(lhs, splitData.expectedLeftBounds);
                 AssertBlocksMatchBlockBounds(rhs, splitData.expectedRightBounds);

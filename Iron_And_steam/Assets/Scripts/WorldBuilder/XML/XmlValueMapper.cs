@@ -84,11 +84,6 @@ namespace IaS.WorldBuilder.XML
                 return new XmlValueMappedResult<TR>(_value, _attribName, _elementName, new ReferenceMapper<TR>(references), _present);
             }
 
-            public XmlValueMappedResult<SplitAttachment> AsSplitAttachment(Split[] splits)
-            {
-                return new XmlValueMappedResult<SplitAttachment>(_value, _attribName, _elementName, new SplitAttachMapper(splits), _present);
-            }
-
             public XmlValueMappedResult<string> AsMultiChoice(params string[] choices)
             {
                 return new XmlValueMappedResult<string>(_value, _attribName, _elementName,

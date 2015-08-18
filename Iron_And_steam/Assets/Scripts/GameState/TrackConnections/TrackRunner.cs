@@ -1,8 +1,6 @@
-﻿using System;
-using IaS.Domain;
+﻿using IaS.Domain;
+using IaS.Domain.WorldTree;
 using IaS.GameState;
-using IaS.GameState.WorldTree;
-using IaS.Helpers;
 using IaS.WorldBuilder.Splines;
 using UnityEngine;
 
@@ -108,8 +106,6 @@ namespace Assets.Scripts.GameState.TrackConnections
         {
             get
             {
-                if (!_currentPt.HasValue)
-                    throw new Exception("Invalid operation. Reached end of the track or something went wrong.");
                 return _trackConnection.TrackGroup;
             }
         }

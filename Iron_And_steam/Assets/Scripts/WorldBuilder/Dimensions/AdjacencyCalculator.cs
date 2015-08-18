@@ -77,8 +77,9 @@ namespace IaS.WorldBuilder
             BlockBounds cellBounds = new BlockBounds(x, y, z, x + 1, y + 1, z + 1);
             foreach(Split split in splits)
             {
-                Split.ConstraintResult constraintResult;
-                if (split.Constrains(true, cellBounds, out constraintResult) == 0)
+                float distance;
+                split.Constrains(true, cellBounds, out distance);
+                if (distance == 0)
                 {
                     if (split.Axis.x > 0)
                     {
@@ -93,19 +94,23 @@ namespace IaS.WorldBuilder
                         adjacencyMatrix.SetAllBits(1, 1, 2, false, false, MeshBlock.TypeSplit);
                     }
                 }
-                else if (split.Constrains(false, cellBounds, out constraintResult) == 0)
+                else
                 {
-                    if (split.Axis.x > 0)
+                    split.Constrains(false, cellBounds, out distance);
+                    if (distance == 0)
                     {
-                        adjacencyMatrix.SetAllBits(0, 1, 1, false, false, MeshBlock.TypeSplit);
-                    }
-                    else if (split.Axis.y > 0)
-                    {
-                        adjacencyMatrix.SetAllBits(1, 0, 1, false, false, MeshBlock.TypeSplit);
-                    }
-                    else
-                    {
-                        adjacencyMatrix.SetAllBits(1, 1, 0, false, false, MeshBlock.TypeSplit);
+                        if (split.Axis.x > 0)
+                        {
+                            adjacencyMatrix.SetAllBits(0, 1, 1, false, false, MeshBlock.TypeSplit);
+                        }
+                        else if (split.Axis.y > 0)
+                        {
+                            adjacencyMatrix.SetAllBits(1, 0, 1, false, false, MeshBlock.TypeSplit);
+                        }
+                        else
+                        {
+                            adjacencyMatrix.SetAllBits(1, 1, 0, false, false, MeshBlock.TypeSplit);
+                        }
                     }
                 }
             }
