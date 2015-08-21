@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
-using IaS.WorldBuilder;
+using IaS.Domain;
 
 namespace IASTest
 {
@@ -11,7 +11,7 @@ namespace IASTest
     [Category("Splitter Tests")]
     internal class SplitterTests
     {
-
+        /*
         private static Split CreateSplit(Vector3 axis, float value)
         {
             return new Split("id", "group_id", null, axis, new Vector3(), value, Split.RestrictionType.Both);
@@ -119,7 +119,7 @@ namespace IASTest
 
         private MeshBlock CreateTestMeshBlock(BlockBounds bounds, String id = "id")
         {
-            return new MeshBlock(id, null, MeshBlock.TypeCuboid, bounds, new BlockRotation(), 0);
+            return new MeshBlock(id, null, MeshBlock.TypeCuboid, bounds, new XmlRotation(), 0);
         }
 
         private void AssertBlocksMatchBlockBounds(IList<BlockBounds> actualBounds, IList<BlockBounds> expectedBlockBounds)
@@ -139,6 +139,6 @@ namespace IASTest
             internal List<BlockBounds> expectedLeftBounds = new List<BlockBounds>();
             internal List<BlockBounds> expectedRightBounds = new List<BlockBounds>();
         }
-
+        */
     }
 }

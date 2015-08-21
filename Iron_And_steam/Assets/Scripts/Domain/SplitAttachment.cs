@@ -1,14 +1,17 @@
-﻿namespace IaS.Domain
+﻿using IaS.Xml;
+
+namespace IaS.Domain
 {
     public class SplitAttachment
     {
-
-        public readonly string AttachedGroupId;
+        public readonly Reference<Split> Split; 
+        public readonly Group AttachedGroup;
         public readonly bool Lhs;
 
-        public SplitAttachment(string attachedGroupId, bool lhs)
+        public SplitAttachment(Group attachedGroup, Reference<Split> split, bool lhs)
         {
-            AttachedGroupId = attachedGroupId;
+            Split = split;
+            AttachedGroup = attachedGroup;
             Lhs = lhs;
         }
     }

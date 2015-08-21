@@ -1,20 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using IaS.WorldBuilder.Splines;
+using IaS.Domain.Splines;
 using UnityEngine;
 
 namespace IaS.Domain
 {
     public class SubTrackGroup
     {
+        public readonly string Id;
         public readonly List<SubTrackNode> Nodes;
         public readonly BezierSpline Spline;
         public SubTrack SubTrack { get; private set; }
 
-        public SubTrackGroup(BezierSpline spline, List<SubTrackNode> nodes)
+        public SubTrackGroup(string id, BezierSpline spline, List<SubTrackNode> nodes)
         {
             Spline = spline;
             Nodes = nodes;
+            Id = id;
             foreach (SubTrackNode node in nodes) node.Group = this;
         }
 
@@ -66,6 +68,11 @@ namespace IaS.Domain
         public void OnAttachToSubTrack(SubTrack subTrack)
         {
             SubTrack = subTrack;
+        }
+
+        public static string CreateId(int i)
+        {
+            return "group_" + i;
         }
     }
 

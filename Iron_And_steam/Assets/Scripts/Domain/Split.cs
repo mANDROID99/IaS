@@ -1,54 +1,34 @@
 using System.Collections.Generic;
 using System.Linq;
-using IaS.Domain;
 using IaS.Domain.WorldTree;
 using IaS.GameState.Rotation;
+using IaS.Xml;
 using UnityEngine;
 
-namespace IaS.WorldBuilder
+namespace IaS.Domain
 {
-    public class Split
+    public class Split : IReferenceable
     {
 
-        public enum RestrictionType
-        {
-            Above, Below, Both
-        }
+        public enum RestrictionType { Above, Below, Both }
+        public enum ConstraintResult{ Outside, Blocked, Included }
 
-        public enum ConstraintResult
-        {
-            Outside, Blocked, Included
-        }
-
-        public readonly SplitAttachment[] AttachedGroups;
-        public readonly string GroupId;
+        public readonly List<SplitAttachment> AttachedGroups = new List<SplitAttachment>();
+        public readonly Group Group;
         public readonly Vector3 Axis;
         public readonly Vector3 Pivot;
         public readonly float Value;
         public readonly string Id;
         public readonly RestrictionType Restriction;
 
-        public Split(string id, string groupId, SplitAttachment[] attachedGroups, Vector3 axis, Vector3 pivot, float value,RestrictionType restriction)
+        public Split(string id, Group group, Vector3 axis, Vector3 pivot, float value, RestrictionType restriction)
         {
             Axis = axis;
             Pivot = pivot;
             Value = value;
             Id = id;
-            GroupId = groupId;
+            Group = group;
             Restriction = restriction;
-            AttachedGroups = attachedGroups;
-        }
-
-        public GroupBranch GetGroup(LevelTree levelTree)
-        {
-            return levelTree.GetGroupBranch(GroupId);
-        }
-
-        public RotateableBranch[] GetAttachedGroups(LevelTree levelTree, bool lhs)
-        {
-            return AttachedGroups.Where(g => g.Lhs == lhs)
-                .Select(g => levelTree.GetGroupBranch(g.AttachedGroupId))
-                .Cast<RotateableBranch>().ToArray();
         }
 
         public float DistanceFromSplit(Vector3 min)
@@ -121,6 +101,11 @@ namespace IaS.WorldBuilder
                 default:
                     return new[] { new SplitSide(levelTree, this, true), new SplitSide(levelTree, this, false), };
             }
+        }
+
+        public string GetId()
+        {
+            return Id;
         }
     }
 }

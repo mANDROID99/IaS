@@ -1,21 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml.Linq;
-using IaS.WorldBuilder.Xml;
-using IaS.WorldBuilder.XML;
 using UnityEngine;
 
-namespace IaS.WorldBuilder
+namespace IaS.Domain
 {
 
     [Serializable]
     public class MeshBlock
     {
-        public const string ElementSubMesh = "sub";
-        private const string AttrMeshBlockId = "id";
-        private const string AttrMeshblockPosition = "p";
-        private const string AttrMeshblockSize = "s";
-        private const string AttrMeshblockType = "m";
+        public enum Type { Block, Edge, Corner, Slope }
 
         public const int TypeCuboid = 0;
         public const int TypeEdge = 1;
@@ -24,68 +17,31 @@ namespace IaS.WorldBuilder
         public const int TypeSplit = 4;
         public const int TypeTrack = 5;
 
-        public const string TypeStrCuboid = "block";
-        public const string TypeStrEdge = "edge";
-        public const string TypeStrCorner= "corner";
-        public const string TypeStrSlope = "slope";
+        private static readonly Dictionary<Type, int> TypeToTypeCode = new Dictionary<Type, int>
+            {{Type.Block, TypeCuboid}, {Type.Edge, TypeEdge}, {Type.Corner, TypeCorner}, {Type.Slope, TypeSlope}}; 
 
-        public Quaternion RotationQuat { get; set; }
-		public GroupXML GroupXml {get; private set; }
-        public string Id { get; private set; }
-        public int Type { get; private set; }
-		public MeshSource MeshSource { get; private set; }
+        public readonly Quaternion RotationQuat;
+        public readonly string Id;
+        public readonly Type BlockType;
+        public readonly int TypeCode;
+        public readonly IMeshSource MeshSource;
 
-        public int OccludeOrder { get; private set; }
-        public BlockRotation Rotation { get; private set; }
-        public BlockBounds Bounds { get; private set; }
-        public BlockBounds RotatedBlockBounds { get; private set; }
+        public readonly int OccludeOrder;
+        public readonly BlockBounds Bounds;
+        public readonly BlockBounds RotatedBlockBounds;
 
-        public static MeshBlock FromElement(XElement element, Dictionary<string, int> counts, ref int occludeOrderCount)
-        {
-            string id = XmlValueMapper.FromAttribute(element, AttrMeshBlockId).AsIdValue("block", counts);
-            Vector3 position = XmlValueMapper.FromAttribute(element, AttrMeshblockPosition).AsVector3().MandatoryValue();
-            Vector3 size = XmlValueMapper.FromAttribute(element, AttrMeshblockSize).AsVector3().MandatoryValue();
-            string typeStr = XmlValueMapper.FromAttribute(element, AttrMeshblockType).AsMultiChoice(TypeStrCuboid, TypeStrEdge, TypeStrCorner, TypeStrSlope).MandatoryValue();
-            int type = TypeStringToType(typeStr);
-            BlockRotation rotation = BlockRotation.FromElement(element.Element(BlockRotation.ElementBlockRotation));
-
-            MeshSource goBuilder;
-            if (TypeCuboid.Equals(type))
-            {
-                goBuilder = ProceduralMeshSource.GetInstance(TypeCuboid);
-            }
-            else if (TypeEdge.Equals(type))
-            {
-                goBuilder = ProceduralMeshSource.GetInstance(TypeEdge);
-            }
-            else if (TypeCorner.Equals(type))
-            {
-                goBuilder = ProceduralMeshSource.GetInstance(TypeCorner);
-            }
-            else if (TypeSlope.Equals(type))
-            {
-                goBuilder = ProceduralMeshSource.GetInstance(TypeSlope);
-            }
-            else
-            {
-                throw new Exception(string.Format("Invalid block type encountered: {0}", type));
-            }
-            BlockBounds blockBounds = new BlockBounds(position, size);
-            occludeOrderCount += 1;
-            return new MeshBlock(id, goBuilder, type, blockBounds, rotation, occludeOrderCount);
-        }
-
-        public MeshBlock(string id, MeshSource gameObjectBuilder, int type, BlockBounds blockBounds, BlockRotation blockRotation, int occludeOrder)
+        public MeshBlock(string id, Type type, BlockBounds blockBounds, Quaternion rotation, int occludeOrder)
         {
             Id = id;
-			GroupXml = GroupXml;
-			MeshSource = gameObjectBuilder;
-            Type = type;
-            Rotation = blockRotation;
+            BlockType = type;
+            RotationQuat = rotation;
+
             OccludeOrder = occludeOrder;
             Bounds = blockBounds;
             RotatedBlockBounds = blockBounds.Copy();
-            RotationQuat = Quaternion.Euler(0, 0, 0);
+
+            TypeCode = TypeToTypeCode[type];
+            MeshSource = ProceduralMeshSource.GetInstance(TypeCode);
         }
 
         public bool Intersects(MeshBlock test)
@@ -105,25 +61,7 @@ namespace IaS.WorldBuilder
 
         public MeshBlock CopyOf(BlockBounds blockBounds)
         {
-            return new MeshBlock(Id, MeshSource, Type, blockBounds, Rotation, OccludeOrder);
-        }
-
-        public static int TypeStringToType(string type)
-        {
-            if (type == TypeStrCuboid)
-            {
-                return TypeCuboid;
-            }else if(type == TypeStrEdge)
-            {
-                return TypeEdge;
-            }else if(type == TypeStrCorner)
-            {
-                return TypeCorner;
-            }else if(type == TypeStrSlope)
-            {
-                return TypeSlope;
-            }
-            return -1;
+            return new MeshBlock(Id, BlockType, blockBounds, RotationQuat, OccludeOrder);
         }
     }
 }

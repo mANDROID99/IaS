@@ -1,16 +1,16 @@
 using System;
 using UnityEngine;
 using UnityEditor;
-using System.Collections;
+using IaS.World;
 
-[CustomEditor(typeof(WorldController))]
+[CustomEditor(typeof(WorldCreator))]
 public class WorldControllerEditor : Editor {
 	
 	public override void OnInspectorGUI()
 	{
 		DrawDefaultInspector ();
-		
-		WorldController worldController = (WorldController)target;
+
+        WorldCreator worldController = (WorldCreator)target;
 		if (GUILayout.Button ("load Level")) {
 			worldController.LoadWorld();
 		}

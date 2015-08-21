@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using IaS.Domain;
 using NUnit.Framework;
 using UnityEngine;
-using IaS.WorldBuilder.Tracks;
-using IaS.WorldBuilder.Splines;
-using IaS.WorldBuilder.Xml;
-using IaS.WorldBuilder;
+using IaS.Domain.Tracks;
 
 namespace IASTest
 {
@@ -16,6 +12,7 @@ namespace IASTest
     [Category("Track Splitting")]
     class TrackSubTrackSplitterTest
     {
+        /*
         private TrackSubTrackSplitter splitter;
 
         private static Split CreateSplit(Vector3 axis, float value)
@@ -239,6 +236,6 @@ namespace IASTest
         {
             return subTrack[1].TrackGroups[group];
         }
-
+        */
     }
 }

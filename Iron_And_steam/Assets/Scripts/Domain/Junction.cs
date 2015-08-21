@@ -1,24 +1,14 @@
-﻿using System.Linq;
-using IaS.Domain.WorldTree;
-using IaS.WorldBuilder.Xml;
+﻿using IaS.Domain.WorldTree;
 using UnityEngine;
 
 namespace IaS.Domain
 {
     public class Junction
     {
-        public enum BranchType
-        {
-            BranchDefault,
-            BranchAlternate
-        }
+        public enum BranchType { BranchDefault, BranchAlternate }
+        public enum JunctionDirection { OneToMany, ManyToOne }
 
-        public enum JunctionDirection
-        {
-            OneToMany,
-            ManyToOne
-        }
-
+        public readonly string Id;
         public readonly SubTrackGroup BranchDefault;
         public readonly SubTrackGroup BranchAlternate;
         public readonly JunctionDirection Direction;
@@ -40,21 +30,21 @@ namespace IaS.Domain
             get { return Direction == JunctionDirection.OneToMany ? BranchDefault.StartPos : BranchDefault.EndPos;}
         }
 
-        public Junction(SubTrackGroup branchDefault, SubTrackGroup branchAlternate, JunctionDirection direction)
+        public Junction(string id, SplitTrack branchDefault, SplitTrack branchAlternate, JunctionDirection direction)
         {
-            BranchDefault = branchDefault;
-            BranchAlternate = branchAlternate;
+            Id = id;
             NextBranchType = BranchType.BranchDefault;
             Direction = direction;
+
+            BranchDefault = GetFirstGroup(branchDefault);
+            BranchAlternate = GetFirstGroup(branchAlternate);
         }
 
-        public static Junction FromXml(JunctionXML junction, SplitTrack[] splitTracks)
+        private SubTrackGroup GetFirstGroup(SplitTrack subTrack)
         {
-            SplitTrack branchLeft = splitTracks.First(t => junction.BranchDefault == t.TrackXml);
-            SplitTrack branchRight = splitTracks.First(t => junction.BranchAlternate == t.TrackXml);
-            return new Junction(branchLeft.FirstSubTrack.FirstGroup, branchRight.FirstSubTrack.FirstGroup, junction.Direction);
+            return Direction == JunctionDirection.OneToMany ? subTrack.FirstSubTrack.FirstGroup : subTrack.LastSubTrack.LastGroup;
         }
-
+        
         public void SwitchDirection()
         {
             NextBranchType = (NextBranchType == BranchType.BranchDefault) ? BranchType.BranchAlternate : BranchType.BranchDefault;

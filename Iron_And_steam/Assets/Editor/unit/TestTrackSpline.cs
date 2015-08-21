@@ -1,11 +1,4 @@
-﻿using System.Linq;
-using IaS.Domain;
-using IaS.WorldBuilder;
-using IaS.WorldBuilder.Splines;
-using IaS.WorldBuilder.Tracks;
-using IaS.WorldBuilder.Xml;
-using NUnit.Framework;
-using UnityEngine;
+﻿using NUnit.Framework;
 
 namespace IASTest
 {
@@ -13,7 +6,7 @@ namespace IASTest
     [Category("TrackXML Spline Tests")]
     class TestTrackSpline
     {
-
+        /*
         private TrackBuilderConfiguration config;
         private TrackSubTrackSplitter splitter;
         private TrackSplineGenerator splineGenerator;
@@ -177,6 +170,6 @@ namespace IASTest
                 Assert.That(pt.anchor2, Is.EqualTo(expectedAnchor2));
             }
         }
-
+        */
     }
 }

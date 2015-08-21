@@ -6,8 +6,8 @@
   <groups>
     <group id="group_1">
       <submeshes>
-        <sub m="block" p="0,0,0" s="4,4,4"/>
-        <sub m="edge" p="0,3,0" s="1,1,1">
+        <sub m="Block" p="0,0,0" s="4,4,4"/>
+        <sub m="Edge" p="0,3,0" s="1,1,1">
           <rot dir="u" r="0"/>
         </sub>
       </submeshes>
@@ -39,11 +39,11 @@
 
     <group id="group_2" attach="@split_z:1">
       <submeshes>
-        <sub m="block" p="4,3,3" s="2,2,1"/>
-        <sub m="slope" p="4,4,3" s="1,1,1">
+        <sub m="Block" p="4,3,3" s="2,2,1"/>
+        <sub m="Slope" p="4,4,3" s="1,1,1">
           <rot dir="u" r="90"/>
         </sub>
-        <sub m="block" p="6,0,3" s="1,5,1"/>
+        <sub m="Block" p="6,0,3" s="1,5,1"/>
       </submeshes>
 
       <tracks>

@@ -1,4 +1,4 @@
-﻿using IaS.WorldBuilder;
+﻿using IaS.Domain;
 using UnityEngine;
 
 namespace IaS.GameState

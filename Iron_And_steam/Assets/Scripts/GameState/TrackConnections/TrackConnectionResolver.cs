@@ -7,7 +7,6 @@ using IaS.GameObjects;
 using IaS.GameState.Rotation;
 using IaS.GameState.TrackConnections;
 using IaS.Helpers;
-using IaS.WorldBuilder;
 
 namespace IaS.GameState
 {
@@ -18,16 +17,14 @@ namespace IaS.GameState
         private readonly Dictionary<BlockBounds, List<SubTrackGroup>> _blockBoundsMap = new Dictionary<BlockBounds, List<SubTrackGroup>>(); 
         private readonly List<TrackConnection> _connections = new List<TrackConnection>();
 
-
-
         public TrackConnectionResolver(EventRegistry eventRegistry)
         {
             eventRegistry.RegisterConsumer(this);
         }
 
-        public void AddSplitTracks(SplitTrack[] splitTracks, Junction[] junctions, GroupBranch groupBranch)
+        public void AddConnectionsFromGroup(Group group)
         {
-            foreach (SubTrack subTrack in splitTracks.SelectMany(t => t.SubTracks))
+            foreach (SubTrack subTrack in group.Tracks.SelectMany(t => t.SubTracks))
             {
                 List<SubTrackGroup> stGroups;
                 if (!_blockBoundsMap.TryGetValue(subTrack.SplitBounds, out stGroups))
@@ -39,7 +36,7 @@ namespace IaS.GameState
                 {
                     stGroups.Add(stGroup);
                     TrackConnection conn;
-                    if (!AttachJunction(out conn, stGroup, junctions))
+                    if (!AttachJunction(out conn, stGroup, group.Junctions))
                     {
                         conn = AttachOneToOneConnection(stGroup);
                     }
@@ -50,7 +47,7 @@ namespace IaS.GameState
             }
         }
 
-        private bool AttachJunction(out TrackConnection trackConnection, SubTrackGroup group, Junction[] junctions)
+        private bool AttachJunction(out TrackConnection trackConnection, SubTrackGroup group, IList<Junction> junctions)
         {
             foreach (Junction junction in junctions.Where(j => j.ReferencesGroup(group)))
             {

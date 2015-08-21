@@ -1,5 +1,6 @@
-﻿using IaS.Domain.WorldTree;
-using IaS.WorldBuilder;
+﻿using System.Linq;
+using IaS.Domain.WorldTree;
+using IaS.Domain;
 using UnityEngine;
 
 namespace IaS.GameState.Rotation
@@ -9,14 +10,17 @@ namespace IaS.GameState.Rotation
         private readonly Split _split;
         public readonly bool Lhs;
         public readonly GroupBranch Group;
-        public readonly RotateableBranch[] AttachedRotateables;
+        public readonly GroupBranch[] AttachedRotateables;
 
         internal SplitSide(LevelTree levelTree, Split split, bool lhs)
         {
             _split = split;
             Lhs = lhs;
-            Group = split.GetGroup(levelTree);
-            AttachedRotateables = split.GetAttachedGroups(levelTree, lhs);
+            Group = levelTree.GetGroupBranch(split.Group);
+            AttachedRotateables = split.AttachedGroups
+                .Where(attached => attached.Lhs == lhs)
+                .Select(attached => levelTree.GetGroupBranch(attached.AttachedGroup))
+                .ToArray();
         }
 
         public Vector3 Axis { get { return _split.Axis; } }

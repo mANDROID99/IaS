@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using IaS.Domain.WorldTree;
-using IaS.WorldBuilder.Xml;
+using UnityEngine;
 
 namespace IaS.Domain
 {
@@ -9,22 +9,17 @@ namespace IaS.Domain
     {
         public GroupBranch GroupBranch { get; private set; }
         public readonly SubTrack[] SubTracks;
-        public readonly TrackXML TrackXml;
+        public readonly string Id;
+        public readonly Vector3 InitialDown;
 
-        public readonly SubTrack FirstSubTrack;
-        public readonly SubTrack LastSubTrack;
+        public SubTrack FirstSubTrack { get { return SubTracks[0]; } }
+        public SubTrack LastSubTrack { get { return SubTracks.Last(); } }
 
-        public string Id
-        {
-            get { return TrackXml.Id; }
-        }
-
-        public SplitTrack(TrackXML trackXml, SubTrack[] subTracks, SubTrack firstSubTrack, SubTrack lastSubTrack)
+        public SplitTrack(string id, Vector3 initialDown, SubTrack[] subTracks)
         {
             SubTracks = subTracks;
-            TrackXml = trackXml;
-            FirstSubTrack = firstSubTrack;
-            LastSubTrack = lastSubTrack;
+            InitialDown = initialDown;
+            Id = id;
 
             foreach (SubTrack subTrack in subTracks)
             {

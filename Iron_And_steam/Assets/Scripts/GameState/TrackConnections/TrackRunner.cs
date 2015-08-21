@@ -1,7 +1,7 @@
 ﻿using IaS.Domain;
 using IaS.Domain.WorldTree;
 using IaS.GameState;
-using IaS.WorldBuilder.Splines;
+using IaS.Domain.Splines;
 using UnityEngine;
 
 namespace Assets.Scripts.GameState.TrackConnections
@@ -25,8 +25,6 @@ namespace Assets.Scripts.GameState.TrackConnections
             ConnectionResolver = connectionResolver;
             Setup(initialTrackGroup, initialReverse);
         }
-
-        
 
         private void Setup(SubTrackGroup initialTrackGroup, bool initialReverse)
         {
