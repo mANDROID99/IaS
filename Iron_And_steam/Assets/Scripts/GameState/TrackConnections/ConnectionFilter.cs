@@ -1,32 +1,28 @@
-﻿
-using IaS.Domain;
-using IaS.Helpers;
+﻿using IaS.Domain;
 using UnityEngine;
 
 namespace IaS.GameState.TrackConnections
 {
+    public interface IConnectionFilter
+    {
+        bool AllowNext(SubTrackGroup stGroup);
+        bool AllowPrevious(SubTrackGroup stGroup);
+    }
+
+
+    /*
     public interface IStartConnectionFilter
     {
-        SubTrackGroup GetSubTrackGroup();
-        Vector3 GetStartPos();
-        Vector3 GetStartForward();
-        void Rotate(Transformation transformation);
+        bool AllowConnection(Vector3 fromPos, Vector3 toPos);
 
-        bool AllowConnection(IEndConnectionFilter previous);
-
-        bool AllowReversed(IStartConnectionFilter reversed);
+        bool AllowReversed(Vector3 fromPos, Vector3 toPos);
 
     }
 
     public interface IEndConnectionFilter
     {
-        SubTrackGroup GetSubTrackGroup();
-        Vector3 GetEndPos();
-        Vector3 GetEndForward();
-        void Rotate(Transformation transformation);
- 
-        bool AllowConnection(IStartConnectionFilter next);
+        bool AllowConnection(Vector3 fromPos, Vector3 toPos, Vector3 fromForward, Vector3 toForward);
 
-        bool AllowReversed(IEndConnectionFilter reversed);
-    }
+        bool AllowReversed(Vector3 fromPos, Vector3 toPos, Vector3 fromForward, Vector3 toForward);
+    }*/
 }

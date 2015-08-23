@@ -1,5 +1,5 @@
 ﻿using IaS.Domain;
-using IaS.Domain.WorldTree;
+using IaS.World.WorldTree;
 using IaS.GameState;
 using IaS.Domain.Splines;
 using UnityEngine;
@@ -15,8 +15,7 @@ namespace Assets.Scripts.GameState.TrackConnections
         public Vector3 CurrentUp { get; private set; }
         public Vector3 CurrentPos { get; private set; }
 
-        private TrackConnectionResolver.TrackConnection _trackConnection;
-        private bool _reversed;
+        private TrackConnectionResolver.ConnectionContext _connectionCtx;
         private BezierSpline.LinearInterpolator _interpolator;
         private BezierSpline.BezierPtInfo? _currentPt = null;
 
@@ -29,8 +28,7 @@ namespace Assets.Scripts.GameState.TrackConnections
         private void Setup(SubTrackGroup initialTrackGroup, bool initialReverse)
         {
             NextConnection = true;
-            _trackConnection = ConnectionResolver.GetFirst(initialTrackGroup);
-            _reversed = initialReverse;
+            _connectionCtx = ConnectionResolver.FirstContext(initialTrackGroup, initialReverse);
             _interpolator = new BezierSpline.LinearInterpolator(initialTrackGroup.Spline, initialReverse);
             _interpolator.Step(0);
             _currentPt = _interpolator.Value();
@@ -39,11 +37,9 @@ namespace Assets.Scripts.GameState.TrackConnections
 
         private void NextInterpolation()
         {
-            bool nextReversed;
-            _trackConnection = ConnectionResolver.GetNext(_trackConnection, _reversed, out nextReversed);
-            _reversed = nextReversed;
+            _connectionCtx = ConnectionResolver.GetNext(_connectionCtx);
 
-            if (_trackConnection == null)
+            if (_connectionCtx == null)
             {
                 ReachedEnd = true;
                 _interpolator = null;
@@ -53,14 +49,15 @@ namespace Assets.Scripts.GameState.TrackConnections
             NextConnection = true;
             SetStartingValues();
 
-            _interpolator = new BezierSpline.LinearInterpolator(_trackConnection.TrackGroup.Spline, _reversed);
+            _interpolator = new BezierSpline.LinearInterpolator(_connectionCtx.TrackGroup.Spline, _connectionCtx.Reversed);
             _interpolator.Step(0);
         }
 
         private void SetStartingValues()
         {
-            SubTrackNode startNode = _trackConnection.TrackGroup.FirstNode(_reversed);
-            CurrentForward = !_reversed ? startNode.Forward : -startNode.Forward;
+            bool reversed = _connectionCtx.Reversed;
+            SubTrackNode startNode = _connectionCtx.TrackGroup.FirstNode(reversed);
+            CurrentForward = !reversed ? startNode.Forward : -startNode.Forward;
             CurrentUp = -startNode.Down;
             CurrentPos = startNode.Position;
         }
@@ -104,7 +101,7 @@ namespace Assets.Scripts.GameState.TrackConnections
         {
             get
             {
-                return _trackConnection.TrackGroup;
+                return _connectionCtx.TrackGroup;
             }
         }
 

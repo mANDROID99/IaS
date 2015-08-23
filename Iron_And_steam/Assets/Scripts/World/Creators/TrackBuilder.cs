@@ -3,7 +3,7 @@ using System.Linq;
 using IaS.Domain;
 using IaS.Domain.Splines;
 using IaS.Domain.Tracks;
-using IaS.Domain.WorldTree;
+using IaS.World.WorldTree;
 using IaS.GameObjects;
 using IaS.World.Tracks;
 using UnityEngine;
@@ -22,11 +22,9 @@ namespace Assets.Scripts.World.Creators
 
         private void BuildSplitTrack(GroupBranch groupBranch, SubTrack track)
         {
-            RotateableBranch splitBranch = groupBranch.GetRotateableBranch(track.SplitBounds);
+            SplitBoundsBranch splitBranch = groupBranch.SplitBoundsBranchContaining(track.SplitBounds);
 
             GameObject gameObj = new GameObject(track.Id);
-            splitBranch.TracksLeaf.Attach(gameObj);
-
             TrackExtruder trackExtruder = new TrackExtruder(TrackBuilderConfiguration.DefaultConfig);
 
             foreach (SubTrackGroup subTrackGroup in track.TrackGroups)
@@ -37,6 +35,8 @@ namespace Assets.Scripts.World.Creators
                 childTrack.name = subTrackGroup.Id;
                 childTrack.GetComponent<MeshFilter>().mesh = trackMesh;
             }
+
+            splitBranch.TracksLeaf.Attach(gameObj);
         }
     }
 }

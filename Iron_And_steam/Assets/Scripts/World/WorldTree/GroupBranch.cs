@@ -2,8 +2,9 @@
 using System.Linq;
 using IaS.Domain;
 using UnityEngine;
+using IaS.Helpers;
 
-namespace IaS.Domain.WorldTree
+namespace IaS.World.WorldTree
 {
     public class GroupBranch : RotateableBranch
     {
@@ -11,14 +12,15 @@ namespace IaS.Domain.WorldTree
         public readonly BaseTree DoodadsLeaf;
         public readonly Data GroupData;
         public readonly LevelTree Level;
-        public readonly List<BlockBounds> RotateableBounds = new List<BlockBounds>(); 
-        public readonly Dictionary<BlockBounds, RotateableBranch> RotateableBranches = new Dictionary<BlockBounds, RotateableBranch>();
+
+        public readonly List<SplitBoundsBranch> SplitBoundsBranches = new List<SplitBoundsBranch>(); 
 
         public IList<SplitTrack> Tracks { get { return GroupData.Group.Tracks; } }
         public IList<Split> Splits { get { return GroupData.Group.Splits; } }
         public IList<Junction> Junctions { get { return GroupData.Group.Junctions; } }
         public string GroupId { get { return GroupData.Group.Id; } }
         public IList<MeshBlock> SplittedMeshBlocks { get { return GroupData.Group.SplittedMeshBlocks; } }
+        public Group Group { get { return GroupData.Group; } }
 
         public new struct Data
         {
@@ -32,16 +34,15 @@ namespace IaS.Domain.WorldTree
 
         public static GroupBranch CreateAndAttachTo(LevelTree level, Data groupData, RotationData rotationData)
         {
-           return new GroupBranch(groupData, rotationData, level);
+           return new GroupBranch(new Vector3(), groupData, rotationData, level);
         }
 
-        private GroupBranch(Data groupData, RotationData rotationData, LevelTree level) : base(groupData.Group.Id, rotationData, null, level)
+        private GroupBranch(Vector3 pos, Data groupData, RotationData rotationData, LevelTree level) : base(groupData.Group.Id, pos, rotationData, level)
         {
             Level = level;
-            Group = this;
             GroupData = groupData;
-            ParticlesLeaf = new BaseTree("Particles", new Vector3(), this);
-            DoodadsLeaf = new BaseTree("Doodads", new Vector3(), this);
+            ParticlesLeaf = new BaseTree("Particles", new Vector3(), this, NodeConfig.Dynamic);
+            DoodadsLeaf = new BaseTree("Doodads", new Vector3(), this, NodeConfig.Dynamic);
             level.AddGroupBranch(this);
 
             foreach (SplitTrack track in Tracks)
@@ -50,20 +51,20 @@ namespace IaS.Domain.WorldTree
             }
         }
 
-        public void AddRotateableBranch(BlockBounds rotateableBounds, RotateableBranch rotateableBranch)
+        public void AddSplitBoundsBranch(SplitBoundsBranch splitBoundsBranch)
         {
-            RotateableBounds.Add(rotateableBounds);
-            RotateableBranches.Add(rotateableBounds, rotateableBranch);
+            SplitBoundsBranches.Add(splitBoundsBranch);
         }
 
-        public RotateableBranch GetRotateableBranch(BlockBounds bounds)
+        private SplitBoundsBranch CreateNewSplitBounds(BlockBounds bounds)
         {
-            return RotateableBranches[bounds];
+            BlockBounds splittedRegion = GroupData.Group.SplittedRegions.First(sr => sr.Contains(bounds));
+            return SplitBoundsBranch.CreateAndAttachTo(SplitBoundsBranches.Count, this, new RotationData(splittedRegion, true));
         }
 
-        public RotateableBranch RotateableRegionContaining(BlockBounds bounds)
+        public SplitBoundsBranch SplitBoundsBranchContaining(BlockBounds bounds)
         {
-            return RotateableBranches.First(kv => kv.Key.Contains(bounds)).Value;
+            return SplitBoundsBranches.FirstOrDefault(s => s.BlockBounds.Contains(bounds)) ?? CreateNewSplitBounds(bounds);
         }
     }
 }

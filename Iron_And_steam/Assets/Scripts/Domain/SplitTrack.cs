@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using IaS.Domain.WorldTree;
+using IaS.World.WorldTree;
 using UnityEngine;
 
 namespace IaS.Domain

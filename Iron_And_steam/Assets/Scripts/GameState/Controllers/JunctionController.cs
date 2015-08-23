@@ -3,7 +3,7 @@ using System.Linq;
 using Assets.Scripts.Controllers;
 using Assets.Scripts.GameState.TrackConnections;
 using IaS.Domain;
-using IaS.Domain.WorldTree;
+using IaS.World.WorldTree;
 using IaS.GameState;
 using UnityEngine;
 

@@ -1,4 +1,5 @@
-﻿using IaS.Domain;
+﻿using System;
+using IaS.Domain;
 using IaS.Helpers;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace IaS.GameState.TrackConnections
 {
     public class OneToOneConnectionFilter
     {
-        public class StartFilter : IStartConnectionFilter
+        /*public class StartFilter : IStartConnectionFilter
         {
             protected readonly SubTrackGroup TrackGroup;
             protected Vector3 StartForward;
@@ -92,6 +93,6 @@ namespace IaS.GameState.TrackConnections
             {
                 return (Vector3.Distance(EndPos, reversed.GetEndPos()) < 0.1f) && (Vector3.Angle(EndForward, -reversed.GetEndForward()) < 0.1f);
             }
-        }
+        }*/
     }
 }

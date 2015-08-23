@@ -2,12 +2,14 @@
 using System.Linq;
 using Assets.Scripts.Controllers;
 using Assets.Scripts.GameState.Rotation;
-using IaS.Domain.WorldTree;
+using IaS.World.WorldTree;
 using IaS.GameState;
 using IaS.GameState.Events;
 using IaS.GameState.Rotation;
+using IaS.Domain;
 using IaS.Helpers;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace IaS.GameObjects{
 
@@ -53,7 +55,7 @@ namespace IaS.GameObjects{
                         if ((w != 0) && (splitRotation.Lhs != alternate))
                         {
                             TreeRotater.Direction direction = TreeRotater.DirectionFromInt(w);
-                            RotationAnimator[] animators = _treeRotater.Rotate(splitRotation, direction);
+                            IList<RotationAnimator> animators = _treeRotater.Rotate(splitRotation, direction);
 
                             _readyToRot = false;
                             _eventRegistry.Notify(new GameEvent(GameEvent.Type.PAUSED));
@@ -65,7 +67,7 @@ namespace IaS.GameObjects{
             }
         }
 
-        IEnumerator Rotate90Degrees(SplitSide splitRotation, RotationAnimator[] animators)
+        IEnumerator Rotate90Degrees(SplitSide splitRotation, IList<RotationAnimator> animators)
         {
             float startTime = Time.time;
             float deltaTime;

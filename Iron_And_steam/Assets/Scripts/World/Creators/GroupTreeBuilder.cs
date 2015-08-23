@@ -4,7 +4,7 @@ using Assets.Scripts.Controllers;
 using Assets.Scripts.World.Creators;
 using IaS.Controllers;
 using IaS.Domain;
-using IaS.Domain.WorldTree;
+using IaS.World.WorldTree;
 using IaS.World.Creators;
 using UnityEngine;
 
@@ -29,7 +29,7 @@ namespace IaS.World.Builder
             GroupBranch groupBranch = GroupBranch.CreateAndAttachTo(levelTree, groupData, rotationData);
 
             levelTree.ConnectionResolver.AddConnectionsFromGroup(group);
-            CreateSplitBranches(groupBranch, group);
+            //CreateSplitBranches(groupBranch, group);
 
             _trackBuilder.BuildSplitTracks(groupBranch, group.Tracks);
             _blockBuilder.BuildBlocks(groupBranch, group.SplittedMeshBlocks);
@@ -46,15 +46,15 @@ namespace IaS.World.Builder
                 .Cast<Controller>().ToArray();
         }
 
-        private void CreateSplitBranches(GroupBranch groupBranch, Group group)
+        /*private void CreateSplitBranches(GroupBranch groupBranch, Group group)
         {
             int boundsCount = 0;
             foreach (BlockBounds splitBounds in group.SplittedRegions)
             {
                 RotateableBranch.RotationData rotationData = new RotateableBranch.RotationData(splitBounds, true);
-                RotateableBranch.CreateAndAttachTo(groupBranch, "bounds_" + (boundsCount += 1), rotationData);
+                SplitBoundsBranch.CreateAndAttachTo(groupBranch, "bounds_" + (boundsCount += 1), rotationData);
             }
-        }
+        }*/
         
     }
 }

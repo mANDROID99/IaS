@@ -1,43 +1,19 @@
-﻿using IaS.Scripts.Domain;
+﻿using IaS.Domain;
+using IaS.Scripts.Domain;
 using UnityEngine;
 
-namespace IaS.Domain.WorldTree
+namespace IaS.World.WorldTree
 {
-    public class RotateableBranch : BaseTree
+    public abstract class RotateableBranch : BaseTree
     {
-        
         public readonly RotationData Data;
-        public readonly string SplitId;
-        public readonly BaseTree TracksLeaf;
-        public readonly BaseTree BlocksLeaf;
-        public readonly BaseTree OthersLeaf;
-        public GroupBranch Group { get; protected set; }
 
-        public BlockBounds OriginalBounds { get { return Data.OriginalBounds; } }
+        public BlockBounds Bounds { get { return Data.OriginalBounds; } }
         public RotationState RotationState { get { return Data.RotationState; } }
 
-        public static RotateableBranch CreateAndAttachTo(GroupBranch groupBranch, string splitId, RotationData rotationData)
+        protected RotateableBranch(string name, Vector3 pos, RotationData data, BaseTree parent) : base(name, pos, parent, NodeConfig.Dynamic)
         {
-            return new RotateableBranch(splitId, rotationData, groupBranch);
-        }
-
-        protected RotateableBranch(string splitId, RotationData data, GroupBranch group, BaseTree parent)
-            : base(splitId, new Vector3(), parent)
-        {
-            Group = group;
             Data = data;
-            SplitId = splitId;
-            TracksLeaf = new BaseTree("Tracks", new Vector3(), this);
-            BlocksLeaf = new BaseTree("Blocks", new Vector3(), this);
-            OthersLeaf = new BaseTree("Others", new Vector3(), this);
-            if (group != null)
-            {
-                group.AddRotateableBranch(data.OriginalBounds, this);
-            }
-        }
-
-        public RotateableBranch(string splitId, RotationData data, GroupBranch group) : this(splitId, data, group, group)
-        {
         }
 
         public struct RotationData
@@ -51,8 +27,5 @@ namespace IaS.Domain.WorldTree
                 RotationState = new RotationState(originalBounds, blocksRotation);
             }
         }
-
-
-        
     }
 }

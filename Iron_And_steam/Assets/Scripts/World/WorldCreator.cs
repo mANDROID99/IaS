@@ -1,6 +1,6 @@
 ﻿using Assets.Scripts.Controllers;
 using IaS.Domain;
-using IaS.Domain.WorldTree;
+using IaS.World.WorldTree;
 using IaS.Domain.XmlToDomainMapper;
 using IaS.GameState;
 using IaS.GameState.Events;
@@ -37,6 +37,7 @@ namespace IaS.World
 
         void Start()
         {
+            Debug.Log("Version is " + System.Environment.Version);
             LoadWorld();
         }
 

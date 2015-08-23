@@ -5,7 +5,7 @@ using IaS.GameState;
 using IaS.Domain;
 using UnityEngine;
 
-namespace IaS.Domain.WorldTree
+namespace IaS.World.WorldTree
 {
     public class LevelTree : BaseTree
     {
@@ -36,13 +36,12 @@ namespace IaS.Domain.WorldTree
             }
         }
 
-
         public void RegisterController(params Controller[] controllers)
         {
             Data.Controllers.AddRange(controllers);
         }  
 
-        public LevelTree(Transform parentTransform, LevelData data) : base(data.Level.LevelName, new Vector3(), parentTransform)
+        public LevelTree(Transform parentTransform, LevelData data) : base(data.Level.LevelName, new Vector3(), parentTransform, NodeConfig.StaticNoPropogate)
         {
             Data = data;
         }

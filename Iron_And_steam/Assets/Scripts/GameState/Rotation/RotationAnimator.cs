@@ -1,5 +1,5 @@
-﻿using IaS.Domain.WorldTree;
-using IaS.GameState.Rotation;
+﻿using IaS.World.WorldTree;
+using IaS.Domain;
 using UnityEngine;
 
 namespace Assets.Scripts.GameState.Rotation

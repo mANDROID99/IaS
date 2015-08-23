@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Assets.Scripts.GameState.Rotation;
-using IaS.Domain.WorldTree;
+using IaS.World.WorldTree;
 using IaS.Helpers;
 using IaS.Scripts.Domain;
 using IaS.Domain;
@@ -30,12 +30,15 @@ namespace IaS.GameState.Rotation
             return i == 1 ? Direction.Clockwise : Direction.CounterClockwise;
         }
 
-        public RotationAnimator[] Rotate(SplitSide splitSide, Direction direction)
+        public IList<RotationAnimator> Rotate(SplitSide splitSide, Direction direction)
         {
-            GroupBranch group = splitSide.Group;
-            List<RotateableBranch> branchesToRotate = new List<RotateableBranch>();
+            float directionMult = direction == Direction.Clockwise ? 1 : -1;
+            Quaternion rotationDelta = Quaternion.Euler(splitSide.Axis * 90 * directionMult);
 
-            foreach (RotateableBranch rotateable in group.RotateableBranches.Values)
+            GroupBranch group = splitSide.Group;
+
+            List<RotationAnimator> animators = new List<RotationAnimator>();
+            foreach (SplitBoundsBranch rotateable in group.SplitBoundsBranches)
             {
                 RotationState rotationState = rotateable.RotationState;
 
@@ -46,54 +49,62 @@ namespace IaS.GameState.Rotation
                     case Split.ConstraintResult.Blocked:
                         return new RotationAnimator[0];
                     case Split.ConstraintResult.Included:
-                        branchesToRotate.Add(rotateable);
+                        Transformation transformation;
+                        RotationAnimator animator = CreateRotationAnimation(splitSide, rotateable, rotationDelta, out transformation);
+                        _eventRegistry.Notify(new BlockRotationEvent(group.Group, transformation, rotateable.BlockBounds));
+                        animators.Add(animator);
                         break;
                 }
             }
 
-            branchesToRotate.AddRange(splitSide.AttachedRotateables);
+            foreach(GroupBranch attachedGroup in splitSide.AttachedRotateables)
+            {
+                Transformation transformation;
+                RotationAnimator animator = CreateRotationAnimation(splitSide, attachedGroup, rotationDelta, out transformation);
+                _eventRegistry.Notify(new GroupRotationEvent(group.Group, transformation));
+                animators.Add(animator);
+            }
 
-            float directionMult = direction == Direction.Clockwise ? 1 : -1;
-            Quaternion rotationDelta = Quaternion.Euler(splitSide.Axis * 90 * directionMult);
-            return CreateRotationAnimations(splitSide, branchesToRotate, rotationDelta);
+            return animators;
         }
 
-        private RotationAnimator[] CreateRotationAnimations(SplitSide split, List<RotateableBranch> rotateables, Quaternion rotationDelta)
+        private RotationAnimator CreateRotationAnimation(SplitSide splitSide, RotateableBranch rotateable, Quaternion rotationDelta, out Transformation transformation)
         {
-            List<RotationAnimator> animators = new List<RotationAnimator>();
-            foreach (RotateableBranch rotateable in rotateables)
-            {
-                BlockBounds originalBounds = rotateable.OriginalBounds;
-                BlockBounds rotatedBounds = rotateable.RotationState.RotatedBounds;
-                Quaternion startRot = rotatedBounds.Rotation;
-                Quaternion endRot = startRot * rotationDelta;
+            BlockBounds rotatedBounds = rotateable.RotationState.RotatedBounds;
+            Quaternion startRot = rotatedBounds.Rotation;
+            Quaternion endRot = startRot * rotationDelta;
 
-                Transformation transform = new RotateAroundPivotTransform(split.Pivot, endRot);
-                _eventRegistry.Notify(new BlockRotationEvent(originalBounds, transform, BlockRotationEvent.EventType.BeforeRotation));
+            rotatedBounds.SetToRotationFrom(endRot, splitSide.Pivot, rotateable.Bounds);
+            transformation = new RotateAroundPivotTransform(splitSide.Pivot, endRot);
+            return new RotationAnimator(splitSide, startRot, endRot, rotateable);
+        }
+    }
 
-                rotatedBounds.SetToRotationFrom(endRot, split.Pivot, originalBounds);
-                animators.Add(new RotationAnimator(split, startRot, endRot, rotateable));
-            }
-            return animators.ToArray();
+    public struct GroupRotationEvent : IEvent
+    {
+
+        public readonly Group Group;
+        public readonly Transformation Transformation;
+
+        public GroupRotationEvent(Group group, Transformation transformation)
+        {
+            Group = group;
+            Transformation = transformation;
         }
     }
 
     public struct BlockRotationEvent : IEvent
     {
-        public enum EventType
-        {
-            Update, BeforeRotation, AfterRotation
-        }
 
-        public readonly BlockBounds RotatedBounds;
+        public readonly Group Group;
         public readonly Transformation Transformation;
-        public readonly EventType Type;
+        public readonly BlockBounds Block;
 
-        public BlockRotationEvent(BlockBounds rotatedBounds, Transformation transformation, EventType type)
+        public BlockRotationEvent(Group group, Transformation transformation, BlockBounds block)
         {
-            RotatedBounds = rotatedBounds;
+            Group = group;
             Transformation = transformation;
-            Type = type;
+            Block = block;
         }
     }
 }

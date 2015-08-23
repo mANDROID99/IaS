@@ -2,7 +2,38 @@
 
 namespace IaS.GameState.TrackConnections
 {
-    public class JunctionConnectionFilter
+    public class JunctionConnectionFilter : IConnectionFilter
+    {
+
+        private readonly Junction _junction;
+
+        public JunctionConnectionFilter(Junction junction)
+        {
+            _junction = junction;
+        }
+        
+        public bool AllowNext(SubTrackGroup stGroup)
+        {
+            if(_junction.Direction == Junction.JunctionDirection.OneToMany)
+            {
+                return stGroup == _junction.NextBranch;
+            }
+            return true;
+        }
+
+        public bool AllowPrevious(SubTrackGroup stGroup)
+        {
+            if(_junction.Direction == Junction.JunctionDirection.ManyToOne)
+            {
+                return stGroup == _junction.NextBranch;
+            }
+            return true;
+        }
+
+    }
+
+
+    /*public class JunctionConnectionFilter
     {
         public class StartFilter : OneToOneConnectionFilter.StartFilter
         {
@@ -67,5 +98,5 @@ namespace IaS.GameState.TrackConnections
                 return IsPreviousBranch() && base.AllowReversed(reversed);
             }
         }
-    }
+    }*/
 }

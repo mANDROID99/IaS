@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using IaS.Domain;
 using IaS.Domain.Meshes;
-using IaS.Domain.WorldTree;
+using IaS.World.WorldTree;
 using UnityEngine;
 
 namespace IaS.World.Creators
@@ -20,7 +20,7 @@ namespace IaS.World.Creators
 
         private void AttachGameObject(MeshBlock block, GroupBranch groupBranch, AdjacencyCalculator adjacencyCalculator)
         {
-            RotateableBranch rotateableBranch = groupBranch.RotateableRegionContaining(block.Bounds);
+            SplitBoundsBranch splitBoundsBranch = groupBranch.SplitBoundsBranchContaining(block.Bounds);
 
             var meshBuilder = new MeshBuilder();
             adjacencyCalculator.SetupNext(groupBranch.SplittedMeshBlocks, groupBranch.Splits, block);
@@ -44,7 +44,7 @@ namespace IaS.World.Creators
             GameObject blockGameObject = Object.Instantiate(groupBranch.Level.Prefabs.BlockPrefab);
             blockGameObject.name = block.Id;
             blockGameObject.transform.localPosition = block.Bounds.Position;
-            rotateableBranch.Attach(blockGameObject);
+            splitBoundsBranch.BlocksLeaf.Attach(blockGameObject);
 
             Mesh mesh = meshBuilder.DoneCreateMesh();
             blockGameObject.GetComponent<MeshFilter>().mesh = mesh;

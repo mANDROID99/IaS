@@ -1,6 +1,6 @@
 ﻿using Assets.Scripts.GameState.TrackConnections;
 using IaS.Domain;
-using IaS.Domain.WorldTree;
+using IaS.World.WorldTree;
 using UnityEngine;
 
 namespace IaS.Controllers.GO
@@ -24,7 +24,7 @@ namespace IaS.Controllers.GO
         private void AttachToCurrentGroup()
         {
             SubTrack subTrack = _trackRunner.CurrentSubTrackGroup.SubTrack;
-            BaseTree branch = _trackRunner.CurrentGroupBranch.GetRotateableBranch(subTrack.SplitBounds).OthersLeaf;
+            BaseTree branch = _trackRunner.CurrentGroupBranch.SplitBoundsBranchContaining(subTrack.SplitBounds).OthersLeaf;
             branch.Attach(GameObject, true);
         }
 

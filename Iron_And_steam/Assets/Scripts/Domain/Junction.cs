@@ -1,4 +1,4 @@
-﻿using IaS.Domain.WorldTree;
+﻿using IaS.World.WorldTree;
 using UnityEngine;
 
 namespace IaS.Domain
@@ -57,7 +57,7 @@ namespace IaS.Domain
 
         public BaseTree GetSplitBoundsBranch(GroupBranch groupBranch)
         {
-            return groupBranch.GetRotateableBranch(BranchDefault.SubTrack.SplitBounds);
+            return groupBranch.SplitBoundsBranchContaining(BranchDefault.SubTrack.SplitBounds);
         }
 
         private Vector3 DirectionFromTrackGroup(SubTrackGroup trackGroup)

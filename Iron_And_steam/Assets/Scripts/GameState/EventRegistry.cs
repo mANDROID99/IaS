@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IaS.GameState.Rotation;
+using System;
 using System.Collections.Generic;
 
 namespace IaS.GameState
@@ -7,20 +8,19 @@ namespace IaS.GameState
     {
         private readonly Dictionary<Type, object> _consumers = new Dictionary<Type, object>();
 
+
         public void RegisterConsumer<E>(EventConsumer<E> consumer) where E : IEvent
         {
             Type eventType = typeof(E);
-            object consumersGeneric;
-            List<EventConsumer<E>> consumers;
-            if(!_consumers.TryGetValue(eventType, out consumersGeneric))
+
+            object genericList = null;
+            if(!_consumers.TryGetValue(eventType, out genericList))
             {
-                _consumers.Add(eventType, (consumers = new List<EventConsumer<E>>()));
+                genericList = new List<EventConsumer<E>>();
+                _consumers.Add(eventType, genericList);
             }
-            else
-            {
-                consumers = (List<EventConsumer<E>>) consumersGeneric;
-            }
-            consumers.Add(consumer);
+
+            ((List<EventConsumer<E>>)(genericList)).Add(consumer);
         }
 
         public void Notify<E>(E e) where E : IEvent
