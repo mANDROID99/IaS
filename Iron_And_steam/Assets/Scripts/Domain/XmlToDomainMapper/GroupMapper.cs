@@ -25,7 +25,7 @@ namespace IaS.Domain.XmlToDomainMapper
             group.SplittedRegions.AddRange(SplitRegions(group.Splits));
 
             group.SplittedMeshBlocks.AddRange(
-                _blockMapper.MaxXmlToDomain(xmlGroup.Blocks, group.Splits));
+                _blockMapper.MaxXmlToDomain(xmlGroup.Blocks, group.Splits, group.SplittedRegions));
 
             group.Tracks.AddRange(
                 xmlGroup.Tracks.Select(xmlTrack => _trackMapper.MapXmlToDomain(xmlTrack, group.Splits, group.SplittedRegions)));
@@ -36,7 +36,7 @@ namespace IaS.Domain.XmlToDomainMapper
             return group;
         }
 
-        private BlockBounds[] SplitRegions(IList<Split> splits)
+        private IEnumerable<SplittedRegion> SplitRegions(IList<Split> splits)
         {
             var splitTree = new SplitTree(BlockBounds.Unbounded);
             foreach (Split split in splits)
@@ -44,7 +44,7 @@ namespace IaS.Domain.XmlToDomainMapper
                 splitTree.Split(split);
             }
 
-            return splitTree.GatherSplitBounds();
+            return splitTree.GatherSplitBounds().Select(bounds => new SplittedRegion(bounds));
         }
     }
 }

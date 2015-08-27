@@ -1,5 +1,4 @@
 ﻿using IaS.Domain;
-using IaS.Scripts.Domain;
 using UnityEngine;
 
 namespace IaS.World.WorldTree
@@ -7,9 +6,8 @@ namespace IaS.World.WorldTree
     public abstract class RotateableBranch : BaseTree
     {
         public readonly RotationData Data;
-
-        public BlockBounds Bounds { get { return Data.OriginalBounds; } }
-        public RotationState RotationState { get { return Data.RotationState; } }
+        public BlockBounds RotatedBounds { get { return Data.RotatedBounds; } }
+        public BlockBounds OriginalBounds { get { return Data.OriginalBounds; } }
 
         protected RotateableBranch(string name, Vector3 pos, RotationData data, BaseTree parent) : base(name, pos, parent, NodeConfig.Dynamic)
         {
@@ -18,13 +16,15 @@ namespace IaS.World.WorldTree
 
         public struct RotationData
         {
+            public readonly BlockBounds RotatedBounds;
             public readonly BlockBounds OriginalBounds;
-            public readonly RotationState RotationState;
-
+            public readonly bool BlocksRotation;
+            
             public RotationData(BlockBounds originalBounds, bool blocksRotation) : this()
             {
                 OriginalBounds = originalBounds;
-                RotationState = new RotationState(originalBounds, blocksRotation);
+                RotatedBounds = originalBounds.Copy();
+                BlocksRotation = blocksRotation;
             }
         }
     }

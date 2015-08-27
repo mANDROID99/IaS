@@ -12,7 +12,7 @@ namespace IaS.Domain.XmlToDomainMapper
         private readonly SubTrackNodesBuilder _subTrackNodesBuilder = new SubTrackNodesBuilder();
         private readonly SubTrackGroupsBuilder _subTrackGroupsBuilder = new SubTrackGroupsBuilder();
         
-        public SplitTrack MapXmlToDomain(Track track, IList<Split> splits, IList<BlockBounds> splitRegions)
+        public SplitTrack MapXmlToDomain(Track track, IList<Split> splits, IList<SplittedRegion> splitRegions)
         {
             List<SubTrackNode> trackNodes = _subTrackNodesBuilder.Build(track);
             List<SubTrackGroupsBuilder.SubTrackBuilder> builders = _subTrackGroupsBuilder.Build(new TrackSplineGenerator(TrackBuilderConfiguration.DefaultConfig), trackNodes, splits, splitRegions);

@@ -56,15 +56,14 @@ namespace IaS.World.WorldTree
             SplitBoundsBranches.Add(splitBoundsBranch);
         }
 
-        private SplitBoundsBranch CreateNewSplitBounds(BlockBounds bounds)
+        private SplitBoundsBranch CreateNewSplitBounds(SplittedRegion splittedRegion)
         {
-            BlockBounds splittedRegion = GroupData.Group.SplittedRegions.First(sr => sr.Contains(bounds));
-            return SplitBoundsBranch.CreateAndAttachTo(SplitBoundsBranches.Count, this, new RotationData(splittedRegion, true));
+            return SplitBoundsBranch.CreateAndAttachTo(SplitBoundsBranches.Count, splittedRegion, this, new RotationData(splittedRegion.Bounds, true));
         }
 
-        public SplitBoundsBranch SplitBoundsBranchContaining(BlockBounds bounds)
+        public SplitBoundsBranch SplitBoundsBranchContaining(SplittedRegion splittedRegion)
         {
-            return SplitBoundsBranches.FirstOrDefault(s => s.BlockBounds.Contains(bounds)) ?? CreateNewSplitBounds(bounds);
+            return SplitBoundsBranches.FirstOrDefault(s => s.SplittedRegion == splittedRegion) ?? CreateNewSplitBounds(splittedRegion);
         }
     }
 }

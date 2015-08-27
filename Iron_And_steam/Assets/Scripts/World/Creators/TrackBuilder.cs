@@ -22,7 +22,7 @@ namespace Assets.Scripts.World.Creators
 
         private void BuildSplitTrack(GroupBranch groupBranch, SubTrack track)
         {
-            SplitBoundsBranch splitBranch = groupBranch.SplitBoundsBranchContaining(track.SplitBounds);
+            SplitBoundsBranch splitBranch = groupBranch.SplitBoundsBranchContaining(track.SplittedRegion);
 
             GameObject gameObj = new GameObject(track.Id);
             TrackExtruder trackExtruder = new TrackExtruder(TrackBuilderConfiguration.DefaultConfig);

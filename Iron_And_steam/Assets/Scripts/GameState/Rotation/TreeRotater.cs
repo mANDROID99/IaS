@@ -2,7 +2,6 @@
 using Assets.Scripts.GameState.Rotation;
 using IaS.World.WorldTree;
 using IaS.Helpers;
-using IaS.Scripts.Domain;
 using IaS.Domain;
 using UnityEngine;
 
@@ -38,20 +37,18 @@ namespace IaS.GameState.Rotation
             GroupBranch group = splitSide.Group;
 
             List<RotationAnimator> animators = new List<RotationAnimator>();
-            foreach (SplitBoundsBranch rotateable in group.SplitBoundsBranches)
+            foreach (SplitBoundsBranch splitBoundsBranch in group.SplitBoundsBranches)
             {
-                RotationState rotationState = rotateable.RotationState;
-
                 float distance;
-                Split.ConstraintResult constraintResult = splitSide.Constrains(rotationState.RotatedBounds, out distance);
+                Split.ConstraintResult constraintResult = splitSide.Constrains(splitBoundsBranch.RotatedBounds, out distance);
                 switch (constraintResult)
                 {
                     case Split.ConstraintResult.Blocked:
                         return new RotationAnimator[0];
                     case Split.ConstraintResult.Included:
                         Transformation transformation;
-                        RotationAnimator animator = CreateRotationAnimation(splitSide, rotateable, rotationDelta, out transformation);
-                        _eventRegistry.Notify(new BlockRotationEvent(group.Group, transformation, rotateable.BlockBounds));
+                        RotationAnimator animator = CreateRotationAnimation(splitSide, splitBoundsBranch, rotationDelta, out transformation);
+                        _eventRegistry.Notify(new BlockRotationEvent(group.Group, transformation, splitBoundsBranch.SplittedRegion));
                         animators.Add(animator);
                         break;
                 }
@@ -70,11 +67,11 @@ namespace IaS.GameState.Rotation
 
         private RotationAnimator CreateRotationAnimation(SplitSide splitSide, RotateableBranch rotateable, Quaternion rotationDelta, out Transformation transformation)
         {
-            BlockBounds rotatedBounds = rotateable.RotationState.RotatedBounds;
+            BlockBounds rotatedBounds = rotateable.RotatedBounds;
             Quaternion startRot = rotatedBounds.Rotation;
             Quaternion endRot = startRot * rotationDelta;
 
-            rotatedBounds.SetToRotationFrom(endRot, splitSide.Pivot, rotateable.Bounds);
+            rotatedBounds.SetToRotationFrom(endRot, splitSide.Pivot, rotateable.OriginalBounds);
             transformation = new RotateAroundPivotTransform(splitSide.Pivot, endRot);
             return new RotationAnimator(splitSide, startRot, endRot, rotateable);
         }
@@ -98,13 +95,13 @@ namespace IaS.GameState.Rotation
 
         public readonly Group Group;
         public readonly Transformation Transformation;
-        public readonly BlockBounds Block;
+        public readonly SplittedRegion SplittedRegion;
 
-        public BlockRotationEvent(Group group, Transformation transformation, BlockBounds block)
+        public BlockRotationEvent(Group group, Transformation transformation, SplittedRegion splittedRegion)
         {
             Group = group;
             Transformation = transformation;
-            Block = block;
+            SplittedRegion = splittedRegion;
         }
     }
 }

@@ -18,32 +18,32 @@ namespace IaS.World.Creators
             }
         }
 
-        private void AttachGameObject(MeshBlock block, GroupBranch groupBranch, AdjacencyCalculator adjacencyCalculator)
+        private void AttachGameObject(MeshBlock meshBlock, GroupBranch groupBranch, AdjacencyCalculator adjacencyCalculator)
         {
-            SplitBoundsBranch splitBoundsBranch = groupBranch.SplitBoundsBranchContaining(block.Bounds);
+            SplitBoundsBranch splitBoundsBranch = groupBranch.SplitBoundsBranchContaining(meshBlock.SplittedRegion);
 
             var meshBuilder = new MeshBuilder();
-            adjacencyCalculator.SetupNext(groupBranch.SplittedMeshBlocks, groupBranch.Splits, block);
+            adjacencyCalculator.SetupNext(groupBranch.SplittedMeshBlocks, groupBranch.Splits, meshBlock);
 
-            for (var x = (int)block.Bounds.MinX; x < block.Bounds.MaxX; x++)
+            for (var x = (int)meshBlock.OriginalBounds.MinX; x < meshBlock.OriginalBounds.MaxX; x++)
             {
-                for (var y = (int)block.Bounds.MinY; y < block.Bounds.MaxY; y++)
+                for (var y = (int)meshBlock.OriginalBounds.MinY; y < meshBlock.OriginalBounds.MaxY; y++)
                 {
-                    for (var z = (int)block.Bounds.MinZ; z < block.Bounds.MaxZ; z++)
+                    for (var z = (int)meshBlock.OriginalBounds.MinZ; z < meshBlock.OriginalBounds.MaxZ; z++)
                     {
                         AdjacencyMatrix adjacencyMatrix = adjacencyCalculator.CalculateAdjacency(x, y, z);
                         if (!adjacencyMatrix.IsVisible()) continue;
 
                         var clipBounds = new BlockBounds(x, y, z, x + 1, y + 1, z + 1);
                         clipBounds.ClipToBounds(groupBranch.Splits);
-                        block.MeshSource.Build(new Vector3(x, y, z) - block.Bounds.Position, adjacencyMatrix, block, meshBuilder, clipBounds);
+                        meshBlock.MeshSource.Build(new Vector3(x, y, z) - meshBlock.OriginalBounds.Position, adjacencyMatrix, meshBlock, meshBuilder, clipBounds);
                     }
                 }
             }
 
             GameObject blockGameObject = Object.Instantiate(groupBranch.Level.Prefabs.BlockPrefab);
-            blockGameObject.name = block.Id;
-            blockGameObject.transform.localPosition = block.Bounds.Position;
+            blockGameObject.name = meshBlock.Id;
+            blockGameObject.transform.localPosition = meshBlock.OriginalBounds.Position;
             splitBoundsBranch.BlocksLeaf.Attach(blockGameObject);
 
             Mesh mesh = meshBuilder.DoneCreateMesh();

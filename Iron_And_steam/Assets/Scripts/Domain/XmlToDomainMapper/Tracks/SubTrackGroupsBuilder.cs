@@ -11,7 +11,7 @@ namespace IaS.Domain.XmlToDomainMapper.Tracks
         private List<SubTrackBuilder> _trackBuilders;
         private TrackSplineGenerator _splineGenerator;
 
-        public List<SubTrackBuilder> Build(TrackSplineGenerator splineGenerator, IList<SubTrackNode> trackNodes, IList<Split> splits, IList<BlockBounds> splitRegions)
+        public List<SubTrackBuilder> Build(TrackSplineGenerator splineGenerator, IList<SubTrackNode> trackNodes, IList<Split> splits, IList<SplittedRegion> splitRegions)
         {
             _splineGenerator = splineGenerator;
             _trackBuilders = new List<SubTrackBuilder>();
@@ -20,7 +20,7 @@ namespace IaS.Domain.XmlToDomainMapper.Tracks
             return _trackBuilders;
         }
 
-        private void CreateTrackGroups(IList<SubTrackNode> trackNodes, IList<BlockBounds> splitRegions)
+        private void CreateTrackGroups(IList<SubTrackNode> trackNodes, IList<SplittedRegion> splitRegions)
         {
             SubTrackBuilder lastStBuilder = null;
            
@@ -28,7 +28,7 @@ namespace IaS.Domain.XmlToDomainMapper.Tracks
             {
                 SubTrackNode node = trackNodes[i];
                 SubTrackBuilder stBuilder = NextTrackBuilder(node.Position, splitRegions);
-                BlockBounds bounds = stBuilder.SplitRegion;
+                SplittedRegion bounds = stBuilder.SplitRegion;
 
                 if ((lastStBuilder != stBuilder) && (lastStBuilder != null))
                 {
@@ -82,13 +82,13 @@ namespace IaS.Domain.XmlToDomainMapper.Tracks
                 next.Previous = previous;
         }
 
-        private SubTrackBuilder NextTrackBuilder(Vector3 position, IList<BlockBounds> splitRegions)
+        private SubTrackBuilder NextTrackBuilder(Vector3 position, IList<SplittedRegion> splitRegions)
         {
-            SubTrackBuilder stBuilder = _trackBuilders.FirstOrDefault(builder => builder.SplitRegion.Contains(position));
+            SubTrackBuilder stBuilder = _trackBuilders.FirstOrDefault(builder => builder.SplitRegion.Bounds.Contains(position));
             if (stBuilder == null)
             {
-                BlockBounds containingBounds = splitRegions.First(bounds => bounds.Contains(position));
-                stBuilder = new SubTrackBuilder(_splineGenerator, containingBounds);
+                SplittedRegion containingRegion = splitRegions.First(bounds => bounds.Contains(position));
+                stBuilder = new SubTrackBuilder(_splineGenerator, containingRegion);
                 _trackBuilders.Add(stBuilder);
             }
 
@@ -98,13 +98,13 @@ namespace IaS.Domain.XmlToDomainMapper.Tracks
 
         public class SubTrackBuilder
         {
-            public readonly BlockBounds SplitRegion;
+            public readonly SplittedRegion SplitRegion;
             public readonly List<List<SubTrackNode>> Groups = new List<List<SubTrackNode>>();
             private readonly TrackSplineGenerator _splineGenerator;
             private List<SubTrackNode> _currentGroup = null;
             private int subTrackGroupIdCount = 0;
 
-            public SubTrackBuilder (TrackSplineGenerator splineGenerator, BlockBounds splitRegion)
+            public SubTrackBuilder (TrackSplineGenerator splineGenerator, SplittedRegion splitRegion)
             {
                 _splineGenerator = splineGenerator;
                 SplitRegion = splitRegion;

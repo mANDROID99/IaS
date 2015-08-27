@@ -24,7 +24,7 @@ namespace IaS.GameObjects
             _trackFollowingGO = new TrackFollowingGameObject(go, _trackRunner, Vector3.forward);
         }
 
-        public void Update(MonoBehaviour mono, GlobalGameState gameState)
+        public void Update(MonoBehaviour mono, UpdateState gameState)
         {
             if (Input.GetKeyUp(KeyCode.Space))
             {

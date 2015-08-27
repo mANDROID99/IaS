@@ -57,7 +57,7 @@ namespace IaS.Controllers
         }
 
 
-        public void Update(MonoBehaviour mono, GlobalGameState gameState)
+        public void Update(MonoBehaviour mono, UpdateState gameState)
         {
             if (Input.GetKeyUp(KeyCode.Z))
             {
@@ -69,7 +69,7 @@ namespace IaS.Controllers
             UpdatePointerDirection();
         }
 
-        private void UpdateArrows(GlobalGameState gameState)
+        private void UpdateArrows(UpdateState gameState)
         {
             float time = gameState.Time;
             bool pop = _arrows.Aggregate(false, (current, arrow) => !arrow.Update(time) || current);
@@ -81,7 +81,7 @@ namespace IaS.Controllers
             }
         }
 
-        private void SpawnArrows(GlobalGameState gameState)
+        private void SpawnArrows(UpdateState gameState)
         {
             float time = gameState.Time;
             if (time - _arrowSpawnTimer < ArrowSpawnInterval) return;

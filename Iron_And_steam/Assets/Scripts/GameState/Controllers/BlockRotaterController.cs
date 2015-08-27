@@ -28,7 +28,7 @@ namespace IaS.GameObjects{
             _splitSides = levelTree.Level.AllSplits.SelectMany(split => split.GetActiveSides(levelTree)).ToArray();
         }
 
-        public void Update(MonoBehaviour mono, GlobalGameState gameState)
+        public void Update(MonoBehaviour mono, UpdateState gameState)
         {
             int rotX = 0;
             int rotY = 0;

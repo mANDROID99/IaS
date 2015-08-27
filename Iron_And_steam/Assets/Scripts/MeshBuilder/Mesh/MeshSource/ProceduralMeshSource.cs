@@ -112,7 +112,7 @@ namespace IaS.Domain
         {
             Quaternion rot = block.RotationQuat;
 			Matrix4x4 transform = Matrix4x4.TRS(pos + new Vector3(0.5f, 0.5f, 0.5f), rot, new Vector3(1, 1, 1));
-			BlockBounds localClipBounds = new BlockBounds (clipBounds.Position - block.Bounds.Position - pos, clipBounds.Size);
+			BlockBounds localClipBounds = new BlockBounds (clipBounds.Position - block.OriginalBounds.Position - pos, clipBounds.Size);
 			localClipBounds.SetToRotationFrom (Quaternion.Inverse(block.RotationQuat), new Vector3(0.5f, 0.5f, 0.5f));
 			meshBuilder.BeforeNext (transform, new Vector3(-0.5f, -0.5f, -0.5f), localClipBounds);
 

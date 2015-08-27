@@ -1,10 +1,10 @@
 ﻿namespace IaS.GameState
 {
-    public struct GlobalGameState
+    public struct UpdateState
     {
         public readonly float Time;
 
-        public GlobalGameState(float time)
+        public UpdateState(float time)
         {
             Time = time;
         }

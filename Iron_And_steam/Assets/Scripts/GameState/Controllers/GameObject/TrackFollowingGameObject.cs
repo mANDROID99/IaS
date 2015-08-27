@@ -24,7 +24,7 @@ namespace IaS.Controllers.GO
         private void AttachToCurrentGroup()
         {
             SubTrack subTrack = _trackRunner.CurrentSubTrackGroup.SubTrack;
-            BaseTree branch = _trackRunner.CurrentGroupBranch.SplitBoundsBranchContaining(subTrack.SplitBounds).OthersLeaf;
+            BaseTree branch = _trackRunner.CurrentGroupBranch.SplitBoundsBranchContaining(subTrack.SplittedRegion).OthersLeaf;
             branch.Attach(GameObject, true);
         }
 

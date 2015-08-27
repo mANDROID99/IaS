@@ -57,7 +57,7 @@ namespace IaS.Domain
 
         public BaseTree GetSplitBoundsBranch(GroupBranch groupBranch)
         {
-            return groupBranch.SplitBoundsBranchContaining(BranchDefault.SubTrack.SplitBounds);
+            return groupBranch.SplitBoundsBranchContaining(BranchDefault.SubTrack.SplittedRegion);
         }
 
         private Vector3 DirectionFromTrackGroup(SubTrackGroup trackGroup)

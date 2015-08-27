@@ -27,17 +27,19 @@ namespace IaS.Domain
         public readonly IMeshSource MeshSource;
 
         public readonly int OccludeOrder;
-        public readonly BlockBounds Bounds;
+        public readonly SplittedRegion SplittedRegion;
+        public readonly BlockBounds OriginalBounds;
         public readonly BlockBounds RotatedBlockBounds;
 
-        public MeshBlock(string id, Type type, BlockBounds blockBounds, Quaternion rotation, int occludeOrder)
+        public MeshBlock(string id, Type type, BlockBounds blockBounds, SplittedRegion splittedRegion, Quaternion rotation, int occludeOrder)
         {
             Id = id;
             BlockType = type;
             RotationQuat = rotation;
 
             OccludeOrder = occludeOrder;
-            Bounds = blockBounds;
+            OriginalBounds = blockBounds;
+            SplittedRegion = splittedRegion;
             RotatedBlockBounds = blockBounds.Copy();
 
             TypeCode = TypeToTypeCode[type];
@@ -46,9 +48,9 @@ namespace IaS.Domain
 
         public bool Intersects(MeshBlock test)
         {
-            return Intersects1D(Bounds.MinX, Bounds.MinX, Bounds.MaxX, Bounds.MaxX) &&
-                Intersects1D(Bounds.MinY, Bounds.MinY, Bounds.MaxY, Bounds.MaxY) &&
-                Intersects1D(Bounds.MinZ, Bounds.MinZ, Bounds.MaxZ, Bounds.MaxZ);
+            return Intersects1D(OriginalBounds.MinX, OriginalBounds.MinX, OriginalBounds.MaxX, OriginalBounds.MaxX) &&
+                Intersects1D(OriginalBounds.MinY, OriginalBounds.MinY, OriginalBounds.MaxY, OriginalBounds.MaxY) &&
+                Intersects1D(OriginalBounds.MinZ, OriginalBounds.MinZ, OriginalBounds.MaxZ, OriginalBounds.MaxZ);
         }
 
         private bool Intersects1D(float min1, float min2, float max1, float max2)
@@ -59,9 +61,9 @@ namespace IaS.Domain
             return ((smallestMax <= smallestMin) || (smallestMax >= biggestMin));
         }
 
-        public MeshBlock CopyOf(BlockBounds blockBounds)
+        public MeshBlock CopyOf(BlockBounds blockBounds, SplittedRegion splittedRegion)
         {
-            return new MeshBlock(Id, BlockType, blockBounds, RotationQuat, OccludeOrder);
+            return new MeshBlock(Id, BlockType, blockBounds, splittedRegion, RotationQuat, OccludeOrder);
         }
     }
 }

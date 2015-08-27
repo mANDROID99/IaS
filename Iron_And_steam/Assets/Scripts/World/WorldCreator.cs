@@ -46,11 +46,11 @@ namespace IaS.World
             if (_paused) return;
 
             float time = Time.time - _timePausedOffset;
-            GlobalGameState globalGameState = new GlobalGameState(time);
+            UpdateState updateState = new UpdateState(time);
 
             foreach (Controller controller in _levelTree.Controllers)
             {
-                controller.Update(this, globalGameState);
+                controller.Update(this, updateState);
             }
         }
 

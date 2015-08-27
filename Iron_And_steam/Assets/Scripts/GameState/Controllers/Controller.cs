@@ -5,6 +5,6 @@ namespace Assets.Scripts.Controllers
 {
     public interface Controller
     {
-        void Update(MonoBehaviour mono, GlobalGameState globalGameState);
+        void Update(MonoBehaviour mono, UpdateState globalGameState);
     }
 }

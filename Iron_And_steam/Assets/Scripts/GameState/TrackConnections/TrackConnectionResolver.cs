@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using IaS.Domain;
-using IaS.World.WorldTree;
-using IaS.GameObjects;
 using IaS.GameState.Rotation;
 using IaS.GameState.TrackConnections;
 using IaS.Helpers;
-using IaS.Scripts.Domain;
 using UnityEngine;
 
 namespace IaS.GameState
@@ -43,11 +40,11 @@ namespace IaS.GameState
             bool created;
             GroupConnections groupConnections = GetOrCreateDefaultFromDict(group, _groupConnections, out created);
             if (created) _groupConnectionsList.Add(groupConnections);
-            
+
             foreach(SubTrack subTrack in group.Tracks.SelectMany(t => t.SubTracks))
             {
-                BlockBounds subTrackBounds = subTrack.SplitBounds;
-                BlockConnections blockConnections = GetOrCreateDefaultFromDict(subTrackBounds, groupConnections.BlockConnections, out created);
+                SplittedRegion subTrackBounds = subTrack.SplittedRegion;
+                SplittedBlockConnections blockConnections = GetOrCreateDefaultFromDict(subTrackBounds, groupConnections.BlockConnections, out created);
                 if (created) groupConnections.BlockConnectionsList.Add(blockConnections);
 
                 foreach(SubTrackGroup stGroup in subTrack.TrackGroups)
@@ -63,7 +60,7 @@ namespace IaS.GameState
         {
             foreach (KeyValuePair<Group, GroupConnections> kvGroupConns in _groupConnections)
             {
-                foreach (KeyValuePair<BlockBounds, BlockConnections> kvBlockConns in kvGroupConns.Value.BlockConnections)
+                foreach (KeyValuePair<SplittedRegion, SplittedBlockConnections> kvBlockConns in kvGroupConns.Value.BlockConnections)
                 {
                     Connection conn;
                     if (kvBlockConns.Value.Connections.TryGetValue(stGroup, out conn))
@@ -81,7 +78,7 @@ namespace IaS.GameState
             foreach(GroupConnections gConns in _groupConnectionsList)
             {
 
-                foreach(BlockConnections bConns in gConns.BlockConnectionsList)
+                foreach(SplittedBlockConnections bConns in gConns.BlockConnectionsList)
                 {
 
                     foreach(Connection conn in bConns.ConnectionsList)
@@ -129,7 +126,7 @@ namespace IaS.GameState
                     fromBlockTransform.Transform(startPos));
 
                 endPos = toGroupTransform.Transform(
-                    toGroupTransform.Transform(endPos));
+                    toBlockTransform.Transform(endPos));
 
                 startForward = fromGroupTransform.TransformVector( 
                     fromBlockTransform.TransformVector(startForward));
@@ -152,7 +149,7 @@ namespace IaS.GameState
         public void OnEvent(GroupRotationEvent evt)
         {
             GroupConnections gConns;
-            if (!_groupConnections.TryGetValue(evt.Group, out gConns)) throw new Exception("Couldn't find rotated group!");
+            if (!_groupConnections.TryGetValue(evt.Group, out gConns)) return;
 
             gConns.Transformation = evt.Transformation;
         }
@@ -160,10 +157,10 @@ namespace IaS.GameState
         public void OnEvent(BlockRotationEvent evt)
         {
             GroupConnections gConns;
-            if (!_groupConnections.TryGetValue(evt.Group, out gConns)) throw new Exception("Couldn't find rotated group!");
+            if (!_groupConnections.TryGetValue(evt.Group, out gConns)) return;
 
-            BlockConnections conn;
-            if (!gConns.BlockConnections.TryGetValue(evt.Block, out conn)) throw new Exception("Couldn't find rotated block!");
+            SplittedBlockConnections conn;
+            if (!gConns.BlockConnections.TryGetValue(evt.SplittedRegion, out conn)) return;
 
             conn.Transformation = evt.Transformation;
         }
@@ -171,13 +168,13 @@ namespace IaS.GameState
 
         internal class GroupConnections
         {
-            internal readonly Dictionary<BlockBounds, BlockConnections> BlockConnections = new Dictionary<BlockBounds, BlockConnections>();
-            internal readonly List<BlockConnections> BlockConnectionsList = new List<BlockConnections>();
-            internal Transformation Transformation;
+            internal readonly Dictionary<SplittedRegion, SplittedBlockConnections> BlockConnections = new Dictionary<SplittedRegion, SplittedBlockConnections>();
+            internal readonly List<SplittedBlockConnections> BlockConnectionsList = new List<SplittedBlockConnections>();
+            internal Transformation Transformation = Transformation.None;
 
-            internal Vector3 Transform(Vector3 transformed)
+            internal Vector3 Transform(Vector3 vec)
             {
-                return Transformation.Transform(transformed);
+                return Transformation.Transform(vec);
             }
 
             internal Vector3 TransformVector(Vector3 vec)
@@ -186,15 +183,15 @@ namespace IaS.GameState
             }
         }
 
-        internal class BlockConnections
+        internal class SplittedBlockConnections
         {
             internal readonly Dictionary<SubTrackGroup, Connection> Connections = new Dictionary<SubTrackGroup, Connection>();
             internal readonly List<Connection> ConnectionsList = new List<Connection>();
-            internal Transformation Transformation;
+            internal Transformation Transformation = Transformation.None;
 
-            internal Vector3 Transform(Vector3 transformed)
+            internal Vector3 Transform(Vector3 vec)
             {
-                return Transformation.Transform(transformed);
+                return Transformation.Transform(vec);
             }
 
             internal Vector3 TransformVector(Vector3 vec)
@@ -220,12 +217,12 @@ namespace IaS.GameState
         public class ConnectionContext
         {
             internal readonly Connection Connection;
-            internal readonly BlockConnections BlockConnections;
+            internal readonly SplittedBlockConnections BlockConnections;
             internal readonly GroupConnections GroupConnections;
             public readonly bool Reversed;
             public SubTrackGroup TrackGroup { get { return Connection.SubTrackGroup; } }
 
-            internal ConnectionContext(Connection connection, BlockConnections blockConnections, GroupConnections groupConnections, bool reversed)
+            internal ConnectionContext(Connection connection, SplittedBlockConnections blockConnections, GroupConnections groupConnections, bool reversed)
             {
                 Connection = connection;
                 BlockConnections = blockConnections;

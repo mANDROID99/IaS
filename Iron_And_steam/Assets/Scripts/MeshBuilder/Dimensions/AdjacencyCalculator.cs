@@ -68,9 +68,9 @@ namespace IaS.Domain
             if (splits == null)
                 return;
 
-            if(((x < meshBlock.Bounds.MaxX - 1) && (x > meshBlock.Bounds.MinX)) &&
-                ((y < meshBlock.Bounds.MaxY - 1) && (y > meshBlock.Bounds.MinY)) &&
-                ((z < meshBlock.Bounds.MaxX - 1) && (z > meshBlock.Bounds.MinX)))
+            if(((x < meshBlock.OriginalBounds.MaxX - 1) && (x > meshBlock.OriginalBounds.MinX)) &&
+                ((y < meshBlock.OriginalBounds.MaxY - 1) && (y > meshBlock.OriginalBounds.MinY)) &&
+                ((z < meshBlock.OriginalBounds.MaxX - 1) && (z > meshBlock.OriginalBounds.MinX)))
                 return;
 
 
@@ -118,27 +118,27 @@ namespace IaS.Domain
 
         private void CalculateInternalAdjacency()
         {
-            if (x > meshBlock.Bounds.MinX)
+            if (x > meshBlock.OriginalBounds.MinX)
             {
                 adjacencyMatrix.SetAllBits(0, 1, 1, true, true, meshBlock.TypeCode);
             }
-            if (x < meshBlock.Bounds.MaxX - 1)
+            if (x < meshBlock.OriginalBounds.MaxX - 1)
             {
                 adjacencyMatrix.SetAllBits(2, 1, 1, true, true, meshBlock.TypeCode);
             }
-            if (y > meshBlock.Bounds.MinY)
+            if (y > meshBlock.OriginalBounds.MinY)
             {
                 adjacencyMatrix.SetAllBits(1, 0, 1, true, true, meshBlock.TypeCode);
             }
-            if (y < meshBlock.Bounds.MaxY - 1)
+            if (y < meshBlock.OriginalBounds.MaxY - 1)
             {
                 adjacencyMatrix.SetAllBits(1, 2, 1, true, true, meshBlock.TypeCode);
             }
-            if(z > meshBlock.Bounds.MinZ)
+            if(z > meshBlock.OriginalBounds.MinZ)
             {
                 adjacencyMatrix.SetAllBits(1, 1, 0, true, true, meshBlock.TypeCode);
             }
-            if (z < meshBlock.Bounds.MaxZ - 1)
+            if (z < meshBlock.OriginalBounds.MaxZ - 1)
             {
                 adjacencyMatrix.SetAllBits(1, 1, 2, true, true, meshBlock.TypeCode);
             }
@@ -148,7 +148,7 @@ namespace IaS.Domain
         {
             foreach (MeshBlock intersector in intersectors)
             {
-                if ((intersector.Bounds.Contains(x, y, z)) && (intersector.OccludeOrder > meshBlock.OccludeOrder))
+                if ((intersector.OriginalBounds.Contains(x, y, z)) && (intersector.OccludeOrder > meshBlock.OccludeOrder))
                 {
                     adjacencyMatrix.SetAllBits(1, 1, 1, true, false, intersector.TypeCode);
                     break;
@@ -161,9 +161,9 @@ namespace IaS.Domain
                         for (int x2 = (int)x - 1; x2 <= (int)x + 1; x2 ++)
                         {
 
-                            if ((x2 >= intersector.Bounds.MinX) && (x2 < intersector.Bounds.MaxX) &&
-                               (y2 >= intersector.Bounds.MinY) && (y2 < intersector.Bounds.MaxY) &&
-                               (z2 >= intersector.Bounds.MinZ) && (z2 < intersector.Bounds.MaxZ))
+                            if ((x2 >= intersector.OriginalBounds.MinX) && (x2 < intersector.OriginalBounds.MaxX) &&
+                               (y2 >= intersector.OriginalBounds.MinY) && (y2 < intersector.OriginalBounds.MaxY) &&
+                               (z2 >= intersector.OriginalBounds.MinZ) && (z2 < intersector.OriginalBounds.MaxZ))
                             {
 
                                 if ((x2 == x) && (y2 == y) && (z2 == z))

@@ -7,7 +7,7 @@ namespace IaS.Domain
     {
         public readonly string Id;
         public SplitTrack SplitTrack { get; private set; }
-        public readonly BlockBounds SplitBounds;
+        public readonly SplittedRegion SplittedRegion;
         public readonly SubTrackGroup[] TrackGroups;
         public SubTrackGroup FirstGroup { get { return TrackGroups[0]; } }
         public SubTrackGroup LastGroup { get { return TrackGroups.Last(); } }
@@ -17,9 +17,9 @@ namespace IaS.Domain
             get { return TrackGroups.Length; }
         }
 
-        public SubTrack(string id, BlockBounds split, SubTrackGroup[] trackGroups)
+        public SubTrack(string id, SplittedRegion splitRegion, SubTrackGroup[] trackGroups)
         {
-            SplitBounds = split;
+            SplittedRegion = splitRegion;
             TrackGroups = trackGroups;
             Id = id;
 
